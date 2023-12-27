@@ -49,4 +49,33 @@ export class TestRouteService {
         const balance = await provider.getBalance(address);
         return Number(balance);
       }
+
+    // Implementing Wemix Transfer service
+    async transferWemix(senderPrivateKey: string, receiver: string, amount: number): Promise<ethers.TransactionReceipt> {
+
+        const provider = this.provider();
+        const wallet = new ethers.Wallet(senderPrivateKey, provider);
+        
+        // Convert the amount to Wei (the smallest denomination of Ether)
+        const amountInWei = ethers.parseEther(amount.toString());
+    
+        // Create a transaction object
+        const tx = {
+            to: receiver,
+            value: amountInWei,
+            // You might need to set gas limit and gas price, or let ethers.js estimate them
+        };
+    
+        try {
+            // Sign and send the transaction
+            const response = await wallet.sendTransaction(tx);
+    
+            // Wait for the transaction to be mined
+            return await response.wait();
+        } catch (error) {
+            // Handle errors appropriately
+            this.logger.error('Error in transferWemix:', error);
+            throw error;
+        }
+    }
 }

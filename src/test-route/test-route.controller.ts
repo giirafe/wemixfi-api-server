@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { TestRouteService } from './test-route.service';
 import { AccountDocument } from './test-route.schema';
+import { ethers } from 'ethers';
 
 @Controller('test-route')
 export class TestRouteController {
@@ -28,5 +29,14 @@ export class TestRouteController {
     @Get('balance/:address')
     async addressBalance(@Param('address') address: string): Promise<number> {
       return await this.testRouteService.getBalance(address);
+    }
+
+    @Post('transferWemix')
+    async transferWemix(
+        @Body('senderAddress') senderAddress :string,
+        @Body('receiverAddress') receiverAddress :string,
+        @Body('amount') amount :number,
+    ) : Promise<ethers.TransactionReceipt> {
+        return await this.testRouteService.transferWemix(senderAddress,receiverAddress,amount);
     }
 }
