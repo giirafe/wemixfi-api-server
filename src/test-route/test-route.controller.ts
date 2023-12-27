@@ -23,4 +23,10 @@ export class TestRouteController {
     getAccount(@Param('accountAddress') accountAddress : string) : Promise<AccountDocument> {
         return this.testRouteService.getAccount(accountAddress);
     }
+
+    // Getting ETH balance of certain address account
+    @Get('balance/:address')
+    async addressBalance(@Param('address') address: string): Promise<number> {
+      return await this.testRouteService.getBalance(address);
+    }
 }
