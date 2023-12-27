@@ -12,9 +12,10 @@ export class TestRouteService {
     constructor(@InjectModel('TestRouteSchema') private readonly accountModel: Model<AccountDocument>) {}
 
     private provider(): ethers.JsonRpcProvider {
-        const INFURA_API_KEY = '2fcb5117fa174f02965947ffbef7f0ca';
-        const provider = new ethers.JsonRpcProvider('https://mainnet.infura.io/v3/' + INFURA_API_KEY);
-        return provider;
+        // const INFURA_API_KEY = '2fcb5117fa174f02965947ffbef7f0ca';
+        // const ethereumProvider = new ethers.JsonRpcProvider('https://mainnet.infura.io/v3/' + INFURA_API_KEY);
+        const wemixTestnetProvider = new ethers.JsonRpcProvider('https://api.test.wemix.com/')
+        return wemixTestnetProvider;
     }
 
     private readonly logger = new Logger(TestRouteService.name);
