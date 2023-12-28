@@ -1,25 +1,17 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { HttpModule } from '@nestjs/axios';
 
 import { TestRouteController } from './test-route.controller';
 import { TestRouteService } from './test-route.service';
-import { AccountSchema, TransferTxSchema } from './test-route.schema';
-import { HttpModule } from '@nestjs/axios'; // for internal Http Calls
+import { DatabaseModule } from '../database/database.module'; // Import DatabaseModule
 
 @Module({
-  imports:[
-    MongooseModule.forFeature([
-      {name:'Account',schema:AccountSchema},
-      {name:'TransferTx',schema:TransferTxSchema},
-    ]),
+  imports: [
+    SequelizeModule.forFeature([/* ... other models if needed */]),
     HttpModule,
-    // 아래와 같이 Configuration을 진행할 수도 있음
-    // HttpModule.register({
-    //   timeout: 5000,
-    //   maxRedirects: 5,
-    // })
+    DatabaseModule, // Import DatabaseModule to use DatabaseService
   ],
   controllers: [TestRouteController],
-  providers: [TestRouteService]
 })
 export class TestRouteModule {}
