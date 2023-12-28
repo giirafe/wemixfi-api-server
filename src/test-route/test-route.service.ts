@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AccountDocument } from './test-route.schema';
+import { AccountDocument,TransferTxDocument } from './test-route.schema';
 
 // import ethers package
 import { ethers } from 'ethers';
@@ -9,7 +9,10 @@ import { ethers } from 'ethers';
 @Injectable()
 export class TestRouteService {
     // By @InjectModel() inject a Mongoose model into this 'ProductService' class / In Model<AccountDocument>, 'Model' is a Generic Type and 'AccountDocument' is a custom class in test-route.schema.ts
-    constructor(@InjectModel('TestRouteSchema') private readonly accountModel: Model<AccountDocument>) {}
+    constructor(
+        @InjectModel('Account') private readonly accountModel: Model<AccountDocument>,
+        @InjectModel('TransferTx') private readonly transferTxModel: Model<TransferTxDocument>,
+        ) {}
 
     private provider(): ethers.JsonRpcProvider {
         // const INFURA_API_KEY = '2fcb5117fa174f02965947ffbef7f0ca';
@@ -63,13 +66,14 @@ export class TestRouteService {
         const tx = {
             to: receiver,
             value: amountInWei,
-            // You might need to set gas limit and gas price, or let ethers.js estimate them
+            // Current 'tx' setting allows ethers.js to set Gas Limit and Gas Price
         };
     
         try {
             // Sign and send the transaction
             const response = await wallet.sendTransaction(tx);
-    
+            await this.logTransaction(wallet.address, receiver, amount, '0x00', null); // Dummy values for contractAddress and data
+            
             // Wait for the transaction to be mined
             return await response.wait();
         } catch (error) {
@@ -77,5 +81,17 @@ export class TestRouteService {
             this.logger.error('Error in transferWemix:', error);
             throw error;
         }
+    }
+
+    async logTransaction(senderAddress: string, receiverAddress: string, amount: number, contractAddress: string, data: string): Promise<TransferTxDocument> {
+        const newTransferTx = new this.transferTxModel({
+            senderAddress,
+            receiverAddress,
+            amount,
+            contractAddress,
+            data
+        });
+    
+        return newTransferTx.save();
     }
 }

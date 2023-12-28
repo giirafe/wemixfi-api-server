@@ -7,7 +7,7 @@ import { ethers } from 'ethers';
 export class TestRouteController {
     constructor(private testRouteService: TestRouteService) {}
 
-    @Post()
+    @Post('register')
     setAccount(
         @Body('accountAddress') accountAddress : string,
         @Body('privateKey') privateKey : string
