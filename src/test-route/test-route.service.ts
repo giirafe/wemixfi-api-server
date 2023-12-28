@@ -5,11 +5,14 @@ import { AccountDocument,TransferTxDocument } from './test-route.schema';
 
 // import ethers package
 import { ethers } from 'ethers';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class TestRouteService {
+
     // By @InjectModel() inject a Mongoose model into this 'ProductService' class / In Model<AccountDocument>, 'Model' is a Generic Type and 'AccountDocument' is a custom class in test-route.schema.ts
     constructor(
+        private readonly httpService : HttpService,
         @InjectModel('Account') private readonly accountModel: Model<AccountDocument>,
         @InjectModel('TransferTx') private readonly transferTxModel: Model<TransferTxDocument>,
         ) {}
@@ -55,8 +58,15 @@ export class TestRouteService {
 
     // Implementing Wemix Transfer service
     // WIP : Currently accepting senderPrivateKey as a input and using it directly to send Tx which is not a secured process. Thus I will accept senderPrivateKey -> senderAddress, and by sending a internal Http request retrieve a server stored senderAddress's private key to use it to send Tx
-    async transferWemix(senderPrivateKey: string, receiver: string, amount: number): Promise<ethers.TransactionReceipt> {
+    async transferWemix(senderAddress: string, receiver: string, amount: number): Promise<ethers.TransactionReceipt> {
+        // Getting account's privateKey internally
+        const senderAccount = await this.getAccount(senderAddress);
 
+        if (!senderAccount || !senderAccount.privateKey) {
+            throw new Error('Sender account not found or private key is missing');
+        }
+        const senderPrivateKey = senderAccount.privateKey;
+        
         const provider = this.provider();
         const wallet = new ethers.Wallet(senderPrivateKey, provider);
         

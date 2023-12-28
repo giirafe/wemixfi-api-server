@@ -13,6 +13,11 @@ import { HttpModule } from '@nestjs/axios'; // for internal Http Calls
       {name:'TransferTx',schema:TransferTxSchema},
     ]),
     HttpModule,
+    // 아래와 같이 Configuration을 진행할 수도 있음
+    // HttpModule.register({
+    //   timeout: 5000,
+    //   maxRedirects: 5,
+    // })
   ],
   controllers: [TestRouteController],
   providers: [TestRouteService]
