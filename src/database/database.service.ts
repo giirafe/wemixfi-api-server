@@ -31,6 +31,7 @@ export class DatabaseService {
     }
 
     async getAccountAll(): Promise<Account[]> {
+        this.logger.debug('Get All Account Called');
         return this.accountModel.findAll();
     }
 
@@ -93,6 +94,7 @@ export class DatabaseService {
     }
 
     async logTransaction(senderAddress: string, receiverAddress: string, amount: number, contractAddress: string, data: string): Promise<TransferTx> {
+        this.logger.debug('Tx Logged');
         const newTransferTx = await this.transferTxModel.create({
             senderAddress,
             receiverAddress,
@@ -105,6 +107,7 @@ export class DatabaseService {
 
     // Method to fetch all transaction logs
     async getAllTransactionLogs(): Promise<TransferTx[]> {
+        this.logger.debug('Get All Tx Called');
         return await this.transferTxModel.findAll();
     }
 

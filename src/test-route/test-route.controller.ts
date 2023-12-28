@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Res } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Res, Query } from '@nestjs/common';
 // import { testRouteService } from './test-route.service';
 import { DatabaseService } from '../database/database.service';
 import { Account, TransferTx } from '../database/database.model';
@@ -6,6 +6,7 @@ import { ethers } from 'ethers';
 
 @Controller('test-route')
 export class TestRouteController {
+    // ORDER MATTERS ~ !
     constructor(private databaseService: DatabaseService) {}
 
     @Post('register')
@@ -16,14 +17,14 @@ export class TestRouteController {
         return this.databaseService.setAccount(accountAddress, privateKey);
     }
 
-    @Get()
-    getAccountAll() : Promise<Account[]> {
-        return this.databaseService.getAccountAll();
+    @Get('account')
+    getAccount(@Query('accountAddress') accountAddress : string) : Promise<Account> {
+        return this.databaseService.getAccount(accountAddress);
     }
 
-    @Get(':accountAddress')
-    getAccount(@Param('accountAddress') accountAddress : string) : Promise<Account> {
-        return this.databaseService.getAccount(accountAddress);
+    @Get('account')
+    getAccountAll() : Promise<Account[]> {
+        return this.databaseService.getAccountAll();
     }
 
     // Getting ETH balance of certain address account
@@ -41,8 +42,8 @@ export class TestRouteController {
         return await this.databaseService.transferWemix(senderAddress,receiverAddress,amount);
     }
 
-    @Get('/txLogs')
-    async getAllTransactionLogs(): Promise<TransferTx[]> {
+    @Get('txLogs')
+    async getTxAll(): Promise<TransferTx[]> {
         return await this.databaseService.getAllTransactionLogs();
     }
   
