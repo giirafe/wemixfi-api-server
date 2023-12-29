@@ -9,13 +9,13 @@ import { HttpService } from '@nestjs/axios';
 @Injectable()
 export class DatabaseService {
     constructor(
-    @InjectModel(Account) 
-    private readonly accountModel: typeof Account,
-    @InjectModel(TransferTx) 
-    private readonly transferTxModel: typeof TransferTx,
+        @InjectModel(Account) 
+        private readonly accountModel: typeof Account,
+        @InjectModel(TransferTx) 
+        private readonly transferTxModel: typeof TransferTx,
     ) {}
 
-    private provider(): ethers.JsonRpcProvider {
+    public provider(): ethers.JsonRpcProvider {
         // const INFURA_API_KEY = '2fcb5117fa174f02965947ffbef7f0ca';
         // const ethereumProvider = new ethers.JsonRpcProvider('https://mainnet.infura.io/v3/' + INFURA_API_KEY);
         const wemixTestnetProvider = new ethers.JsonRpcProvider('https://api.test.wemix.com/')
@@ -42,6 +42,12 @@ export class DatabaseService {
     async getAccountById(id: string): Promise<Account | null> {
         return this.accountModel.findByPk(id);
     }
+    
+    async getAccountPrivateKey(accountAddress: string): Promise<string | null> {
+        const account = await this.accountModel.findOne({ where: { accountAddress } });
+        return account ? account.privateKey : null;
+    }
+    
 
     async delete(id: string): Promise<void> {
         await this.accountModel.destroy({ where: { id } });
@@ -58,13 +64,12 @@ export class DatabaseService {
     // Implementing Wemix Transfer service
     // WIP : Currently accepting senderPrivateKey as a input and using it directly to send Tx which is not a secured process. Thus I will accept senderPrivateKey -> senderAddress, and by sending a internal Http request retrieve a server stored senderAddress's private key to use it to send Tx
     async transferWemix(senderAddress: string, receiver: string, amount: number): Promise<ethers.TransactionReceipt> {
-        // Getting account's privateKey internally
-        const senderAccount = await this.getAccount(senderAddress);
 
-        if (!senderAccount || !senderAccount.privateKey) {
+        const senderPrivateKey = await this.getAccountPrivateKey(senderAddress);
+
+        if (!senderPrivateKey) {
             throw new Error('Sender account not found or private key is missing');
         }
-        const senderPrivateKey = senderAccount.privateKey;
         
         const provider = this.provider();
         const wallet = new ethers.Wallet(senderPrivateKey, provider);

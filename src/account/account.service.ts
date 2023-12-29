@@ -1,0 +1,69 @@
+// account.service.ts
+import { Injectable,Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { DatabaseService } from '../database/database.service';
+import { Account, TransferTx } from '../database/database.model';
+import { ethers } from 'ethers';
+
+@Injectable()
+export class AccountService {
+    constructor(
+        private databaseService: DatabaseService,
+    ) {}
+    private readonly logger = new Logger(AccountService.name);
+
+    async setAccount(accountAddress: string, privateKey: string): Promise<Account> {
+        return this.databaseService.setAccount(accountAddress, privateKey);
+    }
+
+    async getAccount(accountAddress: string): Promise<Account> {
+        return this.databaseService.getAccount(accountAddress);
+    }
+
+    async getAccountAll(): Promise<Account[]> {
+        return this.databaseService.getAccountAll();
+    }
+
+    async getBalance(address: string): Promise<number> {
+        return this.databaseService.getBalance(address);
+    }
+
+    async transferWemix(senderAddress: string, receiverAddress: string, amount: number): Promise<ethers.TransactionReceipt> {
+
+        const senderPrivateKey = await this.databaseService.getAccountPrivateKey(senderAddress);
+
+        if (!senderPrivateKey) {
+            throw new Error('Sender account not found or private key is missing');
+        }
+        
+        const provider = this.databaseService.provider();
+        const wallet = new ethers.Wallet(senderPrivateKey, provider);
+        
+        // Convert the amount to Wei (the smallest denomination of Ether)
+        const amountInWei = ethers.parseEther(amount.toString());
+    
+        // Create a transaction object
+        const tx = {
+            to: receiverAddress,
+            value: amountInWei,
+            // Current 'tx' setting allows ethers.js to set Gas Limit and Gas Price
+        };
+    
+        try {
+            // Sign and send the transaction
+            const response = await wallet.sendTransaction(tx);
+            await this.databaseService.logTransaction(wallet.address, receiverAddress, amount, '0x00', null); // Dummy values for contractAddress and data
+            
+            // Wait for the transaction to be mined
+            return await response.wait();
+        } catch (error) {
+            // Handle errors appropriately
+            this.logger.error('Error in transferWemix:', error);
+            throw error;
+        }
+    }
+
+    async getAllTransactionLogs(): Promise<TransferTx[]> {
+        return this.databaseService.getAllTransactionLogs();
+    }
+}

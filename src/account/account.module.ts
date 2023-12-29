@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 
-import { TestRouteController } from './test-route.controller';
+import { AccountController } from './account.controller';
+import { AccountService } from './account.service';
 import { DatabaseModule } from '../database/database.module'; // Import DatabaseModule
 
 @Module({
@@ -9,9 +10,10 @@ import { DatabaseModule } from '../database/database.module'; // Import Database
     HttpModule,
     DatabaseModule, // Import DatabaseModule to use DatabaseService
   ],
-  controllers: [TestRouteController],
+  controllers: [AccountController],
+  providers : [AccountService],
   exports: [
-    
+    AccountService
   ]
 })
-export class TestRouteModule {}
+export class AccountModule {}
