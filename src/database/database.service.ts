@@ -48,7 +48,6 @@ export class DatabaseService {
         return account ? account.privateKey : null;
     }
     
-
     async delete(id: string): Promise<void> {
         await this.accountModel.destroy({ where: { id } });
     }

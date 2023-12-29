@@ -28,6 +28,8 @@ export class AccountService {
         return this.databaseService.getBalance(address);
     }
 
+    // Implementing Wemix Transfer service
+    // WIP : Currently accepting senderPrivateKey as a input and using it directly to send Tx which is not a secured process. Thus I will accept senderPrivateKey -> senderAddress, and by sending a internal Http request retrieve a server stored senderAddress's private key to use it to send Tx
     async transferWemix(senderAddress: string, receiverAddress: string, amount: number): Promise<ethers.TransactionReceipt> {
 
         const senderPrivateKey = await this.databaseService.getAccountPrivateKey(senderAddress);
