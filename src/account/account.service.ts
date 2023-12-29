@@ -1,6 +1,5 @@
 // account.service.ts
 import { Injectable,Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
 import { DatabaseService } from '../database/database.service';
 import { Account, TransferTx } from '../database/database.model';
 import { ethers } from 'ethers';

@@ -60,43 +60,6 @@ export class DatabaseService {
         return Number(balance);
     }
 
-    // Implementing Wemix Transfer service
-    // WIP : Currently accepting senderPrivateKey as a input and using it directly to send Tx which is not a secured process. Thus I will accept senderPrivateKey -> senderAddress, and by sending a internal Http request retrieve a server stored senderAddress's private key to use it to send Tx
-    async transferWemix(senderAddress: string, receiver: string, amount: number): Promise<ethers.TransactionReceipt> {
-
-        const senderPrivateKey = await this.getAccountPrivateKey(senderAddress);
-
-        if (!senderPrivateKey) {
-            throw new Error('Sender account not found or private key is missing');
-        }
-        
-        const provider = this.provider();
-        const wallet = new ethers.Wallet(senderPrivateKey, provider);
-        
-        // Convert the amount to Wei (the smallest denomination of Ether)
-        const amountInWei = ethers.parseEther(amount.toString());
-    
-        // Create a transaction object
-        const tx = {
-            to: receiver,
-            value: amountInWei,
-            // Current 'tx' setting allows ethers.js to set Gas Limit and Gas Price
-        };
-    
-        try {
-            // Sign and send the transaction
-            const response = await wallet.sendTransaction(tx);
-            await this.logTransaction(wallet.address, receiver, amount, '0x00', null); // Dummy values for contractAddress and data
-            
-            // Wait for the transaction to be mined
-            return await response.wait();
-        } catch (error) {
-            // Handle errors appropriately
-            this.logger.error('Error in transferWemix:', error);
-            throw error;
-        }
-    }
-
     async logTransaction(senderAddress: string, receiverAddress: string, amount: number, contractAddress: string, data: string): Promise<TransferTx> {
         this.logger.debug('Tx Logged');
         const newTransferTx = await this.transferTxModel.create({
