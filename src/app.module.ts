@@ -24,7 +24,8 @@ import { AccountModule } from './account/account.module';
     TestRouteModule,
     DatabaseModule,
     LendAndBorrowModule,
-    AccountModule],
+    AccountModule,
+  ],
   controllers: [AppController],
   providers: [AppService,],
 })
