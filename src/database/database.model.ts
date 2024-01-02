@@ -54,3 +54,4 @@ export class TransferTx extends Model<TransferTx> {
   @UpdatedAt
   updatedAt: Date;
 }
+
