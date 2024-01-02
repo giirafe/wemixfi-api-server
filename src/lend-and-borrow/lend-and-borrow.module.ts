@@ -6,7 +6,7 @@ import { LendAndBorrowService } from './lend-and-borrow.service';
 
 @Module({
   imports:[
-    DatabaseModule, AccountModule
+    DatabaseModule, AccountModule,
   ],
   controllers: [LendAndBorrowController],
   providers: [LendAndBorrowService]

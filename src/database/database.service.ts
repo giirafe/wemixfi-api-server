@@ -16,8 +16,6 @@ export class DatabaseService {
     ) {}
 
     public provider(): ethers.JsonRpcProvider {
-        // const INFURA_API_KEY = '2fcb5117fa174f02965947ffbef7f0ca';
-        // const ethereumProvider = new ethers.JsonRpcProvider('https://mainnet.infura.io/v3/' + INFURA_API_KEY);
         const wemixTestnetProvider = new ethers.JsonRpcProvider('https://api.test.wemix.com/')
         return wemixTestnetProvider;
     }

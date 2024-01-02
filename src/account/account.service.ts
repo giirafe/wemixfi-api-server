@@ -23,6 +23,15 @@ export class AccountService {
         return this.databaseService.getAccountAll();
     }
 
+    async getAddressWallet(address : string) : Promise<ethers.Wallet> {
+        const senderPrivateKey = await this.databaseService.getAccountPrivateKey(address);
+        if (!senderPrivateKey) {
+            throw new Error('Sender account not found or private key is missing');
+        }
+        const addressWallet = new ethers.Wallet(senderPrivateKey, this.databaseService.provider());
+        return addressWallet;
+    }
+
     async getBalance(address: string): Promise<number> {
         return this.databaseService.getBalance(address);
     }
