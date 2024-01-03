@@ -20,6 +20,15 @@ export enum AssetType {
     StWemix = 2
 }
 
+interface TransactionData {
+    blockNumber: number;
+    blockTimestamp: string;
+    txHash: string;
+    funcSig: string;
+    from: string;
+    to: string;
+}
+
 @Injectable()
 export class LendAndBorrowService {
 
@@ -65,26 +74,69 @@ export class LendAndBorrowService {
     async depositAsset(senderAddress: string, amount: number, assetType: AssetType): Promise<ethers.TransactionReceipt> {
         const senderWallet = await this.accountService.getAddressWallet(senderAddress);
         const amountInWei = ethers.parseEther(amount.toString());
-    
+
+        let contractName : string;
+        const funcName : string = 'mint';
+        let value : bigint = 0n; // Wemix amount sent with Tx
+        let inputJson  = { senderAddress, amount, assetType}
+        let input : string = JSON.stringify(inputJson)
+
         try {
             let txResult;
             switch (assetType) {
                 case AssetType.Wemix:
                     txResult = await this.cWemixContract.connect(senderWallet).mint({ value: amountInWei });
+                    value = amountInWei;
+                    contractName = "CWemix";
                     break;
                 case AssetType.WemixDollar:
                     // Assuming you have a method for depositing Wemix Dollar
-                    txResult = await this.cWemixDollarContract.connect(senderWallet).mint(amountInWei);
+                    txResult = await this.cWemixDollarContract.connect(senderWallet).mint(amountInWei);contractName = "CWemixDollar";
                     break;
                 case AssetType.StWemix:
                     // Assuming you have a method for depositing StWemix
                     txResult = await this.cstWemixContract.connect(senderWallet).mint(amountInWei);
+                    contractName = "CstWemix";
                     break;
                 default:
                     throw new Error('Invalid asset type');
             }
-    
-            return await txResult.wait();
+            
+            // .wait() : waits for the transaction to be mined and confirmed
+            // due to the usage of .wait() which is a async work, await is required to resolve the Promise.
+            const txReceipt = await txResult.wait();
+            const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+
+            // Log the parameters for debugging
+            // this.logger.debug('Parameters for logTxInfo:', {
+            //     blockNumber: extractedData.blockNumber,
+            //     blockTimestamp: extractedData.blockTimestamp,
+            //     txHash: extractedData.txHash,
+            //     contractName,
+            //     funcName,
+            //     funcSig: extractedData.funcSig,
+            //     from: extractedData.from,
+            //     to: extractedData.to,
+            //     input: input,
+            //     value: value.toString()
+            // });
+
+            // Call logTxInfo from DatabaseService
+            await this.databaseService.logTxInfo(
+                extractedData.blockNumber,
+                extractedData.blockTimestamp,
+                extractedData.txHash,
+                contractName,
+                funcName,
+                extractedData.funcSig,
+                extractedData.from,
+                extractedData.to,
+                input,
+                value
+            );
+
+            return txReceipt;
+
         } catch (error) {
             this.logger.error('Error while depositAsset in lend-and-borrow.service.ts :', error);
             throw error;
@@ -96,32 +148,83 @@ export class LendAndBorrowService {
         const senderWallet = await this.accountService.getAddressWallet(borrowerAddress);
         const amountInWei = ethers.parseEther(borrowAmount.toString());
     
+        let contractName : string;
+        const funcName : string = 'borrow';
+        let value : bigint = 0n; // Wemix amount sent with Tx
+        let inputJson  = { borrowerAddress, borrowAmount, assetType}
+        let input : string = JSON.stringify(inputJson)
+
         try {
             let txResult;
             switch (assetType) {
                 case AssetType.Wemix:
                     // Assuming you have a method for borrowing Wemix
                     txResult = await this.cWemixContract.connect(senderWallet).borrow(amountInWei);
+                    value = amountInWei;
+                    contractName = "CWemix";
                     break;
                 case AssetType.WemixDollar:
                     // Approve cWemixDollarContract to approve certain amount for mint
                     await this.cWemixDollarContract.connect(senderWallet).approve(this.cWemixDollarAddress,amountInWei);
                     txResult = await this.cWemixDollarContract.connect(senderWallet).borrow(amountInWei);
+                    contractName = "CWemixDollar";
                     break;
                 case AssetType.StWemix:
                     // Also requires approval for mint
                     await this.cstWemixContract.connect(senderWallet).approve(this.cstWemixAddress,amountInWei);
                     txResult = await this.cstWemixContract.connect(senderWallet).borrow(amountInWei);
+                    contractName = "CstWemix";
                     break;
                 default:
                     throw new Error('Invalid asset type');
             }
     
-            return await txResult.wait();
+            const txReceipt = await txResult.wait();
+            const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+
+            // Call logTxInfo from DatabaseService
+            await this.databaseService.logTxInfo(
+                extractedData.blockNumber,
+                extractedData.blockTimestamp,
+                extractedData.txHash,
+                contractName,
+                funcName,
+                extractedData.funcSig,
+                extractedData.from,
+                extractedData.to,
+                input,
+                value
+            );
+
+            return txReceipt;
+
         } catch (error) {
             this.logger.error('Error while borrowAsset in lend-and-borrow.service.ts :', error);
             throw error;
         }
+    }
+
+    async extractTxDataFromReceipt(txReceipt: ethers.TransactionReceipt): Promise<TransactionData> {
+        // Extract basic data from receipt
+        const blockNumber = txReceipt.blockNumber;
+        const txHash = txReceipt.hash;
+        const from = txReceipt.from;
+        const to = txReceipt.to;
+        const funcSig = txHash.slice(0, 10);
+
+        // Get block details to extract the timestamp
+        const block = await this.databaseService.provider().getBlock(blockNumber);
+        const blockTimestamp = new Date(block.timestamp * 1000).toISOString(); // Convert timestamp to ISOString
+
+        // Return the extracted data
+        return {
+            blockNumber,
+            blockTimestamp,
+            txHash,
+            funcSig,
+            from,
+            to
+        };
     }
 
 }

@@ -62,7 +62,7 @@ export class AccountService {
         try {
             // Sign and send the transaction
             const response = await wallet.sendTransaction(tx);
-            await this.databaseService.logTransaction(wallet.address, receiverAddress, amount, '0x00', null); // Dummy values for contractAddress and data
+            await this.databaseService.logWemixTransfer(wallet.address, receiverAddress, amount, '0x00', null); // Dummy values for contractAddress and data
             
             // Wait for the transaction to be mined
             return await response.wait();

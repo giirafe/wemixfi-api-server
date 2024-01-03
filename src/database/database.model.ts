@@ -55,3 +55,60 @@ export class TransferTx extends Model<TransferTx> {
   updatedAt: Date;
 }
 
+@Table
+export class TxInfo extends Model<TxInfo> {
+  @Column({
+    allowNull: false,
+    type: DataType.INTEGER
+  })
+  block_number: number;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING
+  })
+  block_timestamp: string;
+
+  @Column({
+    allowNull: false,
+    primaryKey: true,
+    type: DataType.STRING
+  })
+  tx_hash: string;
+
+  @Column(DataType.STRING)
+  name: string;
+
+  @Column(DataType.STRING)
+  func_name: string;
+
+  @Column(DataType.STRING)
+  func_sig: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING
+  })
+  from: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING
+  })
+  to: string;
+
+  @Column(DataType.TEXT) // 'TEXT' type for potentially large JSON data
+  input: string;
+
+  @Column({
+    allowNull: true,
+    type: DataType.BIGINT // or BigNumber type if supported by Sequelize
+  })
+  value: bigint;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
+}

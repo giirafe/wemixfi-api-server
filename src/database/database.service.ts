@@ -1,6 +1,6 @@
 import { Injectable,Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Account, TransferTx } from './database.model';
+import { Account, TransferTx, TxInfo } from './database.model';
 
 // import ethers package
 import { ethers } from 'ethers';
@@ -13,6 +13,8 @@ export class DatabaseService {
         private readonly accountModel: typeof Account,
         @InjectModel(TransferTx) 
         private readonly transferTxModel: typeof TransferTx,
+        @InjectModel(TxInfo) 
+        private readonly txInfoModel: typeof TxInfo,
     ) {}
 
     public provider(): ethers.JsonRpcProvider {
@@ -58,7 +60,14 @@ export class DatabaseService {
         return Number(balance);
     }
 
-    async logTransaction(senderAddress: string, receiverAddress: string, amount: number, contractAddress: string, data: string): Promise<TransferTx> {
+    // Function storing Wemix Transfer Data in DB
+    async logWemixTransfer(
+        senderAddress: string,
+        receiverAddress: string, 
+        amount: number, 
+        contractAddress: string, 
+        data: string
+    ): Promise<TransferTx> {
         this.logger.debug('Tx Logged');
         const newTransferTx = await this.transferTxModel.create({
             senderAddress,
@@ -74,6 +83,35 @@ export class DatabaseService {
     async getAllTransactionLogs(): Promise<TransferTx[]> {
         this.logger.debug('Get All Tx Called');
         return await this.transferTxModel.findAll();
+    }
+
+    // Function storing Transaction Info Data in DB
+    async logTxInfo(
+        block_number: number, 
+        block_timestamp: string, 
+        tx_hash: string, 
+        name: string, 
+        func_name: string, 
+        func_sig: string, 
+        from: string, 
+        to: string, 
+        input: string, 
+        value: bigint
+    ): Promise<TxInfo> {
+        this.logger.debug('TxInfo Logged in Database Service');
+        const newTxInfo = await this.txInfoModel.create({
+            block_number,
+            block_timestamp,
+            tx_hash,
+            name,
+            func_name,
+            func_sig,
+            from,
+            to,
+            input,
+            value
+        });
+        return newTxInfo;
     }
 
 }
