@@ -1,13 +1,16 @@
 import { Controller, Post, Body, Get, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { LendAndBorrowService, AssetType } from './lend-and-borrow.service';
 import { ethers } from 'ethers';
+import { WemixfiLendingViewInterface } from '../../types/ethers/WemixfiLendingView';
 
 @Controller('lend-and-borrow')
 export class LendAndBorrowController {
     constructor(private lendAndBorrowService: LendAndBorrowService) {}
 
     @Get('snapshotWemix')
-    async getAccountSnapshot(@Query('accountAddress') accountAddress: string): Promise<string[]> {
+    async getAccountSnapshot(
+        @Query('accountAddress') accountAddress: string
+    ): Promise<string[]> {
         try {
             return await this.lendAndBorrowService.getAccountSnapshot(accountAddress);
         } catch (error) {
@@ -19,14 +22,29 @@ export class LendAndBorrowController {
         }
     }
 
+    @Get('liquidationInfo')
+    async getLiquidationInfo(
+        @Query('accountAddress') accountAddress: string
+    ) : Promise<string> {
+        try {
+            return await this.lendAndBorrowService.getLiquidationInfo(accountAddress);
+        } catch (error) {
+            throw new HttpException({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                error: 'There was a problem getting the liquidation info',
+                details: error.message,
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Post('depositAsset')
     async depositAsset(
         @Body('senderAddress') senderAddress: string,
         @Body('amount') amount: number,
-        @Body('assetType') assetType: AssetType
+        @Body('assetAddress') assetAddress: string
     ): Promise<ethers.TransactionReceipt> {
         try {
-            return await this.lendAndBorrowService.depositAsset(senderAddress, amount, assetType);
+            return await this.lendAndBorrowService.depositAsset(senderAddress, amount, assetAddress);
         } catch (error) {
             throw new HttpException({
                 status: HttpStatus.BAD_REQUEST,
@@ -40,14 +58,33 @@ export class LendAndBorrowController {
     async borrowAsset(
         @Body('borrowerAddress') borrowerAddress: string,
         @Body('amount') amount: number,
-        @Body('assetType') assetType: AssetType
+        @Body('assetAddress') assetAddress: string
     ): Promise<ethers.TransactionReceipt> {
         try {
-            return await this.lendAndBorrowService.borrowAsset(borrowerAddress, amount, assetType);
+            return await this.lendAndBorrowService.borrowAsset(borrowerAddress, amount, assetAddress);
         } catch (error) {
             throw new HttpException({
                 status: HttpStatus.BAD_REQUEST,
-                error: 'There was a problem with the borrowing',
+                error: 'There was a problem with the Borrowing',
+                details: error.message,
+            }, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Post('liquidateAsset')
+    async liquidateAsset(
+        @Body('liquidatorAddress') liquidatorAddress: string,
+        @Body('borrowerAddress') borrowerAddress: string,
+        @Body('repayAmount') repayAmount: number,
+        @Body('liquidateAssetAddress') liquidateAssetAddress: string,
+        @Body('collateralAddress') collateralAddress: string,
+    ): Promise<ethers.TransactionReceipt> {
+        try {
+            return await this.lendAndBorrowService.liquidateAsset(liquidatorAddress,borrowerAddress, repayAmount, liquidateAssetAddress, collateralAddress);
+        } catch (error) {
+            throw new HttpException({
+                status: HttpStatus.BAD_REQUEST,
+                error: 'There was a problem with the Liquidating',
                 details: error.message,
             }, HttpStatus.BAD_REQUEST);
         }

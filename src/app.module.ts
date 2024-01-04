@@ -8,6 +8,7 @@ import { TestRouteModule } from './test-route/test-route.module';
 import { DatabaseModule } from './database/database.module';
 import { LendAndBorrowModule } from './lend-and-borrow/lend-and-borrow.module';
 import { AccountModule } from './account/account.module';
+import { SwapModule } from './swap/swap.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AccountModule } from './account/account.module';
     DatabaseModule,
     LendAndBorrowModule,
     AccountModule,
+    SwapModule,
   ],
   controllers: [AppController],
   providers: [AppService,],
