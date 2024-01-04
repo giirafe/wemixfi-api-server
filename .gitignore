@@ -35,4 +35,4 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # WemixFi Env directory
-# /WemixFi_env
+/WemixFi_env
