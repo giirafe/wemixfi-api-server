@@ -1,9 +1,10 @@
-import { Contract, ethers } from 'ethers';
 import { Injectable, Logger } from '@nestjs/common';
+import { Contract, ethers } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 
 // const cWemixJson = require( '../../wemixFi_env') // importing CWemix.json for ABI
+// User Interactions are handled on each asset's deployed contract. Thus process of instantiating each asset's contract is mandated
 import * as cWemixJson from '../../wemixFi_env/CWemix.json'
 import { CWemix } from '../../types/ethers/CWemix';
 
@@ -27,13 +28,20 @@ import * as wemixfi_addrs_dev from '../../wemixFi_env/wemixfi_addrs_dev.json'
 //     StWemix = 2
 // }
 
+// Trying to set the enum type like below but type conversion error
+// export enum AssetType {
+//     Wemix = wemixfi_addrs_dev.cWemix as string,
+//     WemixDollar = wemixfi_addrs_dev.cWemixDollar,
+//     StWemix = wemixfi_addrs_dev.cstWemix
+// }
+
 export enum AssetType {
     Wemix = '0x3eBda066925BBc790FE198F47ef650Ddb764EcfE',
     WemixDollar = '0x487B9C58fFB0a1196790b4189176d3A419Ab1D24',
     StWemix = '0xA17EdCDC4D622a010C33697110cea13FEC0868FB'
 }
 
-interface TransactionData {
+interface ReceiptData {
     blockNumber: number;
     blockTimestamp: string;
     txHash: string;
@@ -138,9 +146,6 @@ export class LendAndBorrowService {
 
         // this.logger.debug("assetAddress from Request : ",assetAddress);
         // this.logger.debug("AssetType.Wemix from Service : ",AssetType.Wemix);
-
-        // Checking 'seizeAmount' thorugh controllerView.sol
-
 
         try {
             let txResult;
@@ -268,9 +273,6 @@ export class LendAndBorrowService {
         const funcName = 'liquidateBorrow';
         let value : bigint = 0n; // Wemix amount sent with Tx
         let inputJson = JSON.stringify({ borrowerAddress, repayAmount, collateralAddress });
-        
-        // this.logger.debug("liquidateAssetAddress from Request : ",liquidateAssetAddress);
-        // this.logger.debug("AssetType.Wemix from Service : ",AssetType.Wemix);
 
         let controllerViewjson;
 
@@ -280,8 +282,8 @@ export class LendAndBorrowService {
             switch (liquidateAssetAddress) {
                 case AssetType.Wemix:
                     // WIP : checking seizeTokens manually with controllerView
-                    controllerViewjson = await this.wemixfiControllerViewContract.liquidateCalculateSeizeTokens(this.cWemixAddress,collateralAddress, repayAmountInWei)
-                    this.logger.debug("ControllerView returned seize amount 1.amountSeizeError 2. seizeTokens ", controllerViewjson)
+                    // controllerViewjson = await this.wemixfiControllerViewContract.liquidateCalculateSeizeTokens(this.cWemixAddress,collateralAddress, repayAmountInWei)
+                    // this.logger.debug("ControllerView returned seize amount 1.amountSeizeError 2. seizeTokens ", controllerViewjson)
 
                     // await this.cWemixContract.connect(liquidatorWallet).approve(this.cWemixAddress,repayAmountInWei);
                     txResult = await this.cWemixContract.connect(liquidatorWallet).liquidateBorrow(borrowerAddress, collateralAddress, { value: repayAmountInWei });
@@ -327,7 +329,7 @@ export class LendAndBorrowService {
         }
     }
 
-    private async extractTxDataFromReceipt(txReceipt: ethers.TransactionReceipt): Promise<TransactionData> {
+    private async extractTxDataFromReceipt(txReceipt: ethers.TransactionReceipt): Promise<ReceiptData> {
         // Extract basic data from receipt
         const blockNumber = txReceipt.blockNumber;
         const txHash = txReceipt.hash;

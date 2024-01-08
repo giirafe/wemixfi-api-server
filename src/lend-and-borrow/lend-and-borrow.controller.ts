@@ -1,7 +1,6 @@
 import { Controller, Post, Body, Get, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { LendAndBorrowService, AssetType } from './lend-and-borrow.service';
 import { ethers } from 'ethers';
-import { WemixfiLendingViewInterface } from '../../types/ethers/WemixfiLendingView';
 
 @Controller('lend-and-borrow')
 export class LendAndBorrowController {
