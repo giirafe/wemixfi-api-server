@@ -37,7 +37,6 @@ export class SwapService {
             const amountInWei = ethers.parseEther(amount.toString());
             const quoteResult = await this.weswapRouterContract.quote(amountInWei,reserveAaddress,reserveBaddress);
             this.logger.debug('getQuote returning amount to Asset B ')
-            // Additional conversion of bigInt to string required for JSON format
             return quoteResult;
         } catch(error) {
             this.logger.error('Error while getQuote in swap.service.ts : ', error);
@@ -45,26 +44,22 @@ export class SwapService {
         }
     }
 
-    async getAmountOut(amount:number,reserveAaddress:string,reserveBaddress:string,) : Promise<bigint> {
+    async getAmountOut(amount:number,reserveIn:number,reserveOut:number,) : Promise<bigint> {
         try {
-            const amountInWei = ethers.parseEther(amount.toString());
-            const amountOutInWei = await this.weswapRouterContract.getAmountOut(amountInWei,reserveAaddress,reserveBaddress);
-            this.logger.debug('getAmountIn... ')
-            // Additional conversion of bigInt to string required for JSON format
-            return amountOutInWei;
+            const amountOut = await this.weswapRouterContract.getAmountOut(amount,reserveIn,reserveOut);
+            this.logger.debug('getAmountOut from weswapRouter ')
+            return amountOut;
         } catch(error) {
             this.logger.error('Error while getAmountOut in swap.service.ts : ', error);
             throw error;
         }
     }
 
-    async getAmountIn(amount:number,reserveAaddress:string,reserveBaddress:string,) : Promise<bigint> {
+    async getAmountIn(amount:number,reserveIn:number,reserveOut:number,) : Promise<bigint> {
         try {
-            const amountInWei = ethers.parseEther(amount.toString());
-            const amountInInWei = await this.weswapRouterContract.getAmountIn(amountInWei,reserveAaddress,reserveBaddress);
-            this.logger.debug('getAmountIn... ')
-            // Additional conversion of bigInt to string required for JSON format
-            return amountInInWei;
+            const amountOut = await this.weswapRouterContract.getAmountIn(amount,reserveIn,reserveOut);
+            this.logger.debug('getAmountIn from weswapRouter ')
+            return amountOut;
         } catch(error) {
             this.logger.error('Error while getAmountIn in swap.service.ts : ', error);
             throw error;
@@ -76,7 +71,7 @@ export class SwapService {
             const amountInWei = ethers.parseEther(amount.toString());
             this.logger.debug('path in getAmountsOut ', path);
             const amountsArray = await this.weswapRouterContract.getAmountsOut(amountInWei, path);
-            // Additional conversion of bigInt to string required for JSON format
+            // this.logger.debug('type of array element : ' + typeof amountsArray[0])
             return amountsArray;
         } catch(error) {
             this.logger.error('Error while getAmountsOut in swap.service.ts : ', error);
@@ -89,7 +84,6 @@ export class SwapService {
             const amountInWei = ethers.parseEther(amount.toString());
             const amountsArray = await this.weswapRouterContract.getAmountsIn(amountInWei,path);
             this.logger.debug('getAmountIn...Out ');
-            // Additional conversion of bigInt to string required for JSON format
             return amountsArray;
         } catch(error) {
             this.logger.error('Error while getAmountsIn in swap.service.ts : ', error);
@@ -97,17 +91,53 @@ export class SwapService {
         }
     }
 
-    // async addLiquidity(
-    //     tokenA : string,
-    //     tokenB : string,
-    //     amountADesired : number,
-    //     amountBDesired : number,
-    //     amountAMin : number,
-    //     amountBMin : number,
-    //     to : string,
-    //     deadline  : number
-    // ) : Promise<bigint[]> {
+    async addLiquidity(
+        msgSender: string, // Private key of the user's wallet
+        tokenA: string,
+        tokenB: string,
+        amountADesired: number,
+        amountBDesired: number,
+        amountAMin: number,
+        amountBMin: number,
+        to: string,
+        deadline: number
+    ): Promise<bigint[]> {
+        try {
+            const senderWallet = await this.accountService.getAddressWallet(msgSender);
+            const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
 
-    // }
+            const amountADesiredInWei = ethers.parseEther(amountADesired.toString());
+            const amountBDesiredInWei = ethers.parseEther(amountBDesired.toString());
+            const amountAMinInWei = ethers.parseEther(amountAMin.toString());
+            const amountBMinInWei = ethers.parseEther(amountBMin.toString());
+
+            this.logger.debug('Activate addLiquidity ');
+            
+            const tx = await weswapRouterContractWithSigner.addLiquidity(
+                tokenA,
+                tokenB,
+                amountADesiredInWei,
+                amountBDesiredInWei,
+                amountAMinInWei,
+                amountBMinInWei,
+                to,
+                deadline
+            );
+
+            const txResult = await tx.wait();
+            this.logger.debug('Liquidity added: ', txResult);
+
+            // Extract the return values from the transaction receipt if necessary
+            // Depending on the Ethereum client and the event structure, you might need to adjust how you access these values.
+            // const { amountA, amountB, liquidity } = receipt.events?.find((e: any) => e.event === 'AddLiquidityReturn').args;
+            // return [amountA, amountB, liquidity];
+
+            // Currently return test values
+            return [0n,0n,0n];
+        } catch (error) {
+            this.logger.error('Error while adding liquidity in swap.service.ts: ', error);
+            throw error;
+        }
+    }
 
 }

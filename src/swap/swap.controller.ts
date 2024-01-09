@@ -25,8 +25,8 @@ export class SwapController {
     @Get('amountOut')
     async getAmountOut(
         @Query('amountIn') amountIn : number,
-        @Query('reserveIn') reserveIn : string,
-        @Query('reserveOut') reserveOut : string,
+        @Query('reserveIn') reserveIn : number,
+        @Query('reserveOut') reserveOut : number,
     ): Promise<bigint> {
         try {
             return await this.swapService.getAmountOut(amountIn,reserveIn,reserveOut);
@@ -42,8 +42,8 @@ export class SwapController {
     @Get('amountIn')
     async getAmountIn(
         @Query('amountOut') amountOut : number,
-        @Query('reserveIn') reserveIn : string,
-        @Query('reserveOut') reserveOut : string,
+        @Query('reserveIn') reserveIn : number,
+        @Query('reserveOut') reserveOut : number,
     ): Promise<bigint> {
         try {
             return await this.swapService.getAmountIn(amountOut,reserveIn,reserveOut);
@@ -83,6 +83,40 @@ export class SwapController {
             throw new HttpException({
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 error: 'There was a problem getting AmountS In in Swap V2',
+                details: error.message,
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Post('addLiquidity')
+    async addLiquidity(
+        @Body('msgSender') msgSender: string,
+        @Body('tokenA') tokenA: string,
+        @Body('tokenB') tokenB: string,
+        @Body('amountADesired') amountADesired: number,
+        @Body('amountBDesired') amountBDesired: number,
+        @Body('amountAMin') amountAMin: number,
+        @Body('amountBMin') amountBMin: number,
+        @Body('to') to: string,
+        @Body('deadline') deadline: number
+    ): Promise<bigint []> {
+        try {
+            const result = await this.swapService.addLiquidity(
+                msgSender,
+                tokenA,
+                tokenB,
+                amountADesired,
+                amountBDesired,
+                amountAMin,
+                amountBMin,
+                to,
+                deadline
+            );
+            return result;
+        } catch (error) {
+            throw new HttpException({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                error: 'There was a problem adding liquidity in Swap V2',
                 details: error.message,
             }, HttpStatus.INTERNAL_SERVER_ERROR);
         }

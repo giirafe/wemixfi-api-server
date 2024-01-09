@@ -152,7 +152,7 @@ export class LendAndBorrowService {
             switch (assetAddress) {
                 case AssetType.Wemix:
                     txResult = await this.cWemixContract.connect(senderWallet).mint({ value: amountInWei });
-                    value = amountInWei;
+                    value = amountInWei; // value set manually on Wemix deposit
                     contractName = "CWemix";
                     break;
                 case AssetType.WemixDollar:
@@ -165,7 +165,7 @@ export class LendAndBorrowService {
                     contractName = "CstWemix";
                     break;
                 default:
-                    throw new Error('Invalid Asset Addres');
+                    throw new Error('Invalid Asset Address');
             }
             
             // .wait() : waits for the transaction to be mined and confirmed
