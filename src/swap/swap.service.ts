@@ -154,7 +154,7 @@ export class SwapService {
 
             this.logger.debug('Activate addLiquidity ');
             
-            const tx = await weswapRouterContractWithSigner.addLiquidityWEMIX(
+            const tx = await this.weswapRouterContract.connect(senderWallet).addLiquidityWEMIX(
                 tokenAddress,
                 amountTokenDesiredInWei,
                 amountTokenMinInWei,
@@ -163,18 +163,21 @@ export class SwapService {
                 deadline,
                 { value: amountWEMIXDesiredInWei }
             );
-
+            
+            this.logger.debug('Liquidity(WEMIX and Token) added: ', tx);
             const txResult = await tx.wait();
-            this.logger.debug('Liquidity(WEMIX and Token) added: ', txResult);
+            const addLiquidityEvent  = txResult.logs?.find((e: any) => e.eventName === 'AddLiquidityReturn') as ethers.EventLog;
 
-            // Extract the return values from the transaction receipt if necessary
-            // Depending on the Ethereum client and the event structure, you might need to adjust how you access these values.
-            // const { amountA, amountB, liquidity } = receipt.events?.find((e: any) => e.event === 'AddLiquidityReturn').args;
-            // return [amountA, amountB, liquidity];
+            if (!addLiquidityEvent) {
+                throw new Error('AddLiquidityReturn event not found');
+            }
+
+            const [amountToken, amountWEMIX, liquidity ] = addLiquidityEvent.args;
+            return [amountToken, amountWEMIX, liquidity];
 
             // Currently return test values
             // 1/10 Succeeded
-            return [0n,0n,0n];
+            // return [0n,0n,0n];
         } catch (error) {
             this.logger.error('Error while adding liquidity in swap.service.ts: ', error);
             throw error;
