@@ -26,6 +26,15 @@ export class DatabaseService {
 
     // Set and Get Blockchain Wallet Account Info
     async setAccount(accountAddress: string, privateKey: string): Promise<Account> {
+        // Check if the accountAddress already exists in the database
+        const existingAccount = await this.accountModel.findOne({ where: { accountAddress } });
+        
+        if (existingAccount) {
+            // If account exists, throw an error
+            throw new Error('Database Service : Account already exists');
+        }
+
+        // If account does not exist, create a new account
         const newAccount = await this.accountModel.create({ accountAddress, privateKey });
         return newAccount;
     }

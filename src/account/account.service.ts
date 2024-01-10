@@ -12,6 +12,7 @@ export class AccountService {
     private readonly logger = new Logger(AccountService.name);
 
     async setAccount(accountAddress: string, privateKey: string): Promise<Account> {
+        this.logger.debug("AccountService : accountAddress, privateKey : " + accountAddress + " " + privateKey)
         return this.databaseService.setAccount(accountAddress, privateKey);
     }
 

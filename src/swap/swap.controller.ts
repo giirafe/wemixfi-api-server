@@ -8,8 +8,8 @@ export class SwapController {
     @Get('quote')
     async getQuote(
         @Query('amount') amount : number,
-        @Query('reserveA') reserveA : string,
-        @Query('reserveB') reserveB : string,
+        @Query('reserveA') reserveA : number,
+        @Query('reserveB') reserveB : number,
     ): Promise<bigint> {
         try {
             return await this.swapService.getQuote(amount,reserveA,reserveB);
