@@ -22,20 +22,20 @@ import { ControllerView } from '../../types/ethers/ControllerView';
 
 import * as wemixfi_addrs_dev from '../../wemixFi_env/wemixfi_addrs_dev.json'
 
-// export enum AssetType {
+// export enum LBAssetType {
 //     Wemix = 0,
 //     WemixDollar = 1,
 //     StWemix = 2
 // }
 
 // Trying to set the enum type like below but type conversion error
-// export enum AssetType {
+// export enum LBAssetType {
 //     Wemix = wemixfi_addrs_dev.cWemix as string,
 //     WemixDollar = wemixfi_addrs_dev.cWemixDollar,
 //     StWemix = wemixfi_addrs_dev.cstWemix
 // }
 
-export enum AssetType {
+export enum LBAssetType {
     Wemix = '0x3eBda066925BBc790FE198F47ef650Ddb764EcfE',
     WemixDollar = '0x487B9C58fFB0a1196790b4189176d3A419Ab1D24',
     StWemix = '0xA17EdCDC4D622a010C33697110cea13FEC0868FB'
@@ -145,21 +145,22 @@ export class LendAndBorrowService {
         let input : string = JSON.stringify(inputJson)
 
         // this.logger.debug("assetAddress from Request : ",assetAddress);
-        // this.logger.debug("AssetType.Wemix from Service : ",AssetType.Wemix);
+        // this.logger.debug("LBAssetType.Wemix from Service : ",LBAssetType.Wemix);
 
         try {
             let txResult;
             switch (assetAddress) {
-                case AssetType.Wemix:
+                case LBAssetType.Wemix:
                     txResult = await this.cWemixContract.connect(senderWallet).mint({ value: amountInWei });
                     value = amountInWei; // value set manually on Wemix deposit
                     contractName = "CWemix";
                     break;
-                case AssetType.WemixDollar:
+                case LBAssetType.WemixDollar:
                     // Assuming you have a method for depositing Wemix Dollar
-                    txResult = await this.cWemixDollarContract.connect(senderWallet).mint(amountInWei);contractName = "CWemixDollar";
+                    txResult = await this.cWemixDollarContract.connect(senderWallet).mint(amountInWei);
+                    contractName = "CWemixDollar";
                     break;
-                case AssetType.StWemix:
+                case LBAssetType.StWemix:
                     // Assuming you have a method for depositing StWemix
                     txResult = await this.cstWemixContract.connect(senderWallet).mint(amountInWei);
                     contractName = "CstWemix";
@@ -212,19 +213,19 @@ export class LendAndBorrowService {
         try {
             let txResult;
             switch (assetAddress) {
-                case AssetType.Wemix:
+                case LBAssetType.Wemix:
                     // Assuming you have a method for borrowing Wemix
                     txResult = await this.cWemixContract.connect(senderWallet).borrow(amountInWei);
                     value = amountInWei;
                     contractName = "CWemix";
                     break;
-                case AssetType.WemixDollar:
+                case LBAssetType.WemixDollar:
                     // Approve cWemixDollarContract to approve certain amount for mint
                     await this.cWemixDollarContract.connect(senderWallet).approve(this.cWemixDollarAddress,amountInWei);
                     txResult = await this.cWemixDollarContract.connect(senderWallet).borrow(amountInWei);
                     contractName = "CWemixDollar";
                     break;
-                case AssetType.StWemix:
+                case LBAssetType.StWemix:
                     // Also requires approval for mint
                     await this.cstWemixContract.connect(senderWallet).approve(this.cstWemixAddress,amountInWei);
                     txResult = await this.cstWemixContract.connect(senderWallet).borrow(amountInWei);
@@ -280,22 +281,21 @@ export class LendAndBorrowService {
             let txResult;
             
             switch (liquidateAssetAddress) {
-                case AssetType.Wemix:
+                case LBAssetType.Wemix:
                     // WIP : checking seizeTokens manually with controllerView
                     // controllerViewjson = await this.wemixfiControllerViewContract.liquidateCalculateSeizeTokens(this.cWemixAddress,collateralAddress, repayAmountInWei)
                     // this.logger.debug("ControllerView returned seize amount 1.amountSeizeError 2. seizeTokens ", controllerViewjson)
 
-                    // await this.cWemixContract.connect(liquidatorWallet).approve(this.cWemixAddress,repayAmountInWei);
                     txResult = await this.cWemixContract.connect(liquidatorWallet).liquidateBorrow(borrowerAddress, collateralAddress, { value: repayAmountInWei });
                     value = repayAmountInWei;
                     contractName = "CWemix";
                     break;
-                case AssetType.WemixDollar:
+                case LBAssetType.WemixDollar:
                     await this.cWemixDollarContract.connect(liquidatorWallet).approve(this.cWemixDollarAddress,repayAmountInWei);
                     txResult = await this.cWemixDollarContract.connect(liquidatorWallet).liquidateBorrow(borrowerAddress,repayAmountInWei,collateralAddress);
                     contractName = "CWemixDollar";
                     break;
-                case AssetType.StWemix:
+                case LBAssetType.StWemix:
                     await this.cstWemixContract.connect(liquidatorWallet).approve(this.cstWemixAddress,repayAmountInWei);
                     txResult = await this.cstWemixContract.connect(liquidatorWallet).liquidateBorrow(borrowerAddress,repayAmountInWei,collateralAddress);
                     contractName = "CstWemix";

@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, Query, HttpException, HttpStatus } from '@nestjs/common';
-import { LendAndBorrowService, AssetType } from './lend-and-borrow.service';
+import { LendAndBorrowService } from './lend-and-borrow.service';
 import { ethers } from 'ethers';
 
 @Controller('lend-and-borrow')

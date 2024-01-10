@@ -26,8 +26,7 @@ export class AccountController {
         }
     }
 
-
-    // Getting ETH balance of certain address account
+    // Getting WEMIX balance of certain address account
     @Get('balance/:address')
     async addressBalance(@Param('address') address: string): Promise<number> {
       return await this.accountService.getBalance(address);
