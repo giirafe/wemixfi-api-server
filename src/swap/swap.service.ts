@@ -3,15 +3,14 @@ import {  ethers } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 
-// Should find wwemix abi and create type for it
-// import * as stWemixJson from '../../wemixFi_env/StWEMIX.json'
-// import { StWEMIX } from '../../types/ethers/StWEMIX';
-
 import * as stWemixJson from '../../wemixFi_env/StWEMIX.json'
 import { StWEMIX } from '../../types/ethers/StWEMIX';
 
 import * as wemixDollarJson from '../../wemixFi_env/WemixDollar.json'
 import { WemixDollar } from '../../types/ethers/WemixDollar'
+
+import * as ERC20Json from '../../wemixFi_env/ERC20.json'
+import { ERC20 } from '../../types/ethers/ERC20'
 
 import * as weswapRouterJson from '../../wemixFi_env/WeswapRouter.json'
 import { WeswapRouter } from '../../types/ethers/WeswapRouter';
@@ -36,28 +35,17 @@ export enum SwapAssetType {
 export class SwapService {
 
     private readonly wWemixAddress = wemixfi_addrs_dev.wWemix;
-    private readonly stWemixAddress =  wemixfi_addrs_dev.stWemix;
-    private readonly wemixDAddress = wemixfi_addrs_dev.wemixD;
-    private readonly oUSDCAddress = wemixfi_addrs_dev.ousdc;
-    private readonly lp_stWemix_wWemix_Address = wemixfi_addrs_dev.lp_stWemix_wWemix;
 
     private readonly weswapRouterAddress = wemixfi_addrs_dev.router;
     private readonly weswapFactoryAddress = wemixfi_addrs_dev.factory; // factory : swapV2 factory
 
     private weswapRouterContract:WeswapRouter;
-    // private wWemixContract;
-    private stWemixContract:StWEMIX;
-    private wemixDollarContract : WemixDollar;
-    private oUSDCContract: WemixDollar; // WemixDollar와 동일한 abi로 설정, 큰 문제 없을듯(approve)만 사용하니께
-    private lp_stWemix_wWemix_Contract : WemixDollar; // 일단 LP Swap Pair도 이걸로 설정 (approve 위한)
     private weswapFactoryContract : IWeswapFactory ;
 
+    private readonly ERC20ContractABI = ERC20Json.abi;
     private readonly weswapRouterContractABI = weswapRouterJson.abi;
-    // private readonly wWemixContractABI = wWemixJson.abi;
-    private readonly stWemixContractABI = stWemixJson.abi;
-    private readonly wemixDollarContractABI = wemixDollarJson.abi;
-
     private readonly weswapFactoryContractABI = IWeswapFactoryJson.abi;
+
 
     constructor(
         private databaseService: DatabaseService,
@@ -65,16 +53,6 @@ export class SwapService {
     ) {
         const provider = this.databaseService.provider();
         this.weswapRouterContract = new ethers.Contract(this.weswapRouterAddress, this.weswapRouterContractABI, provider) as unknown as WeswapRouter; 
-        // WIP : Implement after wWemix Json found
-        // this.stWemixContract = new ethers.Contract(this.stWemixAddress, this.stWemixContractABI, provider) as unknown as StWEMIX; 
-        this.stWemixContract = new ethers.Contract(this.stWemixAddress, this.stWemixContractABI, provider) as unknown as StWEMIX; 
-        this.wemixDollarContract = new ethers.Contract(this.wemixDAddress, this.wemixDollarContractABI, provider) as unknown as WemixDollar; 
-        // WemixDollar ABI Reused on oUSDC and LP Swap Pair Contract
-        this.oUSDCContract = new ethers.Contract(this.oUSDCAddress, this.wemixDollarContractABI,provider) as unknown as WemixDollar;
-
-        // LP Pair Contract
-        this.lp_stWemix_wWemix_Contract = new ethers.Contract(this.lp_stWemix_wWemix_Address, this.wemixDollarContractABI,provider) as unknown as WemixDollar;
-
         // weSwapFactory connect
         this.weswapFactoryContract = new ethers.Contract(this.weswapFactoryAddress, this.weswapFactoryContractABI,provider) as unknown as IWeswapFactory;
 
@@ -316,8 +294,8 @@ export class SwapService {
         const amountWEMIXMinInWei = await this.convertToWei(this.wWemixAddress,amountWEMIXMin)
 
         try {
-            let lpBalance = await this.lp_stWemix_wWemix_Contract.balanceOf(msgSender);
-            this.logger.debug("lp balance of sender : ",lpBalance);
+            // let lpBalance = await this.lp_stWemix_wWemix_Contract.balanceOf(msgSender);
+            // this.logger.debug("lp balance of sender : ",lpBalance);
             // LP Token의 approve가 선행되어야 함
             // approve는 누적된다.
             await this.approveToken(lpPairContractAddress, senderWallet, liquidityInWei, this.weswapRouterAddress);
@@ -340,8 +318,8 @@ export class SwapService {
                 throw new Error('RemoveLiquidityReturn event not found or not properly formatted');
             }
 
-            lpBalance =  await this.lp_stWemix_wWemix_Contract.balanceOf(msgSender);
-            this.logger.debug("lp balance of sender : ",lpBalance);
+            // lpBalance =  await this.lp_stWemix_wWemix_Contract.balanceOf(msgSender);
+            // this.logger.debug("lp balance of sender : ",lpBalance);
 
             const [amountToken, amountWEMIX] = removeLiquidityEvent.args;
             return { amountToken, amountWEMIX };
@@ -351,6 +329,7 @@ export class SwapService {
         }
     }
 
+    // Swap Exact Token <-> Token
     async swapExactTokensForTokens(
         msgSender: string,
         amountIn: number,
@@ -362,13 +341,12 @@ export class SwapService {
         const senderWallet = await this.accountService.getAddressWallet(msgSender);
         const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
     
-        const amountInWei = await this.convertToWei(path[0], amountIn)
-        const amountOutMinWei = await this.convertToWei(path[1], amountOutMin)
+        const amountInWei = await this.convertToWei(path[0], amountIn);
+        const amountOutMinWei = await this.convertToWei(path[path.length - 1], amountOutMin);
+    
+        await this.approvePathTokens(path, senderWallet, amountInWei, this.weswapRouterAddress);
     
         try {
-            // Approve the initial token for transfer
-            await this.approveToken(path[0], senderWallet, amountInWei, this.weswapRouterAddress);
-    
             const tx = await weswapRouterContractWithSigner.swapExactTokensForTokens(
                 amountInWei,
                 amountOutMinWei,
@@ -376,15 +354,24 @@ export class SwapService {
                 to,
                 deadline
             );
-    
-            await tx.wait();
+
+            const txReceipt = await tx.wait();
+            this.logger.debug('txReceipt on Swap : ' + txReceipt.logs);
+            console.log( txReceipt.logs)
+            const swapEvent  = txReceipt.logs?.find((e: any) => e.eventName === 'Swap') as ethers.EventLog;
+            if(swapEvent) {
+                this.logger.debug('Swap Event Emitted : ' + swapEvent);
+            } else {
+                this.logger.debug('Swap Event not found')
+            }
+
             return true;
         } catch (error) {
             this.logger.error('Error while swapping tokens: ', error);
-            throw error;
+            throw new Error('Error while swapping tokens: ' + error.message);
         }
     }
-
+    
     async swapTokensForExactTokens(
         msgSender: string,
         amountOut: number,
@@ -396,11 +383,12 @@ export class SwapService {
         const senderWallet = await this.accountService.getAddressWallet(msgSender);
         const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
     
-        const amountInMaxWei = await this.convertToWei(path[0], amountInMax)
-        const amountOutWei = await this.convertToWei(path[1], amountOut)
+        const amountInMaxWei = await this.convertToWei(path[0], amountInMax);
+        const amountOutWei = await this.convertToWei(path[path.length - 1], amountOut);
+    
+        await this.approvePathTokens(path, senderWallet, amountInMaxWei, this.weswapRouterAddress);
     
         try {
-            await this.approveToken(path[0], senderWallet, amountInMaxWei, this.weswapRouterAddress);
             const tx = await weswapRouterContractWithSigner.swapTokensForExactTokens(
                 amountOutWei,
                 amountInMaxWei,
@@ -408,46 +396,114 @@ export class SwapService {
                 to,
                 deadline
             );
+    
             await tx.wait();
             return true;
         } catch (error) {
-            this.logger.error('Error while swapping tokens: ', error);
+            this.logger.error('Error while swapping tokens for exact tokens: ', error);
             throw error;
         }
     }
 
-    // Temp removal due to switching approveToken to approveTokenLP logic
-    // async approveToken(tokenType, senderWallet, amountInWei, routerAddress) {
-    //     let tx;
-    //     switch (tokenType) {
-    //         case SwapAssetType.stWemix:
-    //             tx =  await this.stWemixContract.connect(senderWallet).approve(routerAddress, amountInWei);
-    //             return await tx.wait();
-    //         case SwapAssetType.wemixD:
-    //             tx = await this.wemixDollarContract.connect(senderWallet).approve(routerAddress, amountInWei);
-    //             return await tx.wait();
-    //         case SwapAssetType.ousdc:
-    //             tx = await this.oUSDCContract.connect(senderWallet).approve(routerAddress, amountInWei);
-    //             return await tx.wait();
-    //         default:
-    //             throw new Error(`Invalid Swap Asset Type: ${tokenType}`);
-    //     }
-    // }
+    // Swap Exact WEMIX <-> Token
+    async swapExactWEMIXForTokens(
+        msgSender: string,
+        amountIn: number,
+        amountOutMin: number,
+        path: string[],
+        to: string,
+        deadline: number,
+    ): Promise<boolean> {
+        const senderWallet = await this.accountService.getAddressWallet(msgSender);
+        const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
+    
+        const amountInWei = ethers.parseEther(amountIn.toString());
+        const amountOutMinWei = await this.convertToWei(path[path.length - 1], amountOutMin);
+    
+        await this.approvePathTokens(path, senderWallet, amountInWei, this.weswapRouterAddress);
 
+        try {
+            const tx = await weswapRouterContractWithSigner.swapExactWEMIXForTokens(
+                amountOutMinWei,
+                path,
+                to,
+                deadline,
+                { value: amountInWei }
+            );
+    
+            await tx.wait();
+            return true;
+        } catch (error) {
+            this.logger.error('Error while swapping WEMIX for tokens: ', error);
+            throw error;
+        }
+    }    
+
+    async swapTokensForExactWEMIX(
+        msgSender: string,
+        amountOut: number,
+        amountInMax: number,
+        path: string[],
+        to: string,
+        deadline: number
+    ): Promise<boolean> {
+        const senderWallet = await this.accountService.getAddressWallet(msgSender);
+        const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
+    
+        const amountInMaxWei = await this.convertToWei(path[0], amountInMax);
+        const amountOutWei = ethers.parseEther(amountOut.toString()); // WEMIX is the output and has 18 decimals
+    
+        await this.approvePathTokens(path, senderWallet, amountInMaxWei, this.weswapRouterAddress);
+    
+        try {
+            const tx = await weswapRouterContractWithSigner.swapTokensForExactWEMIX(
+                amountOutWei,
+                amountInMaxWei,
+                path,
+                to,
+                deadline
+            );
+    
+            await tx.wait();
+            return true;
+        } catch (error) {
+            this.logger.error('Error while swapping tokens for WEMIX: ', error);
+            throw error;
+        }
+    }
+    
+
+    // Swap Exact Token <-> WEMIX
+
+    // WIP 
+
+    // --- Internal Functions ---
     // old approveTokenLP => now approveToken, used universal not only in LP
     async approveToken(tokenAddress, senderWallet, amountInWei, routerAddress ){
         try {
-            const lpPairContract : WemixDollar = new ethers.Contract(tokenAddress, this.wemixDollarContractABI,this.databaseService.provider()) as unknown as WemixDollar;
-            const tx = await lpPairContract.connect(senderWallet).approve(routerAddress, amountInWei);
+            const tokenToApprove : ERC20 = new ethers.Contract(tokenAddress, this.ERC20ContractABI,this.databaseService.provider()) as unknown as ERC20;
+            const tx = await tokenToApprove.connect(senderWallet).approve(routerAddress, amountInWei);
             return await tx.wait();
         } catch {
             throw new Error(`Error : approving ${amountInWei} for ${tokenAddress}`);
         }
     }
+
+    async approvePathTokens(path: string[], senderWallet: ethers.Wallet, amountInWei: bigint, routerAddress: string): Promise<void> {
+        for (let i = 0; i < path.length - 1; i++) {
+            try {
+                const tokenAmountToApprove = i === 0 ? amountInWei : ethers.MaxUint256;
+                await this.approveToken(path[i], senderWallet, tokenAmountToApprove, routerAddress);
+            } catch (error) {
+                this.logger.error(`Error while approving token ${path[i]}: `, error);
+                throw new Error(`Error while approving token ${path[i]}: ${error.message}`);
+            }
+        }
+    }
     
     async getDecimal(tokenAddress):Promise<bigint> {
         try {
-            const tokenContract : WemixDollar = new ethers.Contract(tokenAddress, this.wemixDollarContractABI,this.databaseService.provider()) as unknown as WemixDollar;
+            const tokenContract : ERC20 = new ethers.Contract(tokenAddress, this.ERC20ContractABI,this.databaseService.provider()) as unknown as ERC20;
             const tokenDecimals =  await tokenContract.decimals();
             this.logger.debug(`Token Decimals : ${tokenDecimals}`);
             return tokenDecimals;
@@ -460,10 +516,11 @@ export class SwapService {
         try {
             const tokenDecimal = await this.getDecimal(tokenAddress);
             const amountInWei = ethers.parseUnits(tokenAmount.toString(),tokenDecimal)
-            this.logger.debug(amountInWei);
             return amountInWei;
         } catch {
             throw new Error(`Error : converting amount of ${tokenAddress} `);
         }
     }
+
+
 }

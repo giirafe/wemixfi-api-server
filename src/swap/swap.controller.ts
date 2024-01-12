@@ -212,7 +212,7 @@ export class SwapController {
         } catch (error) {
             throw new HttpException({
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                error: 'There was a problem removing liquidity WEMIX in Swap V2',
+                error: 'There was a problem swapExactTokensForTokens in Swap V2',
                 details: error.message,
             }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -232,7 +232,47 @@ export class SwapController {
         } catch (error) {
             throw new HttpException({
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                error: 'There was a problem removing liquidity WEMIX in Swap V2',
+                error: 'There was a problem swapTokensForExactTokens in Swap V2',
+                details: error.message,
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Post('swapExactWEMIXForTokens')
+    async swapExactWEMIXForTokens(
+        @Body('msgSender') msgSender: string,
+        @Body('amountIn') amountIn: number,
+        @Body('amountOutMin') amountOutMin: number,
+        @Body('path') path: string[],
+        @Body('to') to: string,
+        @Body('deadline') deadline: number
+    ): Promise<boolean> {
+        try {
+            return await this.swapService.swapExactWEMIXForTokens(msgSender, amountIn, amountOutMin, path, to, deadline);
+        } catch (error) {
+            throw new HttpException({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                error: 'There was a problem swapExactWEMIXForTokens in Swap V2',
+                details: error.message,
+            }, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Post('swapTokensForExactWEMIX')
+    async swapTokensForExactWEMIX(
+        @Body('msgSender') msgSender: string,
+        @Body('amountOut') amountOut: number,
+        @Body('amountInMax') amountInMax: number,
+        @Body('path') path: string[],
+        @Body('to') to: string,
+        @Body('deadline') deadline: number
+    ): Promise<boolean> {
+        try {
+            return await this.swapService.swapTokensForExactWEMIX(msgSender, amountOut, amountInMax, path, to, deadline);
+        } catch (error) {
+            throw new HttpException({
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                error: 'There was a problem swapTokensForExactWEMIX in Swap V2',
                 details: error.message,
             }, HttpStatus.INTERNAL_SERVER_ERROR);
         }
