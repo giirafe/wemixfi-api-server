@@ -259,17 +259,15 @@ export class SwapService {
         const weswapRouterContractWithSigner = await this.weswapRouterContract.connect(senderWallet);
         const lpPairContractAddress = await this.weswapFactoryContract.connect(senderWallet).getPair(tokenA,tokenB )
 
-        this.logger.debug("LP Pair Contract using getPair : ",lpPairContractAddress )
-
+        // this.logger.debug("LP Pair Contract using getPair : ",lpPairContractAddress )
 
         const liquidityInWei = ethers.parseEther(liquidity.toString());
-
         const amountAMinInWei = await this.convertToWei(tokenA,amountAMin)
         const amountBMinInWei = await this.convertToWei(tokenB,amountBMin)
 
         try {
 
-            await this.approveTokenLP(lpPairContractAddress, senderWallet, liquidityInWei, this.weswapRouterAddress);
+            await this.approveToken(lpPairContractAddress, senderWallet, liquidityInWei, this.weswapRouterAddress);
 
             const tx = await weswapRouterContractWithSigner.removeLiquidity(
                 tokenA,
@@ -322,7 +320,7 @@ export class SwapService {
             this.logger.debug("lp balance of sender : ",lpBalance);
             // LP Token의 approve가 선행되어야 함
             // approve는 누적된다.
-            await this.approveTokenLP(lpPairContractAddress, senderWallet, liquidityInWei, this.weswapRouterAddress);
+            await this.approveToken(lpPairContractAddress, senderWallet, liquidityInWei, this.weswapRouterAddress);
 
             this.logger.debug("Approval on LP stWemix/wWemix successful");
 
@@ -353,34 +351,97 @@ export class SwapService {
         }
     }
 
-
-    async approveToken(tokenType, senderWallet, amountInWei, routerAddress) {
-        let tx;
-        switch (tokenType) {
-            case SwapAssetType.stWemix:
-                tx =  await this.stWemixContract.connect(senderWallet).approve(routerAddress, amountInWei);
-                return await tx.wait();
-            case SwapAssetType.wemixD:
-                tx = await this.wemixDollarContract.connect(senderWallet).approve(routerAddress, amountInWei);
-                return await tx.wait();
-            case SwapAssetType.ousdc:
-                tx = await this.oUSDCContract.connect(senderWallet).approve(routerAddress, amountInWei);
-                return await tx.wait();
-            case this.lp_stWemix_wWemix_Address:
-                tx =  await this.lp_stWemix_wWemix_Contract.connect(senderWallet).approve(routerAddress, amountInWei);
-                return await tx.wait();
-            default:
-                throw new Error(`Invalid Swap Asset Type: ${tokenType}`);
+    async swapExactTokensForTokens(
+        msgSender: string,
+        amountIn: number,
+        amountOutMin: number,
+        path: string[],
+        to: string,
+        deadline: number
+    ): Promise<boolean> {
+        const senderWallet = await this.accountService.getAddressWallet(msgSender);
+        const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
+    
+        const amountInWei = await this.convertToWei(path[0], amountIn)
+        const amountOutMinWei = await this.convertToWei(path[1], amountOutMin)
+    
+        try {
+            // Approve the initial token for transfer
+            await this.approveToken(path[0], senderWallet, amountInWei, this.weswapRouterAddress);
+    
+            const tx = await weswapRouterContractWithSigner.swapExactTokensForTokens(
+                amountInWei,
+                amountOutMinWei,
+                path,
+                to,
+                deadline
+            );
+    
+            await tx.wait();
+            return true;
+        } catch (error) {
+            this.logger.error('Error while swapping tokens: ', error);
+            throw error;
         }
     }
 
-    async approveTokenLP(tokenAddress, senderWallet, amountInWei, routerAddress ){
+    async swapTokensForExactTokens(
+        msgSender: string,
+        amountOut: number,
+        amountInMax: number,
+        path: string[],
+        to: string,
+        deadline: number
+    ): Promise<boolean> {
+        const senderWallet = await this.accountService.getAddressWallet(msgSender);
+        const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
+    
+        const amountInMaxWei = await this.convertToWei(path[0], amountInMax)
+        const amountOutWei = await this.convertToWei(path[1], amountOut)
+    
+        try {
+            await this.approveToken(path[0], senderWallet, amountInMaxWei, this.weswapRouterAddress);
+            const tx = await weswapRouterContractWithSigner.swapTokensForExactTokens(
+                amountOutWei,
+                amountInMaxWei,
+                path,
+                to,
+                deadline
+            );
+            await tx.wait();
+            return true;
+        } catch (error) {
+            this.logger.error('Error while swapping tokens: ', error);
+            throw error;
+        }
+    }
+
+    // Temp removal due to switching approveToken to approveTokenLP logic
+    // async approveToken(tokenType, senderWallet, amountInWei, routerAddress) {
+    //     let tx;
+    //     switch (tokenType) {
+    //         case SwapAssetType.stWemix:
+    //             tx =  await this.stWemixContract.connect(senderWallet).approve(routerAddress, amountInWei);
+    //             return await tx.wait();
+    //         case SwapAssetType.wemixD:
+    //             tx = await this.wemixDollarContract.connect(senderWallet).approve(routerAddress, amountInWei);
+    //             return await tx.wait();
+    //         case SwapAssetType.ousdc:
+    //             tx = await this.oUSDCContract.connect(senderWallet).approve(routerAddress, amountInWei);
+    //             return await tx.wait();
+    //         default:
+    //             throw new Error(`Invalid Swap Asset Type: ${tokenType}`);
+    //     }
+    // }
+
+    // old approveTokenLP => now approveToken, used universal not only in LP
+    async approveToken(tokenAddress, senderWallet, amountInWei, routerAddress ){
         try {
             const lpPairContract : WemixDollar = new ethers.Contract(tokenAddress, this.wemixDollarContractABI,this.databaseService.provider()) as unknown as WemixDollar;
             const tx = await lpPairContract.connect(senderWallet).approve(routerAddress, amountInWei);
             return await tx.wait();
         } catch {
-            throw new Error(`Error in approving ${amountInWei} for ${tokenAddress}`);
+            throw new Error(`Error : approving ${amountInWei} for ${tokenAddress}`);
         }
     }
     
@@ -391,7 +452,7 @@ export class SwapService {
             this.logger.debug(`Token Decimals : ${tokenDecimals}`);
             return tokenDecimals;
         } catch {
-            throw new Error(`Error getting decimals of ${tokenAddress} `);
+            throw new Error(`Error : getting decimals of ${tokenAddress} `);
         }
     }
 
@@ -399,9 +460,10 @@ export class SwapService {
         try {
             const tokenDecimal = await this.getDecimal(tokenAddress);
             const amountInWei = ethers.parseUnits(tokenAmount.toString(),tokenDecimal)
+            this.logger.debug(amountInWei);
             return amountInWei;
         } catch {
-            throw new Error(`Error converting amount of ${tokenAddress} `);
+            throw new Error(`Error : converting amount of ${tokenAddress} `);
         }
     }
 }
