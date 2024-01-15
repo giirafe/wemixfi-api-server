@@ -20,16 +20,6 @@ import { IWeswapFactory } from '../../types/ethers/IWeswapFactory';
 
 import * as wemixfi_addrs_dev from '../../wemixFi_env/wemixfi_addrs_dev.json'
 
-export enum SwapAssetType {
-    wWemix = '0x244c72AB61f11dD44Bfa4AaF11e2EFD89ca789fe',
-    stWemix = '0xc53B1C26C992CAF4662A1B98954E641f323d8a55',
-    wemixD = '0xAe81b9fFCde5Ab7673dD4B2f5c648a5579430B17',
-    ousdc = '0x3eFc2e351b64912168F15074a1e444E3272d64be',
-    eth = '0xE19B799146276Fd8ba7Bf807347A33Ef7Fd49B4b',
-    bnb = '0x9d88364cE61172D5398cD99c96b8D74899943fF4',
-    usdt = '0x4e202313790ae15AE84A7E5716EbFbB358C43530'
-}
-
 // !!! Currently can't detect if a certain pair input is valid in 'WemixFi' thus throwing a Error which is not directly stating this situation
 @Injectable()
 export class SwapService {
@@ -106,6 +96,7 @@ export class SwapService {
             return amountsArray;
         } catch(error) {
             this.logger.error('Error while getAmountsOut in swap.service.ts : ', error);
+            console.log(error);
             throw error;
         }
     }
@@ -114,10 +105,11 @@ export class SwapService {
         try {
             const amountInWei = ethers.parseEther(amount.toString());
             const amountsArray = await this.weswapRouterContract.getAmountsIn(amountInWei,path);
-            this.logger.debug('getAmountIn...Out ');
+            this.logger.debug('getAmountsIn...Out from SwapV2 Router ');
             return amountsArray;
         } catch(error) {
             this.logger.error('Error while getAmountsIn in swap.service.ts : ', error);
+            console.log(error);
             throw error;
         }
     }
@@ -208,6 +200,9 @@ export class SwapService {
             );
             
             const txReceipt = await tx.wait();
+
+            // console.log(txReceipt.logs);
+
             const addLiquidityEvent  = txReceipt.logs?.find((e: any) => e.eventName === 'AddLiquidityReturn') as ethers.EventLog;
 
             // Checking the event existence and the validity
@@ -344,8 +339,8 @@ export class SwapService {
         const amountInWei = await this.convertToWei(path[0], amountIn);
         const amountOutMinWei = await this.convertToWei(path[path.length - 1], amountOutMin);
     
-        await this.approvePathTokens(path, senderWallet, amountInWei, this.weswapRouterAddress);
-    
+        await this.approveToken(path[0], senderWallet, amountInWei, this.weswapRouterAddress);
+
         try {
             const tx = await weswapRouterContractWithSigner.swapExactTokensForTokens(
                 amountInWei,
@@ -357,7 +352,9 @@ export class SwapService {
 
             const txReceipt = await tx.wait();
             this.logger.debug('txReceipt on Swap : ' + txReceipt.logs);
+
             console.log( txReceipt.logs)
+
             const swapEvent  = txReceipt.logs?.find((e: any) => e.eventName === 'Swap') as ethers.EventLog;
             if(swapEvent) {
                 this.logger.debug('Swap Event Emitted : ' + swapEvent);
@@ -386,7 +383,8 @@ export class SwapService {
         const amountInMaxWei = await this.convertToWei(path[0], amountInMax);
         const amountOutWei = await this.convertToWei(path[path.length - 1], amountOut);
     
-        await this.approvePathTokens(path, senderWallet, amountInMaxWei, this.weswapRouterAddress);
+        // await this.approvePathTokens(path, senderWallet, amountInMaxWei, this.weswapRouterAddress);
+        await this.approveToken(path[0], senderWallet, amountInMaxWei, this.weswapRouterAddress);
     
         try {
             const tx = await weswapRouterContractWithSigner.swapTokensForExactTokens(
@@ -420,7 +418,7 @@ export class SwapService {
         const amountInWei = ethers.parseEther(amountIn.toString());
         const amountOutMinWei = await this.convertToWei(path[path.length - 1], amountOutMin);
     
-        await this.approvePathTokens(path, senderWallet, amountInWei, this.weswapRouterAddress);
+        await this.approveToken(path[0], senderWallet, amountInWei, this.weswapRouterAddress);
 
         try {
             const tx = await weswapRouterContractWithSigner.swapExactWEMIXForTokens(
@@ -453,8 +451,9 @@ export class SwapService {
         const amountInMaxWei = await this.convertToWei(path[0], amountInMax);
         const amountOutWei = ethers.parseEther(amountOut.toString()); // WEMIX is the output and has 18 decimals
     
-        await this.approvePathTokens(path, senderWallet, amountInMaxWei, this.weswapRouterAddress);
-    
+        // await this.approvePathTokens(path, senderWallet, amountInMaxWei, this.weswapRouterAddress);
+        await this.approveToken(path[0], senderWallet, amountInMaxWei, this.weswapRouterAddress);
+
         try {
             const tx = await weswapRouterContractWithSigner.swapTokensForExactWEMIX(
                 amountOutWei,
@@ -474,8 +473,71 @@ export class SwapService {
     
 
     // Swap Exact Token <-> WEMIX
+    async swapExactTokensForWEMIX(
+        msgSender: string,
+        amountIn: number,
+        amountOutMin: number,
+        path: string[],
+        to: string,
+        deadline: number,
+    ): Promise<boolean> {
+        const senderWallet = await this.accountService.getAddressWallet(msgSender);
+        const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
+    
+        const amountInWei = await this.convertToWei(path[path.length - 1], amountIn); 
+        const amountOutMinWei = ethers.parseEther(amountOutMin.toString());
+    
+        await this.approveToken(path[0], senderWallet, amountInWei, this.weswapRouterAddress);
 
-    // WIP 
+        try {
+            const tx = await weswapRouterContractWithSigner.swapExactTokensForWEMIX(
+                amountInWei,
+                amountOutMinWei,
+                path,
+                to,
+                deadline,
+            );
+    
+            await tx.wait();
+            return true;
+        } catch (error) {
+            this.logger.error('Error while swapping Exact Token -> WEMIX : ', error);
+            throw error;
+        }
+    }    
+
+    async swapWEMIXForExactTokens(
+        msgSender: string,
+        amountOut: number,
+        amountInMax: number,
+        path: string[],
+        to: string,
+        deadline: number
+    ): Promise<boolean> {
+        const senderWallet = await this.accountService.getAddressWallet(msgSender);
+        const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
+    
+        const amountInMaxWei = ethers.parseEther(amountInMax.toString()); // WWemix has 18 decimals by default
+        const amountOutWei = await this.convertToWei(path[path.length -1], amountOut);
+
+        await this.approveToken(path[0], senderWallet, amountInMaxWei, this.weswapRouterAddress);
+
+        try {
+            const tx = await weswapRouterContractWithSigner.swapWEMIXForExactTokens(
+                amountOutWei,
+                path,
+                to,
+                deadline,
+                { value: amountInMaxWei }
+            );
+    
+            await tx.wait();
+            return true;
+        } catch (error) {
+            this.logger.error('Error while swapping WEMIX for Exact Token : ', error);
+            throw error;
+        }
+    }
 
     // --- Internal Functions ---
     // old approveTokenLP => now approveToken, used universal not only in LP
@@ -489,17 +551,17 @@ export class SwapService {
         }
     }
 
-    async approvePathTokens(path: string[], senderWallet: ethers.Wallet, amountInWei: bigint, routerAddress: string): Promise<void> {
-        for (let i = 0; i < path.length - 1; i++) {
-            try {
-                const tokenAmountToApprove = i === 0 ? amountInWei : ethers.MaxUint256;
-                await this.approveToken(path[i], senderWallet, tokenAmountToApprove, routerAddress);
-            } catch (error) {
-                this.logger.error(`Error while approving token ${path[i]}: `, error);
-                throw new Error(`Error while approving token ${path[i]}: ${error.message}`);
-            }
-        }
-    }
+    // async approvePathTokens(path: string[], senderWallet: ethers.Wallet, amountInWei: bigint, routerAddress: string): Promise<void> {
+    //     for (let i = 0; i < path.length - 1; i++) {
+    //         try {
+    //             const tokenAmountToApprove = i === 0 ? amountInWei : ethers.MaxUint256;
+    //             await this.approveToken(path[i], senderWallet, tokenAmountToApprove, routerAddress);
+    //         } catch (error) {
+    //             this.logger.error(`Error while approving token ${path[i]}: `, error);
+    //             throw new Error(`Error while approving token ${path[i]}: ${error.message}`);
+    //         }
+    //     }
+    // }
     
     async getDecimal(tokenAddress):Promise<bigint> {
         try {
@@ -516,6 +578,7 @@ export class SwapService {
         try {
             const tokenDecimal = await this.getDecimal(tokenAddress);
             const amountInWei = ethers.parseUnits(tokenAmount.toString(),tokenDecimal)
+            this.logger.debug(`Amount converted in wei ${amountInWei}`);
             return amountInWei;
         } catch {
             throw new Error(`Error : converting amount of ${tokenAddress} `);
