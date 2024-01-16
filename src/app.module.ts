@@ -9,6 +9,7 @@ import { DatabaseModule } from './database/database.module';
 import { LendAndBorrowModule } from './lend-and-borrow/lend-and-borrow.module';
 import { AccountModule } from './account/account.module';
 import { SwapModule } from './swap/swap.module';
+import { PoolModule } from './pool/pool.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SwapModule } from './swap/swap.module';
     LendAndBorrowModule,
     AccountModule,
     SwapModule,
+    PoolModule,
   ],
   controllers: [AppController],
   providers: [AppService,],

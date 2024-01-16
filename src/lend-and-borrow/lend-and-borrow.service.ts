@@ -22,19 +22,6 @@ import { ControllerView } from '../../types/ethers/ControllerView';
 
 import * as wemixfi_addrs_dev from '../../wemixFi_env/wemixfi_addrs_dev.json'
 
-// export enum LBAssetType {
-//     Wemix = 0,
-//     WemixDollar = 1,
-//     StWemix = 2
-// }
-
-// Trying to set the enum type like below but type conversion error
-// export enum LBAssetType {
-//     Wemix = wemixfi_addrs_dev.cWemix as string,
-//     WemixDollar = wemixfi_addrs_dev.cWemixDollar,
-//     StWemix = wemixfi_addrs_dev.cstWemix
-// }
-
 export enum LBAssetType {
     Wemix = '0x3eBda066925BBc790FE198F47ef650Ddb764EcfE',
     WemixDollar = '0x487B9C58fFB0a1196790b4189176d3A419Ab1D24',
