@@ -3,12 +3,6 @@ import {  ethers } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 
-import * as stWemixJson from '../../wemixFi_env/StWEMIX.json'
-import { StWEMIX } from '../../types/ethers/StWEMIX';
-
-import * as wemixDollarJson from '../../wemixFi_env/WemixDollar.json'
-import { WemixDollar } from '../../types/ethers/WemixDollar'
-
 import * as ERC20Json from '../../wemixFi_env/ERC20.json'
 import { ERC20 } from '../../types/ethers/ERC20'
 
@@ -201,9 +195,11 @@ export class SwapService {
             
             const txReceipt = await tx.wait();
 
-            // console.log(txReceipt.logs);
+            console.log(txReceipt.logs);
 
             const addLiquidityEvent  = txReceipt.logs?.find((e: any) => e.eventName === 'AddLiquidityReturn') as ethers.EventLog;
+
+            // console.log(JSON.stringify(txReceipt))
 
             // Checking the event existence and the validity
             if (!addLiquidityEvent || !('args' in addLiquidityEvent)) {

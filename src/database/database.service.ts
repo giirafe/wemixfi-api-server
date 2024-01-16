@@ -1,6 +1,6 @@
 import { Injectable,Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Account, TransferTx, TxInfo } from './database.model';
+import { Account, TransferTx, TxInfo, LendAndBorrowTx, PoolTx, SwapV2Tx } from './database.model';
 
 // import ethers package
 import { ethers } from 'ethers';
@@ -13,8 +13,12 @@ export class DatabaseService {
         private readonly accountModel: typeof Account,
         @InjectModel(TransferTx) 
         private readonly transferTxModel: typeof TransferTx,
-        @InjectModel(TxInfo) 
-        private readonly txInfoModel: typeof TxInfo,
+        @InjectModel(LendAndBorrowTx) 
+        private readonly LendAndBorrowTxModel: typeof LendAndBorrowTx,
+        @InjectModel(PoolTx) 
+        private readonly PoolTxModel: typeof PoolTx,
+        @InjectModel(SwapV2Tx) 
+        private readonly SwapV2TxModel: typeof SwapV2Tx,
     ) {}
 
     public provider(): ethers.JsonRpcProvider {
@@ -94,8 +98,40 @@ export class DatabaseService {
         return await this.transferTxModel.findAll();
     }
 
-    // Function storing Transaction Info Data in DB
-    async logTxInfo(
+    // Storing L&B Tx in DB
+    async logLendAndBorrowTx(
+        block_number: number, 
+        block_timestamp: string, 
+        tx_hash: string, 
+        name: string, 
+        func_name: string, 
+        func_sig: string, 
+        from: string, 
+        to: string, 
+        input: string, 
+        value: bigint,
+        assetAddress:string,
+        assetAmount:bigint,
+    ): Promise<LendAndBorrowTx> {
+        this.logger.debug('LendAndBorrowTx Logged in Database Service');
+        const newTxInfo = await this.LendAndBorrowTxModel.create( {
+            block_number,
+            block_timestamp,
+            tx_hash,
+            name,
+            func_name,
+            func_sig,
+            from,
+            to,
+            input,
+            value,
+            assetAddress,
+            assetAmount
+        } as any );
+        return newTxInfo;
+    }
+
+    async logPoolTx(
         block_number: number, 
         block_timestamp: string, 
         tx_hash: string, 
@@ -107,8 +143,37 @@ export class DatabaseService {
         input: string, 
         value: bigint
     ): Promise<TxInfo> {
-        this.logger.debug('TxInfo Logged in Database Service');
-        const newTxInfo = await this.txInfoModel.create({
+        this.logger.debug('PoolTx Logged in Database Service');
+        const newTxInfo = await this.PoolTxModel.create({
+            block_number,
+            block_timestamp,
+            tx_hash,
+            name,
+            func_name,
+            func_sig,
+            from,
+            to,
+            input,
+            value
+        });
+        return newTxInfo;
+    }
+
+    // Storing L&B Tx in DB
+    async logSwapV2Tx(
+        block_number: number, 
+        block_timestamp: string, 
+        tx_hash: string, 
+        name: string, 
+        func_name: string, 
+        func_sig: string, 
+        from: string, 
+        to: string, 
+        input: string, 
+        value: bigint
+    ): Promise<TxInfo> {
+        this.logger.debug('SwapV2Tx Logged in Database Service');
+        const newTxInfo = await this.SwapV2TxModel.create({
             block_number,
             block_timestamp,
             tx_hash,

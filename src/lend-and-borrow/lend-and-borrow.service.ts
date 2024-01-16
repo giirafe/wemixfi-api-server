@@ -175,7 +175,7 @@ export class LendAndBorrowService {
             const extractedData = await this.extractTxDataFromReceipt(txReceipt);
 
             // Call logTxInfo from DatabaseService
-            await this.databaseService.logTxInfo(
+            await this.databaseService.logLendAndBorrowTx(
                 extractedData.blockNumber,
                 extractedData.blockTimestamp,
                 extractedData.txHash,
@@ -185,7 +185,9 @@ export class LendAndBorrowService {
                 extractedData.from,
                 extractedData.to,
                 input,
-                value
+                value,
+                assetAddress,
+                amountInWei
             );
 
             return txReceipt;
@@ -202,7 +204,7 @@ export class LendAndBorrowService {
         assetAddress: string
     ): Promise<ethers.TransactionReceipt> {
         const senderWallet = await this.accountService.getAddressWallet(borrowerAddress);
-        const amountInWei = ethers.parseEther(borrowAmount.toString());
+        const borrowAmountInWei : bigint = ethers.parseEther(borrowAmount.toString());
     
         let contractName : string;
         const funcName : string = 'borrow';
@@ -215,31 +217,32 @@ export class LendAndBorrowService {
             switch (assetAddress) {
                 case LBAssetType.Wemix:
                     // Assuming you have a method for borrowing Wemix
-                    txResult = await this.cWemixContract.connect(senderWallet).borrow(amountInWei);
-                    value = amountInWei;
+                    txResult = await this.cWemixContract.connect(senderWallet).borrow(borrowAmountInWei);
+                    value = borrowAmountInWei;
                     contractName = "CWemix";
                     break;
                 case LBAssetType.WemixDollar:
                     // Approve cWemixDollarContract to approve certain amount for mint
-                    await this.cWemixDollarContract.connect(senderWallet).approve(this.cWemixDollarAddress,amountInWei);
-                    txResult = await this.cWemixDollarContract.connect(senderWallet).borrow(amountInWei);
+                    await this.cWemixDollarContract.connect(senderWallet).approve(this.cWemixDollarAddress,borrowAmountInWei);
+                    txResult = await this.cWemixDollarContract.connect(senderWallet).borrow(borrowAmountInWei);
                     contractName = "CWemixDollar";
                     break;
                 case LBAssetType.StWemix:
                     // Also requires approval for mint
-                    await this.cstWemixContract.connect(senderWallet).approve(this.cstWemixAddress,amountInWei);
-                    txResult = await this.cstWemixContract.connect(senderWallet).borrow(amountInWei);
+                    await this.cstWemixContract.connect(senderWallet).approve(this.cstWemixAddress,borrowAmountInWei);
+                    txResult = await this.cstWemixContract.connect(senderWallet).borrow(borrowAmountInWei);
                     contractName = "CstWemix";
                     break;
                 default:
                     throw new Error('Invalid Asset Addres');
             }
     
+            console.log("value at Borrow service usage : " + value)
             const txReceipt = await txResult.wait();
             const extractedData = await this.extractTxDataFromReceipt(txReceipt);
 
             // Call logTxInfo from DatabaseService
-            await this.databaseService.logTxInfo(
+            await this.databaseService.logLendAndBorrowTx(
                 extractedData.blockNumber,
                 extractedData.blockTimestamp,
                 extractedData.txHash,
@@ -249,13 +252,16 @@ export class LendAndBorrowService {
                 extractedData.from,
                 extractedData.to,
                 input,
-                value
+                value,
+                assetAddress,
+                borrowAmountInWei
             );
 
             return txReceipt;
 
         } catch (error) {
             this.logger.error('Error while borrowAsset in lend-and-borrow.service.ts :', error);
+            console.log(error);
             throw error;
         }
     }
@@ -274,8 +280,6 @@ export class LendAndBorrowService {
         const funcName = 'liquidateBorrow';
         let value : bigint = 0n; // Wemix amount sent with Tx
         let inputJson = JSON.stringify({ borrowerAddress, repayAmount, collateralAddress });
-
-        let controllerViewjson;
 
         try {
             let txResult;
@@ -307,8 +311,13 @@ export class LendAndBorrowService {
             const txReceipt = await txResult.wait();
             const extractedData = await this.extractTxDataFromReceipt(txReceipt);
 
+            console.log(txReceipt.logs);
+
+            // Finding 'LiquidateBorrow' event from txReceipt Log, currently not working
+            // this.eventFinder(txReceipt,'Transfer');
+
             // Log and store transaction information
-            await this.databaseService.logTxInfo(
+            await this.databaseService.logLendAndBorrowTx(
                 extractedData.blockNumber,
                 extractedData.blockTimestamp,
                 extractedData.txHash,
@@ -318,7 +327,10 @@ export class LendAndBorrowService {
                 extractedData.from,
                 extractedData.to,
                 inputJson,
-                value
+                value,
+                liquidateAssetAddress,
+                repayAmountInWei,
+                // WIP : Need to fill in 'Repayed Asset Address & Repayed Amount'
             );
 
             return txReceipt;
@@ -350,6 +362,18 @@ export class LendAndBorrowService {
             from,
             to
         };
+    }
+
+    async eventFinder(receipt: ethers.ContractTransactionReceipt, eventName:string) {
+        // .find() founds the first element in the array. In the case of two or more events existing which have the same name should be considered..
+        const event = receipt.logs?.find((e: any) => e.eventName === eventName) as ethers.EventLog;
+        console.log(event)
+        if (!event || !('args' in event)) {
+            throw new Error(`${eventName} event not found or not properly formatted`);
+        } else {
+            console.log("Args from event found : " + event.args);
+            return event;
+        }
     }
 
 }

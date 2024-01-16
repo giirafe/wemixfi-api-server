@@ -102,13 +102,109 @@ export class TxInfo extends Model<TxInfo> {
 
   @Column({
     allowNull: true,
-    type: DataType.BIGINT // or BigNumber type if supported by Sequelize
+    type: DataType.BIGINT // if Wemix sent with Tx
   })
   value: bigint;
 
-  @CreatedAt
-  createdAt: Date;
+  // @CreatedAt
+  // createdAt: Date;
 
-  @UpdatedAt
-  updatedAt: Date;
+  // @UpdatedAt
+  // updatedAt: Date;
+}
+
+@Table({
+  defaultScope: {
+    order: [['block_timestamp', 'ASC']] // or 'DESC' for descending
+  }
+})
+export class LendAndBorrowTx extends TxInfo {
+
+  @Column({
+    allowNull:false,
+    type:DataType.STRING
+  })
+  assetAddress:string;
+
+  @Column({
+    allowNull:false,
+    type:DataType.BIGINT
+  })
+  assetAmount:number;
+
+  // received~ columns are for LiquidateBorrow cases
+  @Column({
+    allowNull:true,
+    type:DataType.STRING
+  })
+  receivedAssetAddress:string;
+
+  @Column({
+    allowNull:true,
+    type:DataType.BIGINT
+  })
+  reeceivedAssetAmount:bigint;
+
+}
+
+@Table({
+  defaultScope: {
+    order: [['block_timestamp', 'ASC']] // or 'DESC' for descending
+  }
+})
+export class PoolTx extends TxInfo {
+  @Column({
+    allowNull:false,
+    type:DataType.STRING
+  })
+  assetAAddress:number;
+
+  @Column({
+    allowNull:false,
+    type:DataType.BIGINT
+  })
+  assetAAmount:number;
+
+  @Column({
+    allowNull:false,
+    type:DataType.STRING
+  })
+  assetBAddress:number;
+
+  @Column({
+    allowNull:false,
+    type:DataType.BIGINT
+  })
+  assetBAmount:number;
+}
+
+@Table({
+  defaultScope: {
+    order: [['block_timestamp', 'ASC']] // or 'DESC' for descending
+  }
+})
+export class SwapV2Tx extends TxInfo {
+  @Column({
+    allowNull:false,
+    type:DataType.STRING
+  })
+  assetAAddress:number;
+
+  @Column({
+    allowNull:false,
+    type:DataType.BIGINT
+  })
+  assetAAmount:number;
+
+  @Column({
+    allowNull:false,
+    type:DataType.STRING
+  })
+  assetBAddress:number;
+
+  @Column({
+    allowNull:false,
+    type:DataType.BIGINT
+  })
+  assetBAmount:number;
 }
