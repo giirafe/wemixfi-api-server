@@ -6,6 +6,15 @@ import { Account, TransferTx, TxInfo, LendAndBorrowTx, PoolTx, SwapV2Tx } from '
 import { ethers } from 'ethers';
 import { HttpService } from '@nestjs/axios';
 
+interface ReceiptData {
+    blockNumber: number;
+    blockTimestamp: string;
+    txHash: string;
+    funcSig: string;
+    from: string;
+    to: string;
+}
+
 @Injectable()
 export class DatabaseService {
     constructor(
@@ -98,6 +107,103 @@ export class DatabaseService {
         return await this.transferTxModel.findAll();
     }
 
+    // Creating Object for Lend & Borrow Table
+    async createLBLogObject(
+        txReceipt: any,  // Type this according to the structure of extractedData
+        contractName: string,
+        funcName: string,
+        input: string,
+        value: bigint,
+        assetAddress: string,
+        amountInWei: bigint,
+    ): Promise<any> { 
+
+        const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+        
+        return {
+            block_number: extractedData.blockNumber,
+            block_timestamp: extractedData.blockTimestamp,
+            tx_hash: extractedData.txHash,
+            name: contractName,
+            func_name: funcName,
+            func_sig: extractedData.funcSig,
+            from: extractedData.from,
+            to: extractedData.to,
+            input: input,
+            value: value,
+            assetAddress: assetAddress,
+            assetAmount: amountInWei
+        };
+    }
+
+    async createPoolLogObject(
+        txReceipt: any,  // Type this according to the structure of extractedData
+        contractName: string,
+        funcName: string,
+        input: string,
+        value: bigint,
+        assetAAddress: string,
+        assetAAmount: bigint,
+        assetBAddress : string,
+        assetBAmount : bigint,
+        liquidityAdded : bigint,
+        liquidityRemoved : bigint,
+    ): Promise<any> { 
+
+        const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+        
+        return {
+            block_number: extractedData.blockNumber,
+            block_timestamp: extractedData.blockTimestamp,
+            tx_hash: extractedData.txHash,
+            name: contractName,
+            func_name: funcName,
+            func_sig: extractedData.funcSig,
+            from: extractedData.from,
+            to: extractedData.to,
+            input: input,
+            value: value,
+            assetAAddress: assetAAddress,
+            assetAAmount: assetAAmount,
+            assetBAddress: assetBAddress,
+            assetBAmount: assetBAmount,
+            liquidityAdded : liquidityAdded,
+            liquidityRemoved : liquidityRemoved,
+        };
+    }
+
+    async createSwapV2LogObject(
+        txReceipt: any,  // Type this according to the structure of extractedData
+        contractName: string,
+        funcName: string,
+        input: string,
+        value: bigint,
+        swapInAddress: string,
+        swapInAmount: bigint,
+        swapOutAddress : string,
+        swapOutAmount : bigint
+    ): Promise<any> { 
+
+        const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+        
+        return {
+            block_number: extractedData.blockNumber,
+            block_timestamp: extractedData.blockTimestamp,
+            tx_hash: extractedData.txHash,
+            name: contractName,
+            func_name: funcName,
+            func_sig: extractedData.funcSig,
+            from: extractedData.from,
+            to: extractedData.to,
+            input: input,
+            value: value,
+            swapInAddress: swapInAddress,
+            swapInAmount: swapInAmount,
+            swapOutAddress: swapOutAddress,
+            swapOutAmount: swapOutAmount
+        };
+    }
+
     // Storing L&B Tx in DB
     async logLendAndBorrowTx(
         block_number: number, 
@@ -113,7 +219,7 @@ export class DatabaseService {
         assetAddress:string,
         assetAmount:bigint,
     ): Promise<LendAndBorrowTx> {
-        this.logger.debug('LendAndBorrowTx Logged in Database Service');
+        this.logger.debug('Attempt to log in LendandBorrowTx table : Database Service');
         const newTxInfo = await this.LendAndBorrowTxModel.create( {
             block_number,
             block_timestamp,
@@ -141,9 +247,16 @@ export class DatabaseService {
         from: string, 
         to: string, 
         input: string, 
-        value: bigint
+        value: bigint,
+        assetAAddress: string,
+        assetAAmount: bigint,
+        assetBAddress : string,
+        assetBAmount : bigint,
+        liquidityAdded : bigint,
+        liquidityRemoved : bigint,
+        
     ): Promise<TxInfo> {
-        this.logger.debug('PoolTx Logged in Database Service');
+        this.logger.debug('Attempt to log in PoolTx table : Database Service');
         const newTxInfo = await this.PoolTxModel.create({
             block_number,
             block_timestamp,
@@ -154,12 +267,17 @@ export class DatabaseService {
             from,
             to,
             input,
-            value
-        });
+            value,
+            assetAAddress,
+            assetAAmount,
+            assetBAddress,
+            assetBAmount,
+            liquidityAdded,
+            liquidityRemoved
+        } as any); // as unknown as PoolTx 로 하면 type 설정이 정상적으로 되긴함
         return newTxInfo;
     }
 
-    // Storing L&B Tx in DB
     async logSwapV2Tx(
         block_number: number, 
         block_timestamp: string, 
@@ -170,9 +288,13 @@ export class DatabaseService {
         from: string, 
         to: string, 
         input: string, 
-        value: bigint
+        value: bigint,
+        swapInAddress: string,
+        swapInAmount: bigint,
+        swapOutAddress : string,
+        swapOutAmount : bigint
     ): Promise<TxInfo> {
-        this.logger.debug('SwapV2Tx Logged in Database Service');
+        this.logger.debug('Attempt to log in SwapV2Tx table : Database Service');
         const newTxInfo = await this.SwapV2TxModel.create({
             block_number,
             block_timestamp,
@@ -183,9 +305,37 @@ export class DatabaseService {
             from,
             to,
             input,
-            value
-        });
+            value,
+            swapInAddress,
+            swapInAmount,
+            swapOutAddress,
+            swapOutAmount
+        } as any);
         return newTxInfo;
+    }
+
+    // Internal Function
+    async extractTxDataFromReceipt(txReceipt: ethers.TransactionReceipt): Promise<ReceiptData> {
+        // Extract basic data from receipt
+        const blockNumber = txReceipt.blockNumber;
+        const txHash = txReceipt.hash;
+        const from = txReceipt.from;
+        const to = txReceipt.to;
+        const funcSig = txHash.slice(0, 10);
+
+        // Get block details to extract the timestamp
+        const block = await this.provider().getBlock(blockNumber);
+        const blockTimestamp = new Date(block.timestamp * 1000).toISOString(); // Convert timestamp to ISOString
+
+        // Return the extracted data
+        return {
+            blockNumber,
+            blockTimestamp,
+            txHash,
+            funcSig,
+            from,
+            to
+        };
     }
 
 }

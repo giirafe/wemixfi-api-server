@@ -22,21 +22,12 @@ import { ControllerView } from '../../types/ethers/ControllerView';
 
 import * as wemixfi_addrs_dev from '../../wemixFi_env/wemixfi_addrs_dev.json'
 
+
 export enum LBAssetType {
     Wemix = '0x3eBda066925BBc790FE198F47ef650Ddb764EcfE',
     WemixDollar = '0x487B9C58fFB0a1196790b4189176d3A419Ab1D24',
     StWemix = '0xA17EdCDC4D622a010C33697110cea13FEC0868FB'
 }
-
-interface ReceiptData {
-    blockNumber: number;
-    blockTimestamp: string;
-    txHash: string;
-    funcSig: string;
-    from: string;
-    to: string;
-}
-
 @Injectable()
 export class LendAndBorrowService {
 
@@ -127,9 +118,9 @@ export class LendAndBorrowService {
 
         let contractName : string;
         const funcName : string = 'mint';
-        let value : bigint = 0n; // Wemix amount sent with Tx
         let inputJson  = { senderAddress, amount, assetAddress}
         let input : string = JSON.stringify(inputJson)
+        let value : bigint = 0n; // Wemix amount sent with Tx
 
         // this.logger.debug("assetAddress from Request : ",assetAddress);
         // this.logger.debug("LBAssetType.Wemix from Service : ",LBAssetType.Wemix);
@@ -159,22 +150,22 @@ export class LendAndBorrowService {
             // .wait() : waits for the transaction to be mined and confirmed
             // due to the usage of .wait() which is a async work, await is required to resolve the Promise.
             const txReceipt = await txResult.wait();
-            const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+            const logObject = await this.databaseService.createLBLogObject(txReceipt,contractName,funcName,input,value,assetAddress,amountInWei);
 
             // Call logTxInfo from DatabaseService
             await this.databaseService.logLendAndBorrowTx(
-                extractedData.blockNumber,
-                extractedData.blockTimestamp,
-                extractedData.txHash,
-                contractName,
-                funcName,
-                extractedData.funcSig,
-                extractedData.from,
-                extractedData.to,
-                input,
-                value,
-                assetAddress,
-                amountInWei
+                logObject.block_number,
+                logObject.block_timestamp,
+                logObject.tx_hash,
+                logObject.name,
+                logObject.func_name,
+                logObject.func_sig,
+                logObject.from,
+                logObject.to,
+                logObject.input,
+                logObject.value,
+                logObject.assetAddress,
+                logObject.assetAmount
             );
 
             return txReceipt;
@@ -226,22 +217,22 @@ export class LendAndBorrowService {
     
             console.log("value at Borrow service usage : " + value)
             const txReceipt = await txResult.wait();
-            const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+            const logObject = await this.databaseService.createLBLogObject(txReceipt,contractName,funcName,input,value,assetAddress,borrowAmountInWei);
 
             // Call logTxInfo from DatabaseService
             await this.databaseService.logLendAndBorrowTx(
-                extractedData.blockNumber,
-                extractedData.blockTimestamp,
-                extractedData.txHash,
-                contractName,
-                funcName,
-                extractedData.funcSig,
-                extractedData.from,
-                extractedData.to,
-                input,
-                value,
-                assetAddress,
-                borrowAmountInWei
+                logObject.block_number,
+                logObject.block_timestamp,
+                logObject.tx_hash,
+                logObject.name,
+                logObject.func_name,
+                logObject.func_sig,
+                logObject.from,
+                logObject.to,
+                logObject.input,
+                logObject.value,
+                logObject.assetAddress,
+                logObject.assetAmount
             );
 
             return txReceipt;
@@ -260,13 +251,15 @@ export class LendAndBorrowService {
         liquidateAssetAddress : string,
         collateralAddress: string, 
     ): Promise<ethers.TransactionReceipt> {
-        const liquidatorWallet = await this.accountService.getAddressWallet(liquidatorAddress);
-        const repayAmountInWei = ethers.parseEther(repayAmount.toString());
 
         let contractName: string;
         const funcName = 'liquidateBorrow';
         let value : bigint = 0n; // Wemix amount sent with Tx
         let inputJson = JSON.stringify({ borrowerAddress, repayAmount, collateralAddress });
+        let input : string = JSON.stringify(inputJson)
+
+        const liquidatorWallet = await this.accountService.getAddressWallet(liquidatorAddress);
+        const repayAmountInWei = ethers.parseEther(repayAmount.toString());
 
         try {
             let txResult;
@@ -296,28 +289,24 @@ export class LendAndBorrowService {
             }
 
             const txReceipt = await txResult.wait();
-            const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+            const logObject = await this.databaseService.createLBLogObject(txReceipt,contractName,funcName,input,value,liquidateAssetAddress,repayAmountInWei);
 
-            console.log(txReceipt.logs);
+            // WIP : Should get the receivedAssetAddress, receivedAssetAmount from catching 'LiquidateBorrow' event.
 
-            // Finding 'LiquidateBorrow' event from txReceipt Log, currently not working
-            // this.eventFinder(txReceipt,'Transfer');
-
-            // Log and store transaction information
+            // Call logTxInfo from DatabaseService
             await this.databaseService.logLendAndBorrowTx(
-                extractedData.blockNumber,
-                extractedData.blockTimestamp,
-                extractedData.txHash,
-                contractName,
-                funcName,
-                extractedData.funcSig,
-                extractedData.from,
-                extractedData.to,
-                inputJson,
-                value,
-                liquidateAssetAddress,
-                repayAmountInWei,
-                // WIP : Need to fill in 'Repayed Asset Address & Repayed Amount'
+                logObject.block_number,
+                logObject.block_timestamp,
+                logObject.tx_hash,
+                logObject.name,
+                logObject.func_name,
+                logObject.func_sig,
+                logObject.from,
+                logObject.to,
+                logObject.input,
+                logObject.value,
+                logObject.assetAddress,
+                logObject.assetAmount
             );
 
             return txReceipt;
@@ -328,28 +317,6 @@ export class LendAndBorrowService {
         }
     }
 
-    private async extractTxDataFromReceipt(txReceipt: ethers.TransactionReceipt): Promise<ReceiptData> {
-        // Extract basic data from receipt
-        const blockNumber = txReceipt.blockNumber;
-        const txHash = txReceipt.hash;
-        const from = txReceipt.from;
-        const to = txReceipt.to;
-        const funcSig = txHash.slice(0, 10);
-
-        // Get block details to extract the timestamp
-        const block = await this.databaseService.provider().getBlock(blockNumber);
-        const blockTimestamp = new Date(block.timestamp * 1000).toISOString(); // Convert timestamp to ISOString
-
-        // Return the extracted data
-        return {
-            blockNumber,
-            blockTimestamp,
-            txHash,
-            funcSig,
-            from,
-            to
-        };
-    }
 
     async eventFinder(receipt: ethers.ContractTransactionReceipt, eventName:string) {
         // .find() founds the first element in the array. In the case of two or more events existing which have the same name should be considered..

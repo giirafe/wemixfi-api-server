@@ -1,5 +1,6 @@
 import { Table, Column, Model, DataType, CreatedAt, UpdatedAt } from 'sequelize-typescript';
 
+
 @Table
 export class Account extends Model<Account> {
   @Column({
@@ -77,7 +78,7 @@ export class TxInfo extends Model<TxInfo> {
   tx_hash: string;
 
   @Column(DataType.STRING)
-  name: string;
+  contract_name: string;
 
   @Column(DataType.STRING)
   func_name: string;
@@ -102,7 +103,7 @@ export class TxInfo extends Model<TxInfo> {
 
   @Column({
     allowNull: true,
-    type: DataType.BIGINT // if Wemix sent with Tx
+    type: DataType.DECIMAL(65) // if Wemix sent with Tx
   })
   value: bigint;
 
@@ -128,22 +129,22 @@ export class LendAndBorrowTx extends TxInfo {
 
   @Column({
     allowNull:false,
-    type:DataType.BIGINT
+    type:DataType.DECIMAL(65)
   })
-  assetAmount:number;
+  assetAmount:bigint;
 
   // received~ columns are for LiquidateBorrow cases
   @Column({
-    allowNull:true,
+    allowNull:false,
     type:DataType.STRING
   })
   receivedAssetAddress:string;
 
   @Column({
-    allowNull:true,
-    type:DataType.BIGINT
+    allowNull:false,
+    type:DataType.DECIMAL(65)
   })
-  reeceivedAssetAmount:bigint;
+  receivedAssetAmount:bigint;
 
 }
 
@@ -157,25 +158,37 @@ export class PoolTx extends TxInfo {
     allowNull:false,
     type:DataType.STRING
   })
-  assetAAddress:number;
+  assetAAddress:string;
 
   @Column({
     allowNull:false,
-    type:DataType.BIGINT
+    type:DataType.DECIMAL(65)
   })
-  assetAAmount:number;
+  assetAAmount:bigint;
 
   @Column({
     allowNull:false,
     type:DataType.STRING
   })
-  assetBAddress:number;
+  assetBAddress:string;
 
   @Column({
     allowNull:false,
-    type:DataType.BIGINT
+    type:DataType.DECIMAL(65)
   })
-  assetBAmount:number;
+  assetBAmount:bigint;
+
+  @Column({
+    allowNull:false,
+    type:DataType.DECIMAL(65)
+  })
+  liquidityAdded:bigint;
+
+  @Column({
+    allowNull:false,
+    type:DataType.DECIMAL(65)
+  })
+  liquidityRemoved:bigint;
 }
 
 @Table({
@@ -188,23 +201,23 @@ export class SwapV2Tx extends TxInfo {
     allowNull:false,
     type:DataType.STRING
   })
-  assetAAddress:number;
+  swapInAddress:string;
 
   @Column({
     allowNull:false,
-    type:DataType.BIGINT
+    type:DataType.DECIMAL(65)
   })
-  assetAAmount:number;
+  swapInAmount:bigint;
 
   @Column({
     allowNull:false,
     type:DataType.STRING
   })
-  assetBAddress:number;
+  swapOutAddress:string;
 
   @Column({
     allowNull:false,
-    type:DataType.BIGINT
+    type:DataType.DECIMAL(65)
   })
-  assetBAmount:number;
+  swapOutAmount:bigint;
 }

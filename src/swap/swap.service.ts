@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import {  ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 
@@ -13,6 +13,8 @@ import * as IWeswapFactoryJson from '../../wemixFi_env/IWeswapFactory.json'
 import { IWeswapFactory } from '../../types/ethers/IWeswapFactory';
 
 import * as wemixfi_addrs_dev from '../../wemixFi_env/wemixfi_addrs_dev.json'
+
+const contractName :string = 'WeswapRouter';
 
 // !!! Currently can't detect if a certain pair input is valid in 'WemixFi' thus throwing a Error which is not directly stating this situation
 @Injectable()
@@ -117,6 +119,7 @@ export class SwapService {
         to: string,
         deadline: number
     ): Promise<boolean> {
+
         const senderWallet = await this.accountService.getAddressWallet(msgSender);
         const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
     
@@ -135,9 +138,34 @@ export class SwapService {
             );
 
             const txReceipt = await tx.wait();
-            this.logger.debug('txReceipt on Swap : ' + txReceipt.logs);
 
             console.log( txReceipt.logs)
+
+            const funcName = 'swapExactTokensForTokens';
+            let value : bigint = 0n; // Wemix amount sent with Tx
+            let inputJson = JSON.stringify({ msgSender, amountIn, amountOutMin, path, to, deadline });
+            let input : string = JSON.stringify(inputJson)
+
+            // const logObject = await this.databaseService.createSwapV2LogObject(txReceipt,contractName,funcName,input,value,tokenA,amountInWei,tokenB,amountTokenB, liquidity, 0n);
+
+            // await this.databaseService.logPoolTx(
+            //     logObject.block_number,
+            //     logObject.block_timestamp,
+            //     logObject.tx_hash,
+            //     logObject.name,
+            //     logObject.func_name,
+            //     logObject.func_sig,
+            //     logObject.from,
+            //     logObject.to,
+            //     logObject.input,
+            //     logObject.value,
+            //     logObject.assetAAddress,
+            //     logObject.assetAAmount,
+            //     logObject.assetBAddress,
+            //     logObject.assetBAmount,
+            //     logObject.liquidityAdded,
+            //     logObject.liquidityRemoved,
+            // );
 
             const swapEvent  = txReceipt.logs?.find((e: any) => e.eventName === 'Swap') as ethers.EventLog;
             if(swapEvent) {
@@ -161,6 +189,12 @@ export class SwapService {
         to: string,
         deadline: number
     ): Promise<boolean> {
+
+        const funcName = 'swapExactTokensForTokens';
+        let value : bigint = 0n; // Wemix amount sent with Tx
+        let inputJson = JSON.stringify({ msgSender, amountOut, amountInMax, path, to, deadline });
+        let input : string = JSON.stringify(inputJson)
+        
         const senderWallet = await this.accountService.getAddressWallet(msgSender);
         const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
     
@@ -196,6 +230,12 @@ export class SwapService {
         to: string,
         deadline: number,
     ): Promise<boolean> {
+
+        const funcName = 'swapExactWEMIXForTokens';
+        let value : bigint = 0n; // Wemix amount sent with Tx
+        let inputJson = JSON.stringify({ msgSender, amountIn, amountOutMin, path, to, deadline });
+        let input : string = JSON.stringify(inputJson)
+
         const senderWallet = await this.accountService.getAddressWallet(msgSender);
         const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
     
@@ -229,6 +269,12 @@ export class SwapService {
         to: string,
         deadline: number
     ): Promise<boolean> {
+
+        const funcName = 'swapTokensForExactWEMIX';
+        let value : bigint = 0n; // Wemix amount sent with Tx
+        let inputJson = JSON.stringify({ msgSender, amountOut, amountInMax, path, to, deadline });
+        let input : string = JSON.stringify(inputJson)
+
         const senderWallet = await this.accountService.getAddressWallet(msgSender);
         const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
     
@@ -265,6 +311,12 @@ export class SwapService {
         to: string,
         deadline: number,
     ): Promise<boolean> {
+
+        const funcName = 'swapExactTokensForWEMIX';
+        let value : bigint = 0n; // Wemix amount sent with Tx
+        let inputJson = JSON.stringify({ msgSender, amountIn, amountOutMin, path, to, deadline });
+        let input : string = JSON.stringify(inputJson)
+        
         const senderWallet = await this.accountService.getAddressWallet(msgSender);
         const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
     
@@ -298,6 +350,12 @@ export class SwapService {
         to: string,
         deadline: number
     ): Promise<boolean> {
+
+        const funcName = 'swapTokensForExactWEMIX';
+        let value : bigint = 0n; // Wemix amount sent with Tx
+        let inputJson = JSON.stringify({ msgSender, amountOut, amountInMax, path, to, deadline });
+        let input : string = JSON.stringify(inputJson)
+
         const senderWallet = await this.accountService.getAddressWallet(msgSender);
         const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
     
