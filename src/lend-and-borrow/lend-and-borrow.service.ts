@@ -20,8 +20,7 @@ import { WemixfiLendingView, WemixfiLendingViewInterface } from '../../types/eth
 import * as wemixfiControllerViewJson from '../../wemixFi_env/ControllerView.json'
 import { ControllerView } from '../../types/ethers/ControllerView';
 
-import * as wemixfi_addrs_dev from '../../wemixFi_env/wemixfi_addrs_dev.json'
-
+import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet';
 
 export enum LBAssetType {
     Wemix = '0x3eBda066925BBc790FE198F47ef650Ddb764EcfE',
@@ -31,12 +30,12 @@ export enum LBAssetType {
 @Injectable()
 export class LendAndBorrowService {
 
-    // Since I'm testing on dev.wemixfi, can't use the real Smart Contract used on wemixFi, getting dev deployed smart contract addresses from wemixfi_addrs_dev.json
-    private readonly cWemixAddress = wemixfi_addrs_dev.cWemix; // cEth.sol
-    private readonly cWemixDollarAddress = wemixfi_addrs_dev.cWemixDollar; // cErc20.sol
-    private readonly cstWemixAddress =  wemixfi_addrs_dev.cstWemix;
-    private readonly wemixfiLendingViewAddress = wemixfi_addrs_dev.wemixfiLendingView;
-    private readonly wemixfiControllerViewAddress = wemixfi_addrs_dev.controllerView;
+    // Since I'm testing on dev.wemixfi, can't use the real Smart Contract used on wemixFi, getting dev deployed smart contract addresses from CA.json
+    private readonly cWemixAddress = CA.cWemix; // cEth.sol
+    private readonly cWemixDollarAddress = CA.cWemixDollar; // cErc20.sol
+    private readonly cstWemixAddress =  CA.cstWemix;
+    private readonly wemixfiLendingViewAddress = CA.wemixfiLendingView;
+    private readonly wemixfiControllerViewAddress = CA.controllerView;
 
     private cWemixContract: CWemix;
     private cWemixDollarContract : CWemixDollar;

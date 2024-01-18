@@ -12,7 +12,7 @@ import { WeswapRouter } from '../../types/ethers/WeswapRouter';
 import * as IWeswapFactoryJson from '../../wemixFi_env/IWeswapFactory.json'
 import { IWeswapFactory } from '../../types/ethers/IWeswapFactory';
 
-import * as wemixfi_addrs_dev from '../../wemixFi_env/wemixfi_addrs_dev.json'
+import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet';
 
 const contractName :string = 'WeswapRouter';
 
@@ -20,10 +20,10 @@ const contractName :string = 'WeswapRouter';
 @Injectable()
 export class SwapService {
 
-    private readonly wWemixAddress = wemixfi_addrs_dev.wWemix;
+    private readonly wWemixAddress = CA.wWemix;
 
-    private readonly weswapRouterAddress = wemixfi_addrs_dev.router;
-    private readonly weswapFactoryAddress = wemixfi_addrs_dev.factory; // factory : swapV2 factory
+    private readonly weswapRouterAddress = CA.router;
+    private readonly weswapFactoryAddress = CA.factory; // factory : swapV2 factory
 
     private weswapRouterContract:WeswapRouter;
     private weswapFactoryContract : IWeswapFactory ;
@@ -167,6 +167,7 @@ export class SwapService {
             //     logObject.liquidityRemoved,
             // );
 
+            this.checkLogAddresses(txReceipt.logs);
             const swapEvent  = txReceipt.logs?.find((e: any) => e.eventName === 'Swap') as ethers.EventLog;
             if(swapEvent) {
                 this.logger.debug('Swap Event Emitted : ' + swapEvent);
@@ -414,6 +415,17 @@ export class SwapService {
             throw new Error(`Error : converting amount of ${tokenAddress} `);
         }
     }
+
+    checkLogAddresses(receiptLogs) {
+        receiptLogs.forEach( log => {
+            if (contractInfos[log.address]) {
+                console.log(`Address found: ${log.address}, Contract Name: ${contractInfos[log.address].name}`);
+            } else {
+                console.log(`Address not found: ${log.address}`);
+            }
+        });
+    }
+    
 
 
 }

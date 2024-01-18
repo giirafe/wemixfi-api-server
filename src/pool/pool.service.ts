@@ -12,8 +12,7 @@ import { WeswapRouter } from '../../types/ethers/WeswapRouter';
 import * as IWeswapFactoryJson from '../../wemixFi_env/IWeswapFactory.json'
 import { IWeswapFactory } from '../../types/ethers/IWeswapFactory';
 
-import * as wemixfi_addrs_dev from '../../wemixFi_env/wemixfi_addrs_dev.json'
-
+import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA for Contract Address
 
 interface ReceiptData {
     blockNumber: number;
@@ -28,10 +27,10 @@ const contractName :string = 'WeswapRouter';
 @Injectable()
 export class PoolService {
 
-    private readonly wWemixAddress = wemixfi_addrs_dev.wWemix;
+    private readonly wWemixAddress = CA.wWemix;
 
-    private readonly weswapRouterAddress = wemixfi_addrs_dev.router;
-    private readonly weswapFactoryAddress = wemixfi_addrs_dev.factory; // factory : swapV2 factory
+    private readonly weswapRouterAddress = CA.router;
+    private readonly weswapFactoryAddress = CA.factory; // factory : swapV2 factory
 
     private weswapRouterContract:WeswapRouter;
     private weswapFactoryContract : IWeswapFactory ;
