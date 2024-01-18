@@ -392,18 +392,6 @@ export class SwapService {
             throw new Error(`Error : approving ${amountInWei} for ${tokenAddress}`);
         }
     }
-
-    // async approvePathTokens(path: string[], senderWallet: ethers.Wallet, amountInWei: bigint, routerAddress: string): Promise<void> {
-    //     for (let i = 0; i < path.length - 1; i++) {
-    //         try {
-    //             const tokenAmountToApprove = i === 0 ? amountInWei : ethers.MaxUint256;
-    //             await this.approveToken(path[i], senderWallet, tokenAmountToApprove, routerAddress);
-    //         } catch (error) {
-    //             this.logger.error(`Error while approving token ${path[i]}: `, error);
-    //             throw new Error(`Error while approving token ${path[i]}: ${error.message}`);
-    //         }
-    //     }
-    // }
     
     async getDecimal(tokenAddress):Promise<bigint> {
         try {
