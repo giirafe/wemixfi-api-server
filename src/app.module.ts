@@ -31,6 +31,6 @@ import { PoolModule } from './pool/pool.module';
     SwapModule,
   ],
   controllers: [AppController],
-  providers: [AppService,],
+  providers: [AppService],
 })
 export class AppModule {}

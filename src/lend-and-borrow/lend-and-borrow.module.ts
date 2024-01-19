@@ -5,10 +5,8 @@ import { AccountModule } from '../account/account.module';
 import { LendAndBorrowService } from './lend-and-borrow.service';
 
 @Module({
-  imports:[
-    DatabaseModule, AccountModule,
-  ],
+  imports: [DatabaseModule, AccountModule],
   controllers: [LendAndBorrowController],
-  providers: [LendAndBorrowService]
+  providers: [LendAndBorrowService],
 })
 export class LendAndBorrowModule {}

@@ -5,10 +5,8 @@ import { AccountModule } from '../account/account.module';
 import { SwapService } from './swap.service';
 
 @Module({
-  imports:[
-    DatabaseModule, AccountModule,
-  ],
+  imports: [DatabaseModule, AccountModule],
   controllers: [SwapController],
-  providers: [SwapService]
+  providers: [SwapService],
 })
 export class SwapModule {}

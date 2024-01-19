@@ -1,18 +1,24 @@
-import { Table, Column, Model, DataType, CreatedAt, UpdatedAt } from 'sequelize-typescript';
-
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  CreatedAt,
+  UpdatedAt,
+} from 'sequelize-typescript';
 
 @Table
 export class Account extends Model<Account> {
   @Column({
     allowNull: false,
     primaryKey: true,
-    type: DataType.STRING
+    type: DataType.STRING,
   })
   accountAddress: string;
 
   @Column({
     allowNull: false,
-    type: DataType.STRING
+    type: DataType.STRING,
   })
   privateKey: string;
 
@@ -24,25 +30,25 @@ export class Account extends Model<Account> {
 export class TransferTx extends Model<TransferTx> {
   @Column({
     allowNull: false,
-    type: DataType.STRING
+    type: DataType.STRING,
   })
   senderAddress: string;
 
   @Column({
     allowNull: false,
-    type: DataType.STRING
+    type: DataType.STRING,
   })
   receiverAddress: string;
 
   @Column({
     allowNull: false,
-    type: DataType.DECIMAL(10, 2) // or another appropriate type based on your requirements
+    type: DataType.DECIMAL(10, 2), // or another appropriate type based on your requirements
   })
   amount: number;
 
   @Column({
     allowNull: false,
-    type: DataType.STRING
+    type: DataType.STRING,
   })
   contractAddress: string;
 
@@ -60,20 +66,20 @@ export class TransferTx extends Model<TransferTx> {
 export class TxInfo extends Model<TxInfo> {
   @Column({
     allowNull: false,
-    type: DataType.INTEGER
+    type: DataType.INTEGER,
   })
   block_number: number;
 
   @Column({
     allowNull: false,
-    type: DataType.STRING
+    type: DataType.STRING,
   })
   block_timestamp: string;
 
   @Column({
     allowNull: false,
     primaryKey: true,
-    type: DataType.STRING
+    type: DataType.STRING,
   })
   tx_hash: string;
 
@@ -88,13 +94,13 @@ export class TxInfo extends Model<TxInfo> {
 
   @Column({
     allowNull: false,
-    type: DataType.STRING
+    type: DataType.STRING,
   })
   from: string;
 
   @Column({
     allowNull: false,
-    type: DataType.STRING
+    type: DataType.STRING,
   })
   to: string;
 
@@ -103,7 +109,7 @@ export class TxInfo extends Model<TxInfo> {
 
   @Column({
     allowNull: true,
-    type: DataType.DECIMAL(65) // if Wemix sent with Tx
+    type: DataType.DECIMAL(65), // if Wemix sent with Tx
   })
   value: bigint;
 
@@ -116,108 +122,106 @@ export class TxInfo extends Model<TxInfo> {
 
 @Table({
   defaultScope: {
-    order: [['block_timestamp', 'ASC']] // or 'DESC' for descending
-  }
+    order: [['block_timestamp', 'ASC']], // or 'DESC' for descending
+  },
 })
 export class LendAndBorrowTx extends TxInfo {
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  assetAddress: string;
 
   @Column({
-    allowNull:false,
-    type:DataType.STRING
+    allowNull: false,
+    type: DataType.DECIMAL(65),
   })
-  assetAddress:string;
-
-  @Column({
-    allowNull:false,
-    type:DataType.DECIMAL(65)
-  })
-  assetAmount:bigint;
+  assetAmount: bigint;
 
   // received~ columns are for LiquidateBorrow cases
   @Column({
-    allowNull:false,
-    type:DataType.STRING
+    allowNull: false,
+    type: DataType.STRING,
   })
-  receivedAssetAddress:string;
+  receivedAssetAddress: string;
 
   @Column({
-    allowNull:false,
-    type:DataType.DECIMAL(65)
+    allowNull: false,
+    type: DataType.DECIMAL(65),
   })
-  receivedAssetAmount:bigint;
-
+  receivedAssetAmount: bigint;
 }
 
 @Table({
   defaultScope: {
-    order: [['block_timestamp', 'ASC']] // or 'DESC' for descending
-  }
+    order: [['block_timestamp', 'ASC']], // or 'DESC' for descending
+  },
 })
 export class PoolTx extends TxInfo {
   @Column({
-    allowNull:false,
-    type:DataType.STRING
+    allowNull: false,
+    type: DataType.STRING,
   })
-  assetAAddress:string;
+  assetAAddress: string;
 
   @Column({
-    allowNull:false,
-    type:DataType.DECIMAL(65)
+    allowNull: false,
+    type: DataType.DECIMAL(65),
   })
-  assetAAmount:bigint;
+  assetAAmount: bigint;
 
   @Column({
-    allowNull:false,
-    type:DataType.STRING
+    allowNull: false,
+    type: DataType.STRING,
   })
-  assetBAddress:string;
+  assetBAddress: string;
 
   @Column({
-    allowNull:false,
-    type:DataType.DECIMAL(65)
+    allowNull: false,
+    type: DataType.DECIMAL(65),
   })
-  assetBAmount:bigint;
+  assetBAmount: bigint;
 
   @Column({
-    allowNull:false,
-    type:DataType.DECIMAL(65)
+    allowNull: false,
+    type: DataType.DECIMAL(65),
   })
-  liquidityAdded:bigint;
+  liquidityAdded: bigint;
 
   @Column({
-    allowNull:false,
-    type:DataType.DECIMAL(65)
+    allowNull: false,
+    type: DataType.DECIMAL(65),
   })
-  liquidityRemoved:bigint;
+  liquidityRemoved: bigint;
 }
 
 @Table({
   defaultScope: {
-    order: [['block_timestamp', 'ASC']] // or 'DESC' for descending
-  }
+    order: [['block_timestamp', 'ASC']], // or 'DESC' for descending
+  },
 })
 export class SwapV2Tx extends TxInfo {
   @Column({
-    allowNull:false,
-    type:DataType.STRING
+    allowNull: false,
+    type: DataType.STRING,
   })
-  swapInAddress:string;
+  swapInAddress: string;
 
   @Column({
-    allowNull:false,
-    type:DataType.DECIMAL(65)
+    allowNull: false,
+    type: DataType.DECIMAL(65),
   })
-  swapInAmount:bigint;
+  swapInAmount: bigint;
 
   @Column({
-    allowNull:false,
-    type:DataType.STRING
+    allowNull: false,
+    type: DataType.STRING,
   })
-  swapOutAddress:string;
+  swapOutAddress: string;
 
   @Column({
-    allowNull:false,
-    type:DataType.DECIMAL(65)
+    allowNull: false,
+    type: DataType.DECIMAL(65),
   })
-  swapOutAmount:bigint;
+  swapOutAmount: bigint;
 }

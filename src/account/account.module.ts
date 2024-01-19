@@ -11,9 +11,7 @@ import { DatabaseModule } from '../database/database.module'; // Import Database
     DatabaseModule, // Import DatabaseModule to use DatabaseService
   ],
   controllers: [AccountController],
-  providers : [AccountService],
-  exports: [
-    AccountService
-  ]
+  providers: [AccountService],
+  exports: [AccountService],
 })
 export class AccountModule {}

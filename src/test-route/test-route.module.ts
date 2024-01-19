@@ -10,8 +10,6 @@ import { DatabaseModule } from '../database/database.module'; // Import Database
     DatabaseModule, // Import DatabaseModule to use DatabaseService
   ],
   controllers: [TestRouteController],
-  exports: [
-    
-  ]
+  exports: [],
 })
 export class TestRouteModule {}
