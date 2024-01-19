@@ -96,7 +96,7 @@ export class SwapController {
         @Body('path') path: string[],
         @Body('to') to: string,
         @Body('deadline') deadline: number
-    ): Promise<boolean> {
+    ): Promise<{swapOutAmount:bigint,swapInAmount:bigint}> {
         try {
             return await this.swapService.swapExactTokensForTokens(msgSender, amountIn, amountOutMin, path, to, deadline);
         } catch (error) {

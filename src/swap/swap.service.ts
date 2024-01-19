@@ -14,7 +14,7 @@ import { IWeswapFactory } from '../../types/ethers/IWeswapFactory';
 
 import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet';
 
-const contractName :string = 'WeswapRouter';
+const contractName: string = 'WeswapRouter';
 
 // !!! Currently can't detect if a certain pair input is valid in 'WemixFi' thus throwing a Error which is not directly stating this situation
 @Injectable()
@@ -118,19 +118,19 @@ export class SwapService {
         path: string[],
         to: string,
         deadline: number
-    ): Promise<boolean> {
+    ): Promise<{swapInAmount : bigint, swapOutAmount : bigint}> {
 
         const senderWallet = await this.accountService.getAddressWallet(msgSender);
         const weswapRouterContractWithSigner = this.weswapRouterContract.connect(senderWallet);
     
-        const amountInWei = await this.convertToWei(path[0], amountIn);
+        const swapInAmount = await this.convertToWei(path[0], amountIn);
         const amountOutMinWei = await this.convertToWei(path[path.length - 1], amountOutMin);
     
-        await this.approveToken(path[0], senderWallet, amountInWei, this.weswapRouterAddress);
+        await this.approveToken(path[0], senderWallet, swapInAmount, this.weswapRouterAddress);
 
         try {
             const tx = await weswapRouterContractWithSigner.swapExactTokensForTokens(
-                amountInWei,
+                swapInAmount,
                 amountOutMinWei,
                 path,
                 to,
@@ -139,43 +139,42 @@ export class SwapService {
 
             const txReceipt = await tx.wait();
 
-            console.log( txReceipt.logs)
-
             const funcName = 'swapExactTokensForTokens';
             let value : bigint = 0n; // Wemix amount sent with Tx
             let inputJson = JSON.stringify({ msgSender, amountIn, amountOutMin, path, to, deadline });
             let input : string = JSON.stringify(inputJson)
+            
+            // Input Amount of certain asset => use amountIn from User Input, Output Amount of certain asset => extract from 'Swap' event.
+            const swapOutAmount = await this.getSwapAmountOut(txReceipt,msgSender,this.weswapRouterAddress);
 
-            // const logObject = await this.databaseService.createSwapV2LogObject(txReceipt,contractName,funcName,input,value,tokenA,amountInWei,tokenB,amountTokenB, liquidity, 0n);
+            console.log(swapOutAmount);
 
-            // await this.databaseService.logPoolTx(
-            //     logObject.block_number,
-            //     logObject.block_timestamp,
-            //     logObject.tx_hash,
-            //     logObject.name,
-            //     logObject.func_name,
-            //     logObject.func_sig,
-            //     logObject.from,
-            //     logObject.to,
-            //     logObject.input,
-            //     logObject.value,
-            //     logObject.assetAAddress,
-            //     logObject.assetAAmount,
-            //     logObject.assetBAddress,
-            //     logObject.assetBAmount,
-            //     logObject.liquidityAdded,
-            //     logObject.liquidityRemoved,
-            // );
-
-            this.checkLogAddresses(txReceipt.logs);
-            const swapEvent  = txReceipt.logs?.find((e: any) => e.eventName === 'Swap') as ethers.EventLog;
-            if(swapEvent) {
-                this.logger.debug('Swap Event Emitted : ' + swapEvent);
+            if(swapOutAmount) {
+                this.logger.debug(`Swap Event Emitted, swapAmountIn ${swapInAmount}, Out ${swapOutAmount} `);
             } else {
                 this.logger.debug('Swap Event not found')
             }
 
-            return true;
+            const logObject = await this.databaseService.createSwapV2LogObject(txReceipt,contractName,funcName,input,value,path[0],swapInAmount,path[path.length-1],swapOutAmount);
+
+            await this.databaseService.logSwapV2Tx(
+                logObject.block_number,
+                logObject.block_timestamp,
+                logObject.tx_hash,
+                logObject.name,
+                logObject.func_name,
+                logObject.func_sig,
+                logObject.from,
+                logObject.to,
+                logObject.input,
+                logObject.value,
+                logObject.swapInAddress,
+                logObject.swapInAmount,
+                logObject.swapOutAddress,
+                logObject.swapOutAmount,
+            );
+
+            return {swapInAmount,swapOutAmount};
         } catch (error) {
             this.logger.error('Error while swapping tokens: ', error);
             throw new Error('Error while swapping tokens: ' + error.message);
@@ -416,16 +415,69 @@ export class SwapService {
         }
     }
 
-    checkLogAddresses(receiptLogs) {
-        receiptLogs.forEach( log => {
+    async getSwapAmountOut(txReceipt, msgSender:string, routerAddress: string): Promise<bigint | undefined> {
+        
+        const decodedLogs = await this.decodeReceiptLogs(txReceipt);
+        for (const log of decodedLogs) {
+            console.log(log);
+        }
+        
+        const swapEvents = decodedLogs.filter(log => log.name === "Swap");
+
+        // Initialize the values to undefined
+        let amount0Out: bigint | undefined;
+        let amount1Out: bigint | undefined;
+
+        if (swapEvents.length > 0) {
+            // Extracting the amountOut values from the last 'Swap' Event.
+            amount0Out = swapEvents[swapEvents.length - 1].args.amount1Out
+            amount1Out = swapEvents[swapEvents.length - 1].args.amount1Out
+            if(msgSender < routerAddress) {
+                console.log("msgSender : amount0 ")
+                return amount0Out
+            } else {
+                console.log("msgSender : amount1 ")
+                return amount1Out
+            }
+        } else {
+            throw Error("No 'Swap' event found in Tx Receipt")
+        }
+    }
+
+    async decodeReceiptLogs(receiptLogs):Promise<any> {
+
+        const decodedLogs = [];
+
+        for (const log of receiptLogs) {
             if (contractInfos[log.address]) {
-                console.log(`Address found: ${log.address}, Contract Name: ${contractInfos[log.address].name}`);
+                const contractName: string = contractInfos[log.address].name;
+                let abiName: string = contractInfos[log.address].abi;
+    
+                try {
+                    console.log(`Address found: ${log.address}, Contract Name: ${contractName}, ABI Name: ${abiName}`);
+
+                    // Dynamically import the ABI from wemixFi_env directory
+                    const contractJSON = await import(`../../wemixFi_env/${abiName}.json`);
+                    // const contractJSON = await import(`../../wemixFi_env/WWEMIX.json`);
+                    // const contractJSON2 = await import(`../../wemixFi_env/WeswapPair.json`);
+                    const iface = new ethers.Interface(contractJSON.abi);
+
+                    // Decode the log with the interface
+                    const decodedLog = iface.parseLog({
+                        topics: log.topics,
+                        data: log.data,
+                    });
+                    decodedLogs.push(decodedLog);
+
+                    // console.log(`Decoded Log : ${JSON.stringify(decodedLog)}`);
+                } catch (error) {
+                    console.error(`Error loading ABI for ${log.address}, ${abiName}: ${error.message}`);
+                }
             } else {
                 console.log(`Address not found: ${log.address}`);
             }
-        });
+        }
+        return decodedLogs
     }
     
-
-
 }
