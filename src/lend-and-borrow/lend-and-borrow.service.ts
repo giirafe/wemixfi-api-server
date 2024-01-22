@@ -425,20 +425,4 @@ export class LendAndBorrowService {
     }
   }
 
-  async eventFinder(
-    receipt: ethers.ContractTransactionReceipt,
-    eventName: string,
-  ) {
-    // .find() founds the first element in the array. In the case of two or more events existing which have the same name should be considered..
-    const event = receipt.logs?.find(
-      (e: any) => e.eventName === eventName,
-    ) as ethers.EventLog;
-    console.log(event);
-    if (!event || !('args' in event)) {
-      throw new Error(`${eventName} event not found or not properly formatted`);
-    } else {
-      console.log('Args from event found : ' + event.args);
-      return event;
-    }
-  }
 }

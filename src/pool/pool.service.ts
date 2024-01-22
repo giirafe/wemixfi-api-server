@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ethers } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
+import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.service';
 
 import * as ERC20Json from '../../wemixFi_env/ERC20.json';
 import { ERC20 } from '../../types/ethers/ERC20';
@@ -41,6 +42,7 @@ export class PoolService {
   constructor(
     private databaseService: DatabaseService,
     private accountService: AccountService,
+    private extendedEthersService: ExtendedEthersService
   ) {
     const provider = this.databaseService.provider();
     this.weswapRouterContract = new ethers.Contract(

@@ -10,6 +10,11 @@ import { LendAndBorrowModule } from './lend-and-borrow/lend-and-borrow.module';
 import { AccountModule } from './account/account.module';
 import { SwapModule } from './swap/swap.module';
 import { PoolModule } from './pool/pool.module';
+import { SwapV3Module } from './swap-v3/swap-v3.module';
+import { PoolV3Controller } from './pool-v3/pool-v3.controller';
+import { PoolV3Module } from './pool-v3/pool-v3.module';
+import { ExtendedEthersService } from './extended-ethers/extended-ethers.service';
+import { ExtendedEthersModule } from './extended-ethers/extended-ethers.module';
 
 @Module({
   imports: [
@@ -29,8 +34,11 @@ import { PoolModule } from './pool/pool.module';
     LendAndBorrowModule,
     PoolModule,
     SwapModule,
+    SwapV3Module,
+    PoolV3Module,
+    ExtendedEthersModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, PoolV3Controller],
+  providers: [AppService, ExtendedEthersService],
 })
 export class AppModule {}
