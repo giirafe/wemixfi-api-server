@@ -238,6 +238,7 @@ export class DatabaseService {
     this.logger.debug(
       'Attempt to log in LendandBorrowTx table : Database Service',
     );
+    console.log("assetAddress & assetAmount from databaseService : " + assetAddress + "   " + assetAmount)
     const newTxInfo = await this.LendAndBorrowTxModel.create({
       block_number,
       block_timestamp,
@@ -251,7 +252,7 @@ export class DatabaseService {
       value,
       assetAddress,
       assetAmount,
-    } as any);
+    } as unknown as LendAndBorrowTx);
     return newTxInfo;
   }
 

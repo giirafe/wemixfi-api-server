@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Contract, ethers } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
+import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.service';
 
 // const cWemixJson = require( '../../wemixFi_env') // importing CWemix.json for ABI
 // User Interactions are handled on each asset's deployed contract. Thus process of instantiating each asset's contract is mandated
@@ -55,6 +56,7 @@ export class LendAndBorrowService {
   constructor(
     private databaseService: DatabaseService,
     private accountService: AccountService,
+    private extendedEthersService: ExtendedEthersService,
   ) {
     const provider = this.databaseService.provider();
     this.cWemixContract = new ethers.Contract(

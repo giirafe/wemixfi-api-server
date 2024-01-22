@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ethers } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
+import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.service';
 
 import * as ERC20Json from '../../wemixFi_env/ERC20.json';
 import { ERC20 } from '../../types/ethers/ERC20';
@@ -38,6 +39,7 @@ export class SwapService {
   constructor(
     private databaseService: DatabaseService,
     private accountService: AccountService,
+    private extendedEthersService: ExtendedEthersService,
   ) {
     const provider = this.databaseService.provider();
     this.weswapRouterContract = new ethers.Contract(
@@ -172,13 +174,13 @@ export class SwapService {
     const weswapRouterContractWithSigner =
       this.weswapRouterContract.connect(senderWallet);
 
-    const amountInWei = await this.convertToWei(path[0], amountIn);
-    const amountOutMinWei = await this.convertToWei(
+    const amountInWei = await this.extendedEthersService.convertToWei(path[0], amountIn);
+    const amountOutMinWei = await this.extendedEthersService.convertToWei(
       path[path.length - 1],
       amountOutMin,
     );
 
-    await this.approveToken(
+    await this.extendedEthersService.approveToken(
       path[0],
       senderWallet,
       amountInWei,
@@ -273,14 +275,14 @@ export class SwapService {
     const weswapRouterContractWithSigner =
       this.weswapRouterContract.connect(senderWallet);
 
-    const amountInMaxWei = await this.convertToWei(path[0], amountInMax);
-    const amountOutWei = await this.convertToWei(
+    const amountInMaxWei = await this.extendedEthersService.convertToWei(path[0], amountInMax);
+    const amountOutWei = await this.extendedEthersService.convertToWei(
       path[path.length - 1],
       amountOut,
     );
 
     // await this.approvePathTokens(path, senderWallet, amountInMaxWei, this.weswapRouterAddress);
-    await this.approveToken(
+    await this.extendedEthersService.approveToken(
       path[0],
       senderWallet,
       amountInMaxWei,
@@ -379,12 +381,12 @@ export class SwapService {
       this.weswapRouterContract.connect(senderWallet);
 
     const amountInWei = ethers.parseEther(amountIn.toString());
-    const amountOutMinWei = await this.convertToWei(
+    const amountOutMinWei = await this.extendedEthersService.convertToWei(
       path[path.length - 1],
       amountOutMin,
     );
 
-    await this.approveToken(
+    await this.extendedEthersService.approveToken(
       path[0],
       senderWallet,
       amountInWei,
@@ -479,10 +481,10 @@ export class SwapService {
     const weswapRouterContractWithSigner =
       this.weswapRouterContract.connect(senderWallet);
 
-    const amountInMaxWei = await this.convertToWei(path[0], amountInMax);
+    const amountInMaxWei = await this.extendedEthersService.convertToWei(path[0], amountInMax);
     const amountOutWei = ethers.parseEther(amountOut.toString()); // WEMIX is the output and has 18 decimals
 
-    await this.approveToken(
+    await this.extendedEthersService.approveToken(
       path[0],
       senderWallet,
       amountInMaxWei,
@@ -577,13 +579,13 @@ export class SwapService {
     const weswapRouterContractWithSigner =
       this.weswapRouterContract.connect(senderWallet);
 
-    const amountInWei = await this.convertToWei(
+    const amountInWei = await this.extendedEthersService.convertToWei(
       path[path.length - 1],
       amountIn,
     );
     const amountOutMinWei = ethers.parseEther(amountOutMin.toString());
 
-    await this.approveToken(
+    await this.extendedEthersService.approveToken(
       path[0],
       senderWallet,
       amountInWei,
@@ -678,12 +680,12 @@ export class SwapService {
       this.weswapRouterContract.connect(senderWallet);
 
     const amountInMaxWei = ethers.parseEther(amountInMax.toString()); // WWemix has 18 decimals by default
-    const amountOutWei = await this.convertToWei(
+    const amountOutWei = await this.extendedEthersService.convertToWei(
       path[path.length - 1],
       amountOut,
     );
 
-    await this.approveToken(
+    await this.extendedEthersService.approveToken(
       path[0],
       senderWallet,
       amountInMaxWei,
@@ -765,58 +767,118 @@ export class SwapService {
   }
 
   // --- Internal Functions ---
-  // old approveTokenLP => now approveToken, used universal not only in LP
-  async approveToken(tokenAddress, senderWallet, amountInWei, routerAddress) {
-    try {
-      const tokenToApprove: ERC20 = new ethers.Contract(
-        tokenAddress,
-        this.ERC20ContractABI,
-        this.databaseService.provider(),
-      ) as unknown as ERC20;
-      const tx = await tokenToApprove
-        .connect(senderWallet)
-        .approve(routerAddress, amountInWei);
-      return await tx.wait();
-    } catch {
-      throw new Error(`Error : approving ${amountInWei} for ${tokenAddress}`);
-    }
-  }
+  // old approveTokenLP => now extendedEthersService.approveToken, used universal not only in LP
+//   async extendedEthersService.approveToken(tokenAddress, senderWallet, amountInWei, routerAddress) {
+//     try {
+//       const tokenToApprove: ERC20 = new ethers.Contract(
+//         tokenAddress,
+//         this.ERC20ContractABI,
+//         this.databaseService.provider(),
+//       ) as unknown as ERC20;
+//       const tx = await tokenToApprove
+//         .connect(senderWallet)
+//         .approve(routerAddress, amountInWei);
+//       return await tx.wait();
+//     } catch {
+//       throw new Error(`Error : approving ${amountInWei} for ${tokenAddress}`);
+//     }
+//   }
 
-  async getDecimal(tokenAddress): Promise<bigint> {
-    try {
-      const tokenContract: ERC20 = new ethers.Contract(
-        tokenAddress,
-        this.ERC20ContractABI,
-        this.databaseService.provider(),
-      ) as unknown as ERC20;
-      const tokenDecimals = await tokenContract.decimals();
-      this.logger.debug(`Token Decimals : ${tokenDecimals}`);
-      return tokenDecimals;
-    } catch {
-      throw new Error(`Error : getting decimals of ${tokenAddress} `);
-    }
-  }
+//   async getDecimal(tokenAddress): Promise<bigint> {
+//     try {
+//       const tokenContract: ERC20 = new ethers.Contract(
+//         tokenAddress,
+//         this.ERC20ContractABI,
+//         this.databaseService.provider(),
+//       ) as unknown as ERC20;
+//       const tokenDecimals = await tokenContract.decimals();
+//       this.logger.debug(`Token Decimals : ${tokenDecimals}`);
+//       return tokenDecimals;
+//     } catch {
+//       throw new Error(`Error : getting decimals of ${tokenAddress} `);
+//     }
+//   }
 
-  async convertToWei(tokenAddress, tokenAmount): Promise<bigint> {
-    try {
-      const tokenDecimal = await this.getDecimal(tokenAddress);
-      const amountInWei = ethers.parseUnits(
-        tokenAmount.toString(),
-        tokenDecimal,
-      );
-      this.logger.debug(`Amount converted in wei ${amountInWei}`);
-      return amountInWei;
-    } catch {
-      throw new Error(`Error : converting amount of ${tokenAddress} `);
-    }
-  }
+//   async extendedEthersService.convertToWei(tokenAddress, tokenAmount): Promise<bigint> {
+//     try {
+//       const tokenDecimal = await this.getDecimal(tokenAddress);
+//       const amountInWei = ethers.parseUnits(
+//         tokenAmount.toString(),
+//         tokenDecimal,
+//       );
+//       this.logger.debug(`Amount converted in wei ${amountInWei}`);
+//       return amountInWei;
+//     } catch {
+//       throw new Error(`Error : converting amount of ${tokenAddress} `);
+//     }
+//   }
+
+//   async extendedEthersService.decodeReceiptLogs(receiptLogs): Promise<any> {
+//     const decodedLogs = [];
+
+//     for (const log of receiptLogs) {
+//       if (contractInfos[log.address]) {
+//         const contractName: string = contractInfos[log.address].name;
+//         const abiName: string = contractInfos[log.address].abi;
+
+//         try {
+//           console.log(
+//             `Address found: ${log.address}, Contract Name: ${contractName}, ABI Name: ${abiName}`,
+//           );
+
+//           let contractJSON;
+//           switch (abiName) {
+//             case 'WWEMIX': {
+//               contractJSON = WWEMIXJson;
+//               break;
+//             }
+//             case 'WeswapPair': {
+//               contractJSON = WeswapPairJson;
+//               break;
+//             }
+//             case 'WemixDollar': {
+//               contractJSON = WemixDollarJson;
+//               break;
+//             }
+//             case 'ERC20': {
+//               contractJSON = ERC20Json;
+//               break;
+//             }
+//             default: {
+//               throw Error(
+//                 'Need to handle JSON file importation in extendedEthersService.decodeReceiptLogs()',
+//               );
+//               break;
+//             }
+//           }
+//           const iface = new ethers.Interface(contractJSON.abi);
+
+//           // Decode the log with the interface
+//           const decodedLog = iface.parseLog({
+//             topics: log.topics,
+//             data: log.data,
+//           });
+
+//           decodedLogs.push(decodedLog);
+
+//         } catch (error) {
+//           console.error(
+//             `Error loading ABI for ${log.address}, ${abiName}: ${error.message}`,
+//           );
+//         }
+//       } else {
+//         console.log(`Address not found: ${log.address}`);
+//       }
+//     }
+//     return decodedLogs;
+//   }
 
   async getSwapAmountOut(
     txReceipt,
     tokenIn: string,
     tokenOut: string,
   ): Promise<bigint | undefined> {
-    const decodedLogs = await this.decodeReceiptLogs(txReceipt);
+    const decodedLogs = await this.extendedEthersService.decodeReceiptLogs(txReceipt);
 
     const swapEvents = decodedLogs.filter((log) => log.name === 'Swap');
     for (const swapEvent of swapEvents) {
@@ -848,7 +910,7 @@ export class SwapService {
     tokenIn: string,
     tokenOut: string,
   ): Promise<bigint | undefined> {
-    const decodedLogs = await this.decodeReceiptLogs(txReceipt);
+    const decodedLogs = await this.extendedEthersService.decodeReceiptLogs(txReceipt);
 
     const swapEvents = decodedLogs.filter((log) => log.name === 'Swap');
     for (const swapEvent of swapEvents) {
@@ -875,63 +937,4 @@ export class SwapService {
     }
   }
 
-  async decodeReceiptLogs(receiptLogs): Promise<any> {
-    const decodedLogs = [];
-
-    for (const log of receiptLogs) {
-      if (contractInfos[log.address]) {
-        const contractName: string = contractInfos[log.address].name;
-        const abiName: string = contractInfos[log.address].abi;
-
-        try {
-          console.log(
-            `Address found: ${log.address}, Contract Name: ${contractName}, ABI Name: ${abiName}`,
-          );
-
-          let contractJSON;
-          switch (abiName) {
-            case 'WWEMIX': {
-              contractJSON = WWEMIXJson;
-              break;
-            }
-            case 'WeswapPair': {
-              contractJSON = WeswapPairJson;
-              break;
-            }
-            case 'WemixDollar': {
-              contractJSON = WemixDollarJson;
-              break;
-            }
-            case 'ERC20': {
-              contractJSON = ERC20Json;
-              break;
-            }
-            default: {
-              throw Error(
-                'Need to handle JSON file importation in decodeReceiptLogs()',
-              );
-              break;
-            }
-          }
-          const iface = new ethers.Interface(contractJSON.abi);
-
-          // Decode the log with the interface
-          const decodedLog = iface.parseLog({
-            topics: log.topics,
-            data: log.data,
-          });
-          
-          decodedLogs.push(decodedLog);
-
-        } catch (error) {
-          console.error(
-            `Error loading ABI for ${log.address}, ${abiName}: ${error.message}`,
-          );
-        }
-      } else {
-        console.log(`Address not found: ${log.address}`);
-      }
-    }
-    return decodedLogs;
-  }
 }

@@ -13,7 +13,6 @@ import { PoolModule } from './pool/pool.module';
 import { SwapV3Module } from './swap-v3/swap-v3.module';
 import { PoolV3Controller } from './pool-v3/pool-v3.controller';
 import { PoolV3Module } from './pool-v3/pool-v3.module';
-import { ExtendedEthersService } from './extended-ethers/extended-ethers.service';
 import { ExtendedEthersModule } from './extended-ethers/extended-ethers.module';
 
 @Module({
@@ -38,7 +37,7 @@ import { ExtendedEthersModule } from './extended-ethers/extended-ethers.module';
     PoolV3Module,
     ExtendedEthersModule,
   ],
-  controllers: [AppController, PoolV3Controller],
-  providers: [AppService, ExtendedEthersService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

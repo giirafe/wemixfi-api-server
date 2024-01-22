@@ -140,13 +140,13 @@ export class LendAndBorrowTx extends TxInfo {
 
   // received~ columns are for LiquidateBorrow cases
   @Column({
-    allowNull: false,
+    allowNull: true,
     type: DataType.STRING,
   })
   receivedAssetAddress: string;
 
   @Column({
-    allowNull: false,
+    allowNull: true,
     type: DataType.DECIMAL(65),
   })
   receivedAssetAmount: bigint;

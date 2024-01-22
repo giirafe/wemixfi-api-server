@@ -10,11 +10,11 @@ import * as WWEMIXJson from '../../wemixFi_env/WWEMIX.json';
 import * as WeswapPairJson from '../../wemixFi_env/WeswapPair.json';
 import * as WemixDollarJson from '../../wemixFi_env/WemixDollar.json';
 
-import * as weswapRouterJson from '../../wemixFi_env/WeswapRouter.json';
-import { WeswapRouter } from '../../types/ethers/WeswapRouter';
+// import * as weswapRouterJson from '../../wemixFi_env/WeswapRouter.json';
+// import { WeswapRouter } from '../../types/ethers/WeswapRouter';
 
-import * as IWeswapFactoryJson from '../../wemixFi_env/IWeswapFactory.json';
-import { IWeswapFactory } from '../../types/ethers/IWeswapFactory';
+// import * as IWeswapFactoryJson from '../../wemixFi_env/IWeswapFactory.json';
+// import { IWeswapFactory } from '../../types/ethers/IWeswapFactory';
 
 import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA for Contract Address
 
@@ -51,6 +51,13 @@ export class ExtendedEthersService {
         //   ) as unknown as IWeswapFactory;
 
     }
+
+    public provider(): ethers.JsonRpcProvider {
+        const wemixTestnetProvider = new ethers.JsonRpcProvider(
+          'https://api.test.wemix.com/',
+        );
+        return wemixTestnetProvider;
+    }
   
     private readonly logger = new Logger(ExtendedEthersService.name);
 
@@ -59,7 +66,7 @@ export class ExtendedEthersService {
           const tokenToApprove: ERC20 = new ethers.Contract(
             tokenAddress,
             this.ERC20ContractABI,
-            this.databaseService.provider(),
+            this.provider(),
           ) as unknown as ERC20;
           const tx = await tokenToApprove
             .connect(senderWallet)
@@ -75,7 +82,7 @@ export class ExtendedEthersService {
             const tokenContract: ERC20 = new ethers.Contract(
             tokenAddress,
             this.ERC20ContractABI,
-            this.databaseService.provider(),
+            this.provider(),
             ) as unknown as ERC20;
             const tokenDecimals = await tokenContract.decimals();
             this.logger.debug(`Token Decimals : ${tokenDecimals}`);
@@ -141,8 +148,8 @@ export class ExtendedEthersService {
 
                 // Decode the log with the interface
                 const decodedLog = iface.parseLog({
-                topics: log.topics,
-                data: log.data,
+                    topics: log.topics,
+                    data: log.data,
                 });
                 
                 decodedLogs.push(decodedLog);
