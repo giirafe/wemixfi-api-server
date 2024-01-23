@@ -4,6 +4,6 @@ import { SwapV3Service } from './swap-v3.service';
 
 @Module({
   controllers: [SwapV3Controller],
-  providers: [SwapV3Service]
+  providers: [SwapV3Service],
 })
 export class SwapV3Module {}

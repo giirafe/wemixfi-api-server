@@ -6,7 +6,7 @@ import { AccountModule } from '../account/account.module';
 import { ExtendedEthersModule } from 'src/extended-ethers/extended-ethers.module';
 
 @Module({
-  imports: [DatabaseModule, AccountModule,ExtendedEthersModule],
+  imports: [DatabaseModule, AccountModule, ExtendedEthersModule],
   controllers: [PoolController],
   providers: [PoolService],
 })

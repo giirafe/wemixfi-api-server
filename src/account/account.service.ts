@@ -2,7 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { Account, TransferTx } from '../database/database.model';
-import { ethers } from 'ethers';
+import { AddressLike, ethers } from 'ethers';
 
 @Injectable()
 export class AccountService {
@@ -10,7 +10,7 @@ export class AccountService {
   private readonly logger = new Logger(AccountService.name);
 
   async setAccount(
-    accountAddress: string,
+    accountAddress: AddressLike,
     privateKey: string,
   ): Promise<Account> {
     this.logger.debug(
@@ -19,20 +19,23 @@ export class AccountService {
         ' ' +
         privateKey,
     );
-    return this.databaseService.setAccount(accountAddress, privateKey);
+    const addressToString = accountAddress as string;
+    return this.databaseService.setAccount(addressToString, privateKey);
   }
 
-  async getAccount(accountAddress: string): Promise<Account> {
-    return this.databaseService.getAccount(accountAddress);
+  async getAccount(accountAddress: AddressLike): Promise<Account> {
+    const addressToString = accountAddress as string;
+    return this.databaseService.getAccount(addressToString);
   }
 
   async getAccountAll(): Promise<Account[]> {
     return this.databaseService.getAccountAll();
   }
 
-  async getAddressWallet(address: string): Promise<ethers.Wallet> {
+  async getAddressWallet(address: AddressLike): Promise<ethers.Wallet> {
+    const addressToString = address as string;
     const senderPrivateKey =
-      await this.databaseService.getAccountPrivateKey(address);
+      await this.databaseService.getAccountPrivateKey(addressToString);
     if (!senderPrivateKey) {
       throw new Error('Sender account not found or private key is missing');
     }
@@ -43,19 +46,24 @@ export class AccountService {
     return addressWallet;
   }
 
-  async getBalance(address: string): Promise<number> {
-    return this.databaseService.getBalance(address);
+  async getBalance(address: AddressLike): Promise<number> {
+    const addressToString = address as string;
+    return this.databaseService.getBalance(addressToString);
   }
 
   // Implementing Wemix Transfer service
   // WIP : Currently accepting senderPrivateKey as a input and using it directly to send Tx which is not a secured process. Thus I will accept senderPrivateKey -> senderAddress, and by sending a internal Http request retrieve a server stored senderAddress's private key to use it to send Tx
   async transferWemix(
-    senderAddress: string,
-    receiverAddress: string,
+    senderAddress: AddressLike,
+    receiverAddress: AddressLike,
     amount: number,
   ): Promise<ethers.TransactionReceipt> {
+    const senderToString = senderAddress as string;
+    const receiverToString = receiverAddress as string;
+
+
     const senderPrivateKey =
-      await this.databaseService.getAccountPrivateKey(senderAddress);
+      await this.databaseService.getAccountPrivateKey(senderToString);
 
     if (!senderPrivateKey) {
       throw new Error('Sender account not found or private key is missing');
@@ -79,7 +87,7 @@ export class AccountService {
       const response = await wallet.sendTransaction(tx);
       await this.databaseService.logWemixTransfer(
         wallet.address,
-        receiverAddress,
+        receiverToString,
         amount,
         '0x00',
         null,

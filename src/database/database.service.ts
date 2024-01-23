@@ -10,8 +10,8 @@ import {
 } from './database.model';
 
 // import ethers package
-import { ethers } from 'ethers';
-import { HttpService } from '@nestjs/axios';
+import { AddressLike, ethers } from 'ethers';
+// import { HttpService } from '@nestjs/axios';
 
 interface ReceiptData {
   blockNumber: number;
@@ -201,7 +201,7 @@ export class DatabaseService {
     swapOutAmount: bigint,
   ): Promise<any> {
     const extractedData = await this.extractTxDataFromReceipt(txReceipt);
-    console.log('name in createSwapV2LogObject : '+ contractName)
+    console.log('name in createSwapV2LogObject : ' + contractName);
     return {
       block_number: extractedData.blockNumber,
       block_timestamp: extractedData.blockTimestamp,
@@ -238,7 +238,12 @@ export class DatabaseService {
     this.logger.debug(
       'Attempt to log in LendandBorrowTx table : Database Service',
     );
-    console.log("assetAddress & assetAmount from databaseService : " + assetAddress + "   " + assetAmount)
+    console.log(
+      'assetAddress & assetAmount from databaseService : ' +
+        assetAddress +
+        '   ' +
+        assetAmount,
+    );
     const newTxInfo = await this.LendAndBorrowTxModel.create({
       block_number,
       block_timestamp,
@@ -314,7 +319,7 @@ export class DatabaseService {
     swapOutAmount: bigint,
   ): Promise<TxInfo> {
     this.logger.debug('Attempt to log in SwapV2Tx table : Database Service');
-    console.log('contract_name in logSwapV2Tx : '+ contract_name)
+    console.log('contract_name in logSwapV2Tx : ' + contract_name);
     const newTxInfo = await this.SwapV2TxModel.create({
       block_number,
       block_timestamp,

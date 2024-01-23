@@ -11,7 +11,6 @@ import { AccountModule } from './account/account.module';
 import { SwapModule } from './swap/swap.module';
 import { PoolModule } from './pool/pool.module';
 import { SwapV3Module } from './swap-v3/swap-v3.module';
-import { PoolV3Controller } from './pool-v3/pool-v3.controller';
 import { PoolV3Module } from './pool-v3/pool-v3.module';
 import { ExtendedEthersModule } from './extended-ethers/extended-ethers.module';
 

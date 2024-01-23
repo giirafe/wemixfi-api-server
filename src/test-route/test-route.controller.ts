@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Param, Res, Query } from '@nestjs/common';
+import { ethers } from 'ethers';
 // import { testRouteService } from './test-route.service';
 import { DatabaseService } from '../database/database.service';
-import { ethers } from 'ethers';
 
 @Controller('test-route')
 export class TestRouteController {

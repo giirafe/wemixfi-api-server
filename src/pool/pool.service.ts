@@ -15,14 +15,6 @@ import { IWeswapFactory } from '../../types/ethers/IWeswapFactory';
 
 import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA for Contract Address
 
-interface ReceiptData {
-  blockNumber: number;
-  blockTimestamp: string;
-  txHash: string;
-  funcSig: string;
-  from: string;
-  to: string;
-}
 const contractName: string = 'WeswapRouter';
 
 @Injectable()
@@ -42,7 +34,7 @@ export class PoolService {
   constructor(
     private databaseService: DatabaseService,
     private accountService: AccountService,
-    private extendedEthersService: ExtendedEthersService
+    private extendedEthersService: ExtendedEthersService,
   ) {
     const provider = this.databaseService.provider();
     this.weswapRouterContract = new ethers.Contract(
@@ -75,10 +67,22 @@ export class PoolService {
     const weswapRouterContractWithSigner =
       this.weswapRouterContract.connect(senderWallet);
 
-    const amountADesiredInWei = await this.extendedEthersService.convertToWei(tokenA, amountADesired);
-    const amountBDesiredInWei = await this.extendedEthersService.convertToWei(tokenB, amountBDesired);
-    const amountAMinInWei = await this.extendedEthersService.convertToWei(tokenA, amountAMin);
-    const amountBMinInWei = await this.extendedEthersService.convertToWei(tokenB, amountBMin);
+    const amountADesiredInWei = await this.extendedEthersService.convertToWei(
+      tokenA,
+      amountADesired,
+    );
+    const amountBDesiredInWei = await this.extendedEthersService.convertToWei(
+      tokenB,
+      amountBDesired,
+    );
+    const amountAMinInWei = await this.extendedEthersService.convertToWei(
+      tokenA,
+      amountAMin,
+    );
+    const amountBMinInWei = await this.extendedEthersService.convertToWei(
+      tokenB,
+      amountBMin,
+    );
 
     try {
       // Approve tokens
@@ -193,14 +197,16 @@ export class PoolService {
     const weswapRouterContractWithSigner =
       this.weswapRouterContract.connect(senderWallet);
 
-    const amountTokenDesiredInWei = await this.extendedEthersService.convertToWei(
-      tokenAddress,
-      amountTokenDesired,
-    );
-    const amountWEMIXDesiredInWei = await this.extendedEthersService.convertToWei(
-      this.wWemixAddress,
-      amountWEMIXDesired,
-    );
+    const amountTokenDesiredInWei =
+      await this.extendedEthersService.convertToWei(
+        tokenAddress,
+        amountTokenDesired,
+      );
+    const amountWEMIXDesiredInWei =
+      await this.extendedEthersService.convertToWei(
+        this.wWemixAddress,
+        amountWEMIXDesired,
+      );
     const amountTokenMinInWei = await this.extendedEthersService.convertToWei(
       tokenAddress,
       amountTokenMin,
@@ -320,8 +326,14 @@ export class PoolService {
     // this.logger.debug("LP Pair Contract using getPair : ",lpPairContractAddress )
 
     const liquidityInWei = ethers.parseEther(liquidity.toString());
-    const amountAMinInWei = await this.extendedEthersService.convertToWei(tokenA, amountAMin);
-    const amountBMinInWei = await this.extendedEthersService.convertToWei(tokenB, amountBMin);
+    const amountAMinInWei = await this.extendedEthersService.convertToWei(
+      tokenA,
+      amountAMin,
+    );
+    const amountBMinInWei = await this.extendedEthersService.convertToWei(
+      tokenB,
+      amountBMin,
+    );
 
     try {
       await this.extendedEthersService.approveToken(
@@ -432,7 +444,10 @@ export class PoolService {
 
     const liquidityInWei = ethers.parseEther(liquidity.toString());
 
-    const amountTokenMinInWei = await this.extendedEthersService.convertToWei(token, amountTokenMin);
+    const amountTokenMinInWei = await this.extendedEthersService.convertToWei(
+      token,
+      amountTokenMin,
+    );
     const amountWEMIXMinInWei = await this.extendedEthersService.convertToWei(
       this.wWemixAddress,
       amountWEMIXMin,
@@ -524,50 +539,4 @@ export class PoolService {
       throw error;
     }
   }
-
-  // --- Internal Functions ---
-//   async extendedEthersService.approveToken(tokenAddress, senderWallet, amountInWei, routerAddress) {
-//     try {
-//       const tokenToApprove: ERC20 = new ethers.Contract(
-//         tokenAddress,
-//         this.ERC20ContractABI,
-//         this.databaseService.provider(),
-//       ) as unknown as ERC20;
-//       const tx = await tokenToApprove
-//         .connect(senderWallet)
-//         .approve(routerAddress, amountInWei);
-//       return await tx.wait();
-//     } catch {
-//       throw new Error(`Error : approving ${amountInWei} for ${tokenAddress}`);
-//     }
-//   }
-
-//   async getDecimal(tokenAddress): Promise<bigint> {
-//     try {
-//       const tokenContract: ERC20 = new ethers.Contract(
-//         tokenAddress,
-//         this.ERC20ContractABI,
-//         this.databaseService.provider(),
-//       ) as unknown as ERC20;
-//       const tokenDecimals = await tokenContract.decimals();
-//       this.logger.debug(`Token Decimals : ${tokenDecimals}`);
-//       return tokenDecimals;
-//     } catch {
-//       throw new Error(`Error : getting decimals of ${tokenAddress} `);
-//     }
-//   }
-
-//   async extendedEthersService.convertToWei(tokenAddress, tokenAmount): Promise<bigint> {
-//     try {
-//       const tokenDecimal = await this.getDecimal(tokenAddress);
-//       const amountInWei = ethers.parseUnits(
-//         tokenAmount.toString(),
-//         tokenDecimal,
-//       );
-//       this.logger.debug(`Amount converted in wei ${amountInWei}`);
-//       return amountInWei;
-//     } catch {
-//       throw new Error(`Error : converting amount of ${tokenAddress} `);
-//     }
-//   }
 }
