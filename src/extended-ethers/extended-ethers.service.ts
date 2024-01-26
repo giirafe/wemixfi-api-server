@@ -9,8 +9,9 @@ import { ERC20 } from '../../types/ethers/ERC20';
 import * as WWEMIXJson from '../../wemixFi_env/WWEMIX.json';
 import * as WeswapPairJson from '../../wemixFi_env/WeswapPair.json';
 import * as WemixDollarJson from '../../wemixFi_env/WemixDollar.json';
-import * as NonfungiblePositionHelperJson from  '../../wemixFi_env/NonfungiblePositionHelper.json';
-import * as NonfungiblePositionManagerJson from  '../../wemixFi_env/NonfungiblePositionManager.json';
+import * as NonfungiblePositionHelperJson from '../../wemixFi_env/NonfungiblePositionHelper.json';
+import * as NonfungiblePositionManagerJson from '../../wemixFi_env/NonfungiblePositionManager.json';
+import * as WeswapV3PoolJson from '../../wemixFi_env/WeswapV3Pool.json';
 
 import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA for Contract Address
 
@@ -72,7 +73,8 @@ export class ExtendedEthersService {
       );
       this.logger.debug(`Amount converted in wei ${amountInWei}`);
       return amountInWei;
-    } catch {
+    } catch (e) {
+      console.error(e)
       throw new Error(`Error : converting amount of ${tokenAddress} `);
     }
   }
@@ -84,13 +86,13 @@ export class ExtendedEthersService {
       if (contractInfos[log.address]) {
         const contractName: string = contractInfos[log.address].name;
         const abiName: string = contractInfos[log.address].abi;
+        let contractJSON;
 
         try {
           console.log(
             `Address found: ${log.address}, Contract Name: ${contractName}, ABI Name: ${abiName}`,
           );
 
-          let contractJSON;
           switch (abiName) {
             case 'WWEMIX': {
               contractJSON = WWEMIXJson;
@@ -116,6 +118,10 @@ export class ExtendedEthersService {
               contractJSON = NonfungiblePositionManagerJson;
               break;
             }
+            case 'WeswapV3Pool': {
+              contractJSON = WeswapV3PoolJson;
+              break;
+            }
             default: {
               throw Error(
                 'Need to handle JSON file importation in extended-ethers.service.ts : decodeReceiptLogs()',
@@ -137,7 +143,9 @@ export class ExtendedEthersService {
           );
         }
       } else {
-        console.log(`Address not found: ${log.address}`);
+        console.log(
+          `Address not found in wemixFi_env/contractInfo_testnet.ts : ${log.address}`,
+        );
       }
     }
     return decodedLogs;

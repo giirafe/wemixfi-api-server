@@ -61,7 +61,6 @@ export class AccountService {
     const senderToString = senderAddress as string;
     const receiverToString = receiverAddress as string;
 
-
     const senderPrivateKey =
       await this.databaseService.getAccountPrivateKey(senderToString);
 
