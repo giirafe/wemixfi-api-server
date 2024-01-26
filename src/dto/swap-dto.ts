@@ -1,58 +1,58 @@
-import { IsNumber, IsString, IsArray,ArrayNotEmpty } from 'class-validator';
+import { IsNumber, IsString, IsArray, ArrayNotEmpty, IsNumberString } from 'class-validator';
 
 export class QuoteDto {
-    @IsNumber()
-    amount: number;
-  
-    @IsNumber()
-    reserveA: number;
-  
-    @IsNumber()
-    reserveB: number;
-  }
-  
-  export class AmountOutDto {
-    @IsNumber()
-    amountIn: number;
-  
-    @IsNumber()
-    reserveIn: number;
-  
-    @IsNumber()
-    reserveOut: number;
-  }
+  @IsNumberString()
+  amount: number;
 
-  export class AmountInDto {
-    @IsNumber()
-    amountOut: number;
-  
-    @IsNumber()
-    reserveIn: number;
-  
-    @IsNumber()
-    reserveOut: number;
-  }
+  @IsNumberString()
+  reserveA: number;
 
-  export class AmountsOutDto {
-    @IsNumber()
-    amountIn: number;
-  
-    @IsArray()
-    @ArrayNotEmpty()
-    @IsString({ each: true })
-    path: string[];
-  }
+  @IsNumberString()
+  reserveB: number;
+}
 
-  export class AmountsInDto {
-    @IsNumber()
-    amountOut: number;
-  
-    @IsArray()
-    @ArrayNotEmpty()
-    @IsString({ each: true })
-    path: string[];
-  }
-  
+export class AmountOutDto {
+  @IsNumberString()
+  amountIn: number;
+
+  @IsNumberString()
+  reserveIn: number;
+
+  @IsNumberString()
+  reserveOut: number;
+}
+
+export class AmountInDto {
+  @IsNumberString()
+  amountOut: number;
+
+  @IsNumberString()
+  reserveIn: number;
+
+  @IsNumberString()
+  reserveOut: number;
+}
+
+export class AmountsOutDto {
+  @IsNumberString()
+  amountIn: number;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  path: string[];
+}
+
+export class AmountsInDto {
+  @IsNumberString()
+  amountOut: number;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  path: string[];
+}
+
 export class AddLiquidityDto {
   @IsString()
   msgSender: string;
@@ -207,6 +207,3 @@ export class SwapWEMIXForExactTokensDto {
   @IsNumber()
   deadline: number;
 }
-
-
-
