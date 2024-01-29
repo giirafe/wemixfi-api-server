@@ -5,12 +5,14 @@ import {
   TransferTx,
   TxInfo,
   LendAndBorrowTx,
-  PoolTx,
+  PoolV2Tx,
   SwapV2Tx,
+  PoolV3Tx,
 } from './database.model';
 
 // import ethers package
 import { AddressLike, ethers } from 'ethers';
+import { LBTxDto,PoolV2TxDto,PoolV3TxDto,SwapV2TxDto } from 'src/dto/tx-dto';
 // import { HttpService } from '@nestjs/axios';
 
 interface ReceiptData {
@@ -31,10 +33,12 @@ export class DatabaseService {
     private readonly transferTxModel: typeof TransferTx,
     @InjectModel(LendAndBorrowTx)
     private readonly LendAndBorrowTxModel: typeof LendAndBorrowTx,
-    @InjectModel(PoolTx)
-    private readonly PoolTxModel: typeof PoolTx,
+    @InjectModel(PoolV2Tx)
+    private readonly PoolV2TxModel: typeof PoolV2Tx,
     @InjectModel(SwapV2Tx)
     private readonly SwapV2TxModel: typeof SwapV2Tx,
+    @InjectModel(PoolV3Tx)
+    private readonly PoolV3TxModel: typeof PoolV3Tx,
   ) {}
 
   public provider(): ethers.JsonRpcProvider {
@@ -137,12 +141,11 @@ export class DatabaseService {
     amountInWei: bigint,
   ): Promise<any> {
     const extractedData = await this.extractTxDataFromReceipt(txReceipt);
-
     return {
       block_number: extractedData.blockNumber,
       block_timestamp: extractedData.blockTimestamp,
       tx_hash: extractedData.txHash,
-      name: contractName,
+      contract_name: contractName,
       func_name: funcName,
       func_sig: extractedData.funcSig,
       from: extractedData.from,
@@ -173,7 +176,7 @@ export class DatabaseService {
       block_number: extractedData.blockNumber,
       block_timestamp: extractedData.blockTimestamp,
       tx_hash: extractedData.txHash,
-      name: contractName,
+      contract_name: contractName,
       func_name: funcName,
       func_sig: extractedData.funcSig,
       from: extractedData.from,
@@ -201,12 +204,12 @@ export class DatabaseService {
     swapOutAmount: bigint,
   ): Promise<any> {
     const extractedData = await this.extractTxDataFromReceipt(txReceipt);
-    console.log('name in createSwapV2LogObject : ' + contractName);
+    // console.log('name in createSwapV2LogObject : ' + contractName);
     return {
       block_number: extractedData.blockNumber,
       block_timestamp: extractedData.blockTimestamp,
       tx_hash: extractedData.txHash,
-      name: contractName,
+      contract_name: contractName,
       func_name: funcName,
       func_sig: extractedData.funcSig,
       from: extractedData.from,
@@ -220,125 +223,65 @@ export class DatabaseService {
     };
   }
 
+  async createPoolV3LogObject(
+    txReceipt: any, // Type this according to the structure of extractedData
+    contractName: string,
+    funcName: string,
+    input: string,
+    value: bigint,
+    token0: string, 
+    token1: string, 
+    tokenId: number, 
+    liquidity: bigint, 
+    amount0: bigint, 
+    amount1: bigint
+  ): Promise<any> {
+    const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+    return {
+      block_number: extractedData.blockNumber,
+      block_timestamp: extractedData.blockTimestamp,
+      tx_hash: extractedData.txHash,
+      contract_name: contractName,
+      func_name: funcName,
+      func_sig: extractedData.funcSig,
+      from: extractedData.from,
+      to: extractedData.to,
+      input,
+      value,
+      token0, 
+      token1, 
+      tokenId, 
+      liquidity, 
+      amount0, 
+      amount1
+    };
+  }
+
   // Storing L&B Tx in DB
-  async logLendAndBorrowTx(
-    block_number: number,
-    block_timestamp: string,
-    tx_hash: string,
-    contract_name: string,
-    func_name: string,
-    func_sig: string,
-    from: string,
-    to: string,
-    input: string,
-    value: bigint,
-    assetAddress: string,
-    assetAmount: bigint,
-  ): Promise<LendAndBorrowTx> {
-    this.logger.debug(
-      'Attempt to log in LendandBorrowTx table : Database Service',
-    );
-    console.log(
-      'assetAddress & assetAmount from databaseService : ' +
-        assetAddress +
-        '   ' +
-        assetAmount,
-    );
-    const newTxInfo = await this.LendAndBorrowTxModel.create({
-      block_number,
-      block_timestamp,
-      tx_hash,
-      contract_name,
-      func_name,
-      func_sig,
-      from,
-      to,
-      input,
-      value,
-      assetAddress,
-      assetAmount,
-    } as unknown as LendAndBorrowTx);
+  async logLendAndBorrowTx(dto: LBTxDto): Promise<LendAndBorrowTx> {
+    this.logger.debug('Attempt to log in LendandBorrowTx table : Database Service');
+    const newTxInfo = await this.LendAndBorrowTxModel.create(dto);
     return newTxInfo;
   }
-
-  async logPoolTx(
-    block_number: number,
-    block_timestamp: string,
-    tx_hash: string,
-    contract_name: string,
-    func_name: string,
-    func_sig: string,
-    from: string,
-    to: string,
-    input: string,
-    value: bigint,
-    assetAAddress: string,
-    assetAAmount: bigint,
-    assetBAddress: string,
-    assetBAmount: bigint,
-    liquidityAdded: bigint,
-    liquidityRemoved: bigint,
-  ): Promise<TxInfo> {
-    this.logger.debug('Attempt to log in PoolTx table : Database Service');
-    // console.log('contract_name in logPoolTx : '+ contract_name)
-    const newTxInfo = await this.PoolTxModel.create({
-      block_number,
-      block_timestamp,
-      tx_hash,
-      contract_name,
-      func_name,
-      func_sig,
-      from,
-      to,
-      input,
-      value,
-      assetAAddress,
-      assetAAmount,
-      assetBAddress,
-      assetBAmount,
-      liquidityAdded,
-      liquidityRemoved,
-    } as any); // as unknown as PoolTx 로 하면 type 설정이 정상적으로 되긴함
+  
+  async logPoolV2Tx(dto: PoolV2TxDto): Promise<TxInfo> {
+    this.logger.debug('Attempt to log in PoolV2Tx table : Database Service');
+    const newTxInfo = await this.PoolV2TxModel.create(dto);
     return newTxInfo;
   }
-
-  async logSwapV2Tx(
-    block_number: number,
-    block_timestamp: string,
-    tx_hash: string,
-    contract_name: string,
-    func_name: string,
-    func_sig: string,
-    from: string,
-    to: string,
-    input: string,
-    value: bigint,
-    swapInAddress: string,
-    swapInAmount: bigint,
-    swapOutAddress: string,
-    swapOutAmount: bigint,
-  ): Promise<TxInfo> {
+  
+  async logSwapV2Tx(dto: SwapV2TxDto): Promise<TxInfo> {
     this.logger.debug('Attempt to log in SwapV2Tx table : Database Service');
-    console.log('contract_name in logSwapV2Tx : ' + contract_name);
-    const newTxInfo = await this.SwapV2TxModel.create({
-      block_number,
-      block_timestamp,
-      tx_hash,
-      contract_name,
-      func_name,
-      func_sig,
-      from,
-      to,
-      input,
-      value,
-      swapInAddress,
-      swapInAmount,
-      swapOutAddress,
-      swapOutAmount,
-    } as any);
+    const newTxInfo = await this.SwapV2TxModel.create(dto);
     return newTxInfo;
   }
 
+  async logPoolV3Tx(dto: PoolV3TxDto): Promise<TxInfo> {
+    this.logger.debug('Attempt to log in PoolV3Tx table : Database Service');
+    const newTxInfo = await this.PoolV3TxModel.create(dto);
+    return newTxInfo;
+  }
+  
   // Internal Function
   async extractTxDataFromReceipt(
     txReceipt: ethers.TransactionReceipt,
@@ -364,4 +307,6 @@ export class DatabaseService {
       to,
     };
   }
+  
+
 }

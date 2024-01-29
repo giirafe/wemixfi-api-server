@@ -55,11 +55,11 @@ export class TransferTx extends Model<TransferTx> {
   @Column(DataType.TEXT) // 'TEXT' for potentially large JSON data
   data: string;
 
-  @CreatedAt
-  createdAt: Date;
+  // @CreatedAt
+  // createdAt: Date;
 
-  @UpdatedAt
-  updatedAt: Date;
+  // @UpdatedAt
+  // updatedAt: Date;
 }
 
 @Table
@@ -157,7 +157,7 @@ export class LendAndBorrowTx extends TxInfo {
     order: [['block_timestamp', 'ASC']], // or 'DESC' for descending
   },
 })
-export class PoolTx extends TxInfo {
+export class PoolV2Tx extends TxInfo {
   @Column({
     allowNull: false,
     type: DataType.STRING,
@@ -224,4 +224,50 @@ export class SwapV2Tx extends TxInfo {
     type: DataType.DECIMAL(65),
   })
   swapOutAmount: bigint;
+}
+
+
+@Table({
+  defaultScope: {
+    order: [['block_timestamp', 'ASC']], // or 'DESC' for descending
+  },
+})
+export class PoolV3Tx extends TxInfo {
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  token0: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  token1: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.INTEGER,
+  })
+  tokenId: number;
+
+  @Column({
+    allowNull: false,
+    type: DataType.DECIMAL(65),
+  })
+  liquidity: bigint;
+
+  @Column({
+    allowNull: false,
+    type: DataType.DECIMAL(65),
+  })
+  amount0: bigint;
+
+  @Column({
+    allowNull: false,
+    type: DataType.DECIMAL(65),
+  })
+  amount1: bigint;
+
+
 }

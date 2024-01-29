@@ -242,20 +242,7 @@ export class SwapService {
       );
 
       await this.databaseService.logSwapV2Tx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.swapInAddress,
-        logObject.swapInAmount,
-        logObject.swapOutAddress,
-        logObject.swapOutAmount,
+        logObject
       );
 
       return { swapInAmount, swapOutAmount };
@@ -346,20 +333,7 @@ export class SwapService {
       );
 
       await this.databaseService.logSwapV2Tx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.swapInAddress,
-        logObject.swapInAmount,
-        logObject.swapOutAddress,
-        logObject.swapOutAmount,
+        logObject
       );
 
       return { swapInAmount, swapOutAmount };
@@ -450,20 +424,7 @@ export class SwapService {
       );
 
       await this.databaseService.logSwapV2Tx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.swapInAddress,
-        logObject.swapInAmount,
-        logObject.swapOutAddress,
-        logObject.swapOutAmount,
+        logObject
       );
 
       return { swapInAmount, swapOutAmount };
@@ -551,20 +512,7 @@ export class SwapService {
       );
 
       await this.databaseService.logSwapV2Tx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.swapInAddress,
-        logObject.swapInAmount,
-        logObject.swapOutAddress,
-        logObject.swapOutAmount,
+        logObject
       );
 
       return { swapInAmount, swapOutAmount };
@@ -652,20 +600,7 @@ export class SwapService {
       );
 
       await this.databaseService.logSwapV2Tx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.swapInAddress,
-        logObject.swapInAmount,
-        logObject.swapOutAddress,
-        logObject.swapOutAmount,
+        logObject
       );
 
       return { swapInAmount, swapOutAmount };
@@ -752,20 +687,7 @@ export class SwapService {
       );
 
       await this.databaseService.logSwapV2Tx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.swapInAddress,
-        logObject.swapInAmount,
-        logObject.swapOutAddress,
-        logObject.swapOutAmount,
+        logObject
       );
 
       return { swapInAmount, swapOutAmount };

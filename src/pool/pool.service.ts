@@ -153,23 +153,8 @@ export class PoolService {
         0n,
       );
 
-      await this.databaseService.logPoolTx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.assetAAddress,
-        logObject.assetAAmount,
-        logObject.assetBAddress,
-        logObject.assetBAmount,
-        logObject.liquidityAdded,
-        logObject.liquidityRemoved,
+      await this.databaseService.logPoolV2Tx(
+        logObject
       );
 
       return [amountTokenA, amountTokenB, liquidity];
@@ -277,23 +262,8 @@ export class PoolService {
         0n,
       );
 
-      await this.databaseService.logPoolTx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.assetAAddress,
-        logObject.assetAAmount,
-        logObject.assetBAddress,
-        logObject.assetBAmount,
-        logObject.liquidityAdded,
-        logObject.liquidityRemoved,
+      await this.databaseService.logPoolV2Tx(
+        logObject
       );
 
       return [amountToken, amountWEMIX, liquidity];
@@ -394,23 +364,8 @@ export class PoolService {
         liquidityInWei,
       );
 
-      await this.databaseService.logPoolTx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.assetAAddress,
-        logObject.assetAAmount,
-        logObject.assetBAddress,
-        logObject.assetBAmount,
-        logObject.liquidityAdded,
-        logObject.liquidityRemoved,
+      await this.databaseService.logPoolV2Tx(
+        logObject
       );
 
       return { amountA, amountB };
@@ -514,23 +469,8 @@ export class PoolService {
         liquidityInWei,
       );
 
-      await this.databaseService.logPoolTx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.assetAAddress,
-        logObject.assetAAmount,
-        logObject.assetBAddress,
-        logObject.assetBAmount,
-        logObject.liquidityAdded,
-        logObject.liquidityRemoved,
+      await this.databaseService.logPoolV2Tx(
+        logObject
       );
 
       return { amountToken, amountWEMIX };

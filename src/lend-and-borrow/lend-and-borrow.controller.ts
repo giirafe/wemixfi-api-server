@@ -9,6 +9,12 @@ import {
 } from '@nestjs/common';
 import { LendAndBorrowService } from './lend-and-borrow.service';
 import { ethers } from 'ethers';
+import {
+  AccountSnapshotDto,
+  DepositAssetDto,
+  BorrowAssetDto,
+  LiquidateAssetDto,
+} from 'src/dto/lend-and-borrow-dto';
 
 @Controller('lend-and-borrow')
 export class LendAndBorrowController {
@@ -16,10 +22,12 @@ export class LendAndBorrowController {
 
   @Get('snapshotWemix')
   async getAccountSnapshot(
-    @Query('accountAddress') accountAddress: string,
+    @Query() params: AccountSnapshotDto,
   ): Promise<string[]> {
     try {
-      return await this.lendAndBorrowService.getAccountSnapshot(accountAddress);
+      return await this.lendAndBorrowService.getAccountSnapshot(
+        params.accountAddress,
+      );
     } catch (error) {
       throw new HttpException(
         {
@@ -34,10 +42,12 @@ export class LendAndBorrowController {
 
   @Get('liquidationInfo')
   async getLiquidationInfo(
-    @Query('accountAddress') accountAddress: string,
+    @Query() params: AccountSnapshotDto,
   ): Promise<string> {
     try {
-      return await this.lendAndBorrowService.getLiquidationInfo(accountAddress);
+      return await this.lendAndBorrowService.getLiquidationInfo(
+        params.accountAddress,
+      );
     } catch (error) {
       throw new HttpException(
         {
@@ -52,15 +62,13 @@ export class LendAndBorrowController {
 
   @Post('depositAsset')
   async depositAsset(
-    @Body('senderAddress') senderAddress: string,
-    @Body('amount') amount: number,
-    @Body('assetAddress') assetAddress: string,
+    @Body() dto: DepositAssetDto,
   ): Promise<ethers.TransactionReceipt> {
     try {
       return await this.lendAndBorrowService.depositAsset(
-        senderAddress,
-        amount,
-        assetAddress,
+        dto.senderAddress,
+        dto.amount,
+        dto.assetAddress,
       );
     } catch (error) {
       throw new HttpException(
@@ -76,15 +84,13 @@ export class LendAndBorrowController {
 
   @Post('borrowAsset')
   async borrowAsset(
-    @Body('borrowerAddress') borrowerAddress: string,
-    @Body('amount') amount: number,
-    @Body('assetAddress') assetAddress: string,
+    @Body() dto: BorrowAssetDto,
   ): Promise<ethers.TransactionReceipt> {
     try {
       return await this.lendAndBorrowService.borrowAsset(
-        borrowerAddress,
-        amount,
-        assetAddress,
+        dto.borrowerAddress,
+        dto.amount,
+        dto.assetAddress,
       );
     } catch (error) {
       throw new HttpException(
@@ -100,19 +106,15 @@ export class LendAndBorrowController {
 
   @Post('liquidateAsset')
   async liquidateAsset(
-    @Body('liquidatorAddress') liquidatorAddress: string,
-    @Body('borrowerAddress') borrowerAddress: string,
-    @Body('repayAmount') repayAmount: number,
-    @Body('liquidateAssetAddress') liquidateAssetAddress: string,
-    @Body('collateralAddress') collateralAddress: string,
+    @Body() dto: LiquidateAssetDto,
   ): Promise<ethers.TransactionReceipt> {
     try {
       return await this.lendAndBorrowService.liquidateAsset(
-        liquidatorAddress,
-        borrowerAddress,
-        repayAmount,
-        liquidateAssetAddress,
-        collateralAddress,
+        dto.liquidatorAddress,
+        dto.borrowerAddress,
+        dto.repayAmount,
+        dto.liquidateAssetAddress,
+        dto.collateralAddress,
       );
     } catch (error) {
       throw new HttpException(

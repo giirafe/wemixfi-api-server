@@ -8,19 +8,32 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { SwapService } from './swap.service';
+import {
+  SwapExactTokensForTokensDto,
+  SwapTokensForExactTokensDto,
+  SwapExactWEMIXForTokensDto,
+  SwapTokensForExactWEMIXDto,
+  SwapExactTokensForWEMIXDto,
+  SwapWEMIXForExactTokensDto,
+  AmountInDto,
+  AmountOutDto,
+  AmountsInDto,
+  AmountsOutDto,
+  QuoteDto,
+} from 'src/dto/swap-dto';
 
 @Controller('swap')
 export class SwapController {
   constructor(private swapService: SwapService) {}
 
   @Get('quote')
-  async getQuote(
-    @Query('amount') amount: number,
-    @Query('reserveA') reserveA: number,
-    @Query('reserveB') reserveB: number,
-  ): Promise<bigint> {
+  async getQuote(@Query() dto: QuoteDto): Promise<bigint> {
     try {
-      return await this.swapService.getQuote(amount, reserveA, reserveB);
+      return await this.swapService.getQuote(
+        dto.amount,
+        dto.reserveA,
+        dto.reserveB,
+      );
     } catch (error) {
       throw new HttpException(
         {
@@ -34,16 +47,12 @@ export class SwapController {
   }
 
   @Get('amountOut')
-  async getAmountOut(
-    @Query('amountIn') amountIn: number,
-    @Query('reserveIn') reserveIn: number,
-    @Query('reserveOut') reserveOut: number,
-  ): Promise<bigint> {
+  async getAmountOut(@Query() dto: AmountOutDto): Promise<bigint> {
     try {
       return await this.swapService.getAmountOut(
-        amountIn,
-        reserveIn,
-        reserveOut,
+        dto.amountIn,
+        dto.reserveIn,
+        dto.reserveOut,
       );
     } catch (error) {
       throw new HttpException(
@@ -58,16 +67,12 @@ export class SwapController {
   }
 
   @Get('amountIn')
-  async getAmountIn(
-    @Query('amountOut') amountOut: number,
-    @Query('reserveIn') reserveIn: number,
-    @Query('reserveOut') reserveOut: number,
-  ): Promise<bigint> {
+  async getAmountIn(@Query() dto: AmountInDto): Promise<bigint> {
     try {
       return await this.swapService.getAmountIn(
-        amountOut,
-        reserveIn,
-        reserveOut,
+        dto.amountOut,
+        dto.reserveIn,
+        dto.reserveOut,
       );
     } catch (error) {
       throw new HttpException(
@@ -82,12 +87,9 @@ export class SwapController {
   }
 
   @Get('amountsOut')
-  async getAmountsOut(
-    @Query('amountIn') amountIn: number,
-    @Query('path') path: string[],
-  ): Promise<bigint[]> {
+  async getAmountsOut(@Query() dto: AmountsOutDto): Promise<bigint[]> {
     try {
-      return await this.swapService.getAmountsOut(amountIn, path);
+      return await this.swapService.getAmountsOut(dto.amountIn, dto.path);
     } catch (error) {
       throw new HttpException(
         {
@@ -101,12 +103,9 @@ export class SwapController {
   }
 
   @Get('amountsIn')
-  async getAmountsIn(
-    @Query('amountOut') amountOut: number,
-    @Query('path') path: string[],
-  ): Promise<bigint[]> {
+  async getAmountsIn(@Query() dto: AmountsInDto): Promise<bigint[]> {
     try {
-      return await this.swapService.getAmountsIn(amountOut, path);
+      return await this.swapService.getAmountsIn(dto.amountOut, dto.path);
     } catch (error) {
       throw new HttpException(
         {
@@ -121,21 +120,16 @@ export class SwapController {
 
   @Post('swapExactTokensForTokens')
   async swapExactTokensForTokens(
-    @Body('msgSender') msgSender: string,
-    @Body('amountIn') amountIn: number,
-    @Body('amountOutMin') amountOutMin: number,
-    @Body('path') path: string[],
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
+    @Body() dto: SwapExactTokensForTokensDto,
   ): Promise<{ swapOutAmount: bigint; swapInAmount: bigint }> {
     try {
       return await this.swapService.swapExactTokensForTokens(
-        msgSender,
-        amountIn,
-        amountOutMin,
-        path,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.amountIn,
+        dto.amountOutMin,
+        dto.path,
+        dto.to,
+        dto.deadline,
       );
     } catch (error) {
       throw new HttpException(
@@ -151,21 +145,16 @@ export class SwapController {
 
   @Post('swapTokensForExactTokens')
   async swapTokensForExactTokens(
-    @Body('msgSender') msgSender: string,
-    @Body('amountOut') amountOut: number,
-    @Body('amountInMax') amountInMax: number,
-    @Body('path') path: string[],
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
+    @Body() dto: SwapTokensForExactTokensDto,
   ): Promise<{ swapOutAmount: bigint; swapInAmount: bigint }> {
     try {
       return await this.swapService.swapTokensForExactTokens(
-        msgSender,
-        amountOut,
-        amountInMax,
-        path,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.amountOut,
+        dto.amountInMax,
+        dto.path,
+        dto.to,
+        dto.deadline,
       );
     } catch (error) {
       throw new HttpException(
@@ -181,21 +170,16 @@ export class SwapController {
 
   @Post('swapExactWEMIXForTokens')
   async swapExactWEMIXForTokens(
-    @Body('msgSender') msgSender: string,
-    @Body('amountIn') amountIn: number,
-    @Body('amountOutMin') amountOutMin: number,
-    @Body('path') path: string[],
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
+    @Body() dto: SwapExactWEMIXForTokensDto,
   ): Promise<{ swapOutAmount: bigint; swapInAmount: bigint }> {
     try {
       return await this.swapService.swapExactWEMIXForTokens(
-        msgSender,
-        amountIn,
-        amountOutMin,
-        path,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.amountIn,
+        dto.amountOutMin,
+        dto.path,
+        dto.to,
+        dto.deadline,
       );
     } catch (error) {
       throw new HttpException(
@@ -211,21 +195,16 @@ export class SwapController {
 
   @Post('swapTokensForExactWEMIX')
   async swapTokensForExactWEMIX(
-    @Body('msgSender') msgSender: string,
-    @Body('amountOut') amountOut: number,
-    @Body('amountInMax') amountInMax: number,
-    @Body('path') path: string[],
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
+    @Body() dto: SwapTokensForExactWEMIXDto,
   ): Promise<{ swapOutAmount: bigint; swapInAmount: bigint }> {
     try {
       return await this.swapService.swapTokensForExactWEMIX(
-        msgSender,
-        amountOut,
-        amountInMax,
-        path,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.amountOut,
+        dto.amountInMax,
+        dto.path,
+        dto.to,
+        dto.deadline,
       );
     } catch (error) {
       throw new HttpException(
@@ -241,21 +220,16 @@ export class SwapController {
 
   @Post('swapExactTokensForWEMIX')
   async swapExactTokensForWEMIX(
-    @Body('msgSender') msgSender: string,
-    @Body('amountIn') amountIn: number,
-    @Body('amountOutMin') amountOutMin: number,
-    @Body('path') path: string[],
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
+    @Body() dto: SwapExactTokensForWEMIXDto,
   ): Promise<{ swapOutAmount: bigint; swapInAmount: bigint }> {
     try {
       return await this.swapService.swapExactTokensForWEMIX(
-        msgSender,
-        amountIn,
-        amountOutMin,
-        path,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.amountIn,
+        dto.amountOutMin,
+        dto.path,
+        dto.to,
+        dto.deadline,
       );
     } catch (error) {
       throw new HttpException(
@@ -271,21 +245,16 @@ export class SwapController {
 
   @Post('swapWEMIXForExactTokens')
   async swapWEMIXForExactTokens(
-    @Body('msgSender') msgSender: string,
-    @Body('amountOut') amountOut: number,
-    @Body('amountInMax') amountInMax: number,
-    @Body('path') path: string[],
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
+    @Body() dto: SwapWEMIXForExactTokensDto,
   ): Promise<{ swapOutAmount: bigint; swapInAmount: bigint }> {
     try {
       return await this.swapService.swapWEMIXForExactTokens(
-        msgSender,
-        amountOut,
-        amountInMax,
-        path,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.amountOut,
+        dto.amountInMax,
+        dto.path,
+        dto.to,
+        dto.deadline,
       );
     } catch (error) {
       throw new HttpException(

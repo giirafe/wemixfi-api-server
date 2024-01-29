@@ -190,6 +190,7 @@ export class LendAndBorrowService {
           throw new Error('Invalid Asset Address');
       }
 
+      this.logger.debug("-- Created Log Object' --")
       // .wait() : waits for the transaction to be mined and confirmed
       // due to the usage of .wait() which is a async work, await is required to resolve the Promise.
       const txReceipt = await txResult.wait();
@@ -203,20 +204,10 @@ export class LendAndBorrowService {
         amountInWei,
       );
 
+      this.logger.debug("-- Logging Object' --")
       // Call logTxInfo from DatabaseService
       await this.databaseService.logLendAndBorrowTx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.assetAddress,
-        logObject.assetAmount,
+        logObject
       );
 
       return txReceipt;
@@ -295,18 +286,7 @@ export class LendAndBorrowService {
 
       // Call logTxInfo from DatabaseService
       await this.databaseService.logLendAndBorrowTx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.assetAddress,
-        logObject.assetAmount,
+        logObject
       );
 
       return txReceipt;
@@ -403,18 +383,7 @@ export class LendAndBorrowService {
 
       // Call logTxInfo from DatabaseService
       await this.databaseService.logLendAndBorrowTx(
-        logObject.block_number,
-        logObject.block_timestamp,
-        logObject.tx_hash,
-        logObject.name,
-        logObject.func_name,
-        logObject.func_sig,
-        logObject.from,
-        logObject.to,
-        logObject.input,
-        logObject.value,
-        logObject.assetAddress,
-        logObject.assetAmount,
+        logObject
       );
 
       return txReceipt;

@@ -11,7 +11,7 @@ export class LBTxDto extends BaseTxDto {
     amountInWei: bigint;
 }
 
-export class PoolTxDto extends BaseTxDto {
+export class PoolV2TxDto extends BaseTxDto {
     assetAAddress: string;
     assetAAmount: bigint;
     assetBAddress: string;
@@ -25,4 +25,13 @@ export class SwapV2TxDto extends BaseTxDto {
     swapInAmount: bigint;
     swapOutAddress: string;
     swapOutAmount: bigint;
+}
+
+export class PoolV3TxDto extends BaseTxDto {
+    token0: string;
+    token1: string;
+    tokenId: number; 
+    liquidity: bigint; 
+    amount0: bigint; 
+    amount1: bigint;
 }

@@ -74,7 +74,7 @@ export class ExtendedEthersService {
       this.logger.debug(`Amount converted in wei ${amountInWei}`);
       return amountInWei;
     } catch (e) {
-      console.error(e)
+      console.error(e);
       throw new Error(`Error : converting amount of ${tokenAddress} `);
     }
   }

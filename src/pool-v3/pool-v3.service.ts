@@ -60,13 +60,11 @@ export class PoolV3Service {
   private readonly logger = new Logger(PoolV3Service.name);
 
   // getPositionInfo interacts with NFP'Manager' exceptionally.
-  async getPositionInfo(
-    tokenId:BigNumberish
-   ) {
-    const positionInfo = await this.NonfungiblePositionManagerContract.positions(tokenId);
+  async getPositionInfo(tokenId: BigNumberish) {
+    const positionInfo =
+      await this.NonfungiblePositionManagerContract.positions(tokenId);
     return positionInfo;
   }
-
 
   async easyMint(
     msgSender: AddressLike,
@@ -208,8 +206,8 @@ export class PoolV3Service {
     const NFPHelperWithSigner =
       this.NonfungiblePositionHelperContract.connect(senderWallet);
 
-    const positionInfo = await this.getPositionInfo(tokenId)
-    console.log("positionInfo from custom getter function : " + positionInfo);
+    const positionInfo = await this.getPositionInfo(tokenId);
+    console.log('positionInfo from custom getter function : ' + positionInfo);
     const token0 = positionInfo.token0;
     const token1 = positionInfo.token1;
 
@@ -263,7 +261,10 @@ export class PoolV3Service {
         deadline,
       };
 
-      const tx = await NFPHelperWithSigner.increaseLiquidity(increaseLiquidityParams, { value });
+      const tx = await NFPHelperWithSigner.increaseLiquidity(
+        increaseLiquidityParams,
+        { value },
+      );
 
       const txReceipt = await tx.wait();
 
@@ -291,7 +292,7 @@ export class PoolV3Service {
   ): Promise<bigint[]> {
     // Processing data for DB Logging
     const funcName = 'easyCollect';
-    let value: bigint = 0n; // Wemix amount sent with Tx
+    const value: bigint = 0n; // Wemix amount sent with Tx
     const inputJson = JSON.stringify({
       msgSender,
       tokenId,
@@ -303,13 +304,13 @@ export class PoolV3Service {
 
     // login과 유사
     const senderWallet = await this.accountService.getAddressWallet(msgSender);
-    console.log("Sender Wallet : " + JSON.stringify(senderWallet))
+    console.log('Sender Wallet : ' + JSON.stringify(senderWallet));
 
     const NFPHelperWithSigner =
       this.NonfungiblePositionHelperContract.connect(senderWallet);
 
-    const positionInfo = await this.getPositionInfo(tokenId)
-    console.log("positionInfo from custom getter function : " + positionInfo);
+    const positionInfo = await this.getPositionInfo(tokenId);
+    console.log('positionInfo from custom getter function : ' + positionInfo);
     const token0 = positionInfo.token0;
     const token1 = positionInfo.token1;
 
@@ -324,20 +325,26 @@ export class PoolV3Service {
 
     // Approval to Helper on User's Pool NFT is mandated
     try {
-      await this.NonfungiblePositionManagerContract.connect(senderWallet).setApprovalForAll(this.NftPositionHelperAddress,true,{ from: senderWallet.address, gasPrice: 110 * 10 ** 9 });
-    } catch(err) {
-      console.error(err)
+      await this.NonfungiblePositionManagerContract.connect(
+        senderWallet,
+      ).setApprovalForAll(this.NftPositionHelperAddress, true, {
+        from: senderWallet.address,
+        gasPrice: 110 * 10 ** 9,
+      });
+    } catch (err) {
+      console.error(err);
     }
-    
-    try {
 
+    try {
       const easyCollectParams = {
         tokenId,
         amount0Max,
         amount1Max,
       };
 
-      const tx = await NFPHelperWithSigner.easyCollect(easyCollectParams, { value });
+      const tx = await NFPHelperWithSigner.easyCollect(easyCollectParams, {
+        value,
+      });
 
       const txReceipt = await tx.wait();
 
@@ -365,12 +372,11 @@ export class PoolV3Service {
     amount1CollectMax: BigNumberish,
     amount0LiquidityMin: BigNumberish,
     amount1LiquidityMin: BigNumberish,
-    deadline: BigNumberish
+    deadline: BigNumberish,
   ): Promise<bigint[]> {
-
     // Processing data for DB Logging
     const funcName = 'easyCompound';
-    let value: bigint = 0n; // Wemix amount sent with Tx
+    const value: bigint = 0n; // Wemix amount sent with Tx
     const inputJson = JSON.stringify({
       msgSender,
       tokenId,
@@ -378,7 +384,7 @@ export class PoolV3Service {
       amount1CollectMax,
       amount0LiquidityMin,
       amount1LiquidityMin,
-      deadline
+      deadline,
     });
     const input: string = JSON.stringify(inputJson);
     ///
@@ -388,8 +394,8 @@ export class PoolV3Service {
     const NFPHelperWithSigner =
       this.NonfungiblePositionHelperContract.connect(senderWallet);
 
-    const positionInfo = await this.getPositionInfo(tokenId)
-    console.log("positionInfo from custom getter function : " + positionInfo);
+    const positionInfo = await this.getPositionInfo(tokenId);
+    console.log('positionInfo from custom getter function : ' + positionInfo);
     const token0 = positionInfo.token0;
     const token1 = positionInfo.token1;
 
@@ -405,25 +411,31 @@ export class PoolV3Service {
 
     // Approval to Helper on User's Pool NFT is mandated
     try {
-      await this.NonfungiblePositionManagerContract.connect(senderWallet).setApprovalForAll(this.NftPositionHelperAddress,true,{ from: senderWallet.address, gasPrice: 110 * 10 ** 9 });
-    } catch(err) {
-      console.error(err)
+      await this.NonfungiblePositionManagerContract.connect(
+        senderWallet,
+      ).setApprovalForAll(this.NftPositionHelperAddress, true, {
+        from: senderWallet.address,
+        gasPrice: 110 * 10 ** 9,
+      });
+    } catch (err) {
+      console.error(err);
     }
 
-    console.log("Token Approval on NFT Position Helper Done")
+    console.log('Token Approval on NFT Position Helper Done');
 
     try {
-
       const easyCompoundParams = {
         tokenId,
         amount0CollectMax,
         amount1CollectMax,
         amount0LiquidityMin,
         amount1LiquidityMin,
-        deadline
+        deadline,
       };
 
-      const tx = await NFPHelperWithSigner.easyCompound(easyCompoundParams, { value });
+      const tx = await NFPHelperWithSigner.easyCompound(easyCompoundParams, {
+        value,
+      });
 
       const txReceipt = await tx.wait();
 
@@ -431,7 +443,7 @@ export class PoolV3Service {
         txReceipt,
         'EasyCompound',
       );
-      const [ , , liquidity, amount0, amount1] = easyCompoundEvent.args;
+      const [, , liquidity, amount0, amount1] = easyCompoundEvent.args;
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -446,17 +458,16 @@ export class PoolV3Service {
   async easyDecreaseLiquidityCollect(
     msgSender: AddressLike,
     tokenId: BigNumberish,
-    liquidity:BigNumberish,
+    liquidity: BigNumberish,
     amount0LiquidityMin: BigNumberish,
     amount1LiquidityMin: BigNumberish,
     amount0CollectMax: BigNumberish,
     amount1CollectMax: BigNumberish,
     deadline: BigNumberish,
   ): Promise<bigint[]> {
-
     // Processing data for DB Logging
     const funcName = 'easyDecreaseLiquidityCollect';
-    let value: bigint = 0n; // Wemix amount sent with Tx
+    const value: bigint = 0n; // Wemix amount sent with Tx
     const inputJson = JSON.stringify({
       msgSender,
       tokenId,
@@ -475,8 +486,8 @@ export class PoolV3Service {
     const NFPHelperWithSigner =
       this.NonfungiblePositionHelperContract.connect(senderWallet);
 
-    const positionInfo = await this.getPositionInfo(tokenId)
-    console.log("positionInfo from custom getter function : " + positionInfo);
+    const positionInfo = await this.getPositionInfo(tokenId);
+    console.log('positionInfo from custom getter function : ' + positionInfo);
     const token0 = positionInfo.token0;
     const token1 = positionInfo.token1;
 
@@ -499,13 +510,17 @@ export class PoolV3Service {
 
     // Approval to Helper on User's Pool NFT is mandated
     try {
-      await this.NonfungiblePositionManagerContract.connect(senderWallet).setApprovalForAll(this.NftPositionHelperAddress,true,{ from: senderWallet.address, gasPrice: 110 * 10 ** 9 });
-    } catch(err) {
-      console.error(err)
+      await this.NonfungiblePositionManagerContract.connect(
+        senderWallet,
+      ).setApprovalForAll(this.NftPositionHelperAddress, true, {
+        from: senderWallet.address,
+        gasPrice: 110 * 10 ** 9,
+      });
+    } catch (err) {
+      console.error(err);
     }
 
     try {
-
       const easyDecreaseLiquidityCollectParams = {
         tokenId,
         liquidity,
@@ -516,18 +531,23 @@ export class PoolV3Service {
         deadline,
       };
 
-      console.log("Right before easyDecreaseLidquidityCollect ")
-      const tx = await NFPHelperWithSigner.easyDecreaseLiquidityCollect(easyDecreaseLiquidityCollectParams, { value });
+      const tx = await NFPHelperWithSigner.easyDecreaseLiquidityCollect(
+        easyDecreaseLiquidityCollectParams,
+        { value },
+      );
 
       const txReceipt = await tx.wait();
 
       const easyDecreaseLiquidityCollectEvent = await this.getEventFromReceipt(
         txReceipt,
-        'EasyDecreaseLiquidityCollect',
+        'EasyDecreaseLiquidityCollectAll',
       );
       const [, , , , amount0, amount1] = easyDecreaseLiquidityCollectEvent.args;
-      
-      console.log("Args in easyDecreaseLiquidity event : " + easyDecreaseLiquidityCollectEvent.args);
+
+      console.log(
+        'Args in easyDecreaseLiquidity event : ' +
+          easyDecreaseLiquidityCollectEvent.args,
+      );
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -548,9 +568,8 @@ export class PoolV3Service {
     amount1LiquidityMin: BigNumberish,
     amount0CollectMax: BigNumberish,
     amount1CollectMax: BigNumberish,
-    deadline: BigNumberish
+    deadline: BigNumberish,
   ): Promise<bigint[]> {
-
     // Processing data for DB Logging
     const funcName = 'easyIncreaseLiquidityCompound';
     let value: bigint = 0n; // Wemix amount sent with Tx
@@ -563,7 +582,7 @@ export class PoolV3Service {
       amount1LiquidityMin,
       amount0CollectMax,
       amount1CollectMax,
-      deadline
+      deadline,
     });
     const input: string = JSON.stringify(inputJson);
     ///
@@ -573,8 +592,8 @@ export class PoolV3Service {
     const NFPHelperWithSigner =
       this.NonfungiblePositionHelperContract.connect(senderWallet);
 
-    const positionInfo = await this.getPositionInfo(tokenId)
-    console.log("positionInfo from custom getter function : " + positionInfo);
+    const positionInfo = await this.getPositionInfo(tokenId);
+    console.log('positionInfo from custom getter function : ' + positionInfo);
     const token0 = positionInfo.token0;
     const token1 = positionInfo.token1;
 
@@ -590,9 +609,14 @@ export class PoolV3Service {
 
     // Approval to Helper on User's Pool NFT is mandated
     try {
-      await this.NonfungiblePositionManagerContract.connect(senderWallet).setApprovalForAll(this.NftPositionHelperAddress,true,{ from: senderWallet.address, gasPrice: 110 * 10 ** 9 });
-    } catch(err) {
-      console.error(err)
+      await this.NonfungiblePositionManagerContract.connect(
+        senderWallet,
+      ).setApprovalForAll(this.NftPositionHelperAddress, true, {
+        from: senderWallet.address,
+        gasPrice: 110 * 10 ** 9,
+      });
+    } catch (err) {
+      console.error(err);
     }
 
     await this.extendedEthersService.approveToken(
@@ -617,7 +641,6 @@ export class PoolV3Service {
     }
 
     try {
-
       const easyIncreaseLiquidityCompoundParams = {
         tokenId,
         amount0LiquidityDesired,
@@ -626,10 +649,13 @@ export class PoolV3Service {
         amount1LiquidityMin,
         amount0CollectMax,
         amount1CollectMax,
-        deadline
+        deadline,
       };
 
-      const tx = await NFPHelperWithSigner.easyIncreaseLiquidityCompound(easyIncreaseLiquidityCompoundParams, { value });
+      const tx = await NFPHelperWithSigner.easyIncreaseLiquidityCompound(
+        easyIncreaseLiquidityCompoundParams,
+        { value },
+      );
 
       const txReceipt = await tx.wait();
 
@@ -637,7 +663,8 @@ export class PoolV3Service {
         txReceipt,
         'EasyIncreaseLiquidityCompound',
       );
-      const [ , , ,liquidity, amount0, amount1] = easyIncreaseLiquidityCompoundEvent.args;
+      const [, , , liquidity, amount0, amount1] =
+        easyIncreaseLiquidityCompoundEvent.args;
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -652,15 +679,14 @@ export class PoolV3Service {
   async easyDecreaseLiquidityCollectAll(
     msgSender: AddressLike,
     tokenId: BigNumberish,
-    liquidity:BigNumberish,
+    liquidity: BigNumberish,
     amount0LiquidityMin: BigNumberish,
     amount1LiquidityMin: BigNumberish,
     deadline: BigNumberish,
   ): Promise<bigint[]> {
-
     // Processing data for DB Logging
     const funcName = 'easyDecreaseLiquidityCollectAll';
-    let value: bigint = 0n; // Wemix amount sent with Tx
+    const value: bigint = 0n; // Wemix amount sent with Tx
     const inputJson = JSON.stringify({
       msgSender,
       tokenId,
@@ -677,8 +703,8 @@ export class PoolV3Service {
     const NFPHelperWithSigner =
       this.NonfungiblePositionHelperContract.connect(senderWallet);
 
-    const positionInfo = await this.getPositionInfo(tokenId)
-    console.log("positionInfo from custom getter function : " + positionInfo);
+    const positionInfo = await this.getPositionInfo(tokenId);
+    console.log('positionInfo from custom getter function : ' + positionInfo);
     const token0 = positionInfo.token0;
     const token1 = positionInfo.token1;
 
@@ -693,13 +719,17 @@ export class PoolV3Service {
 
     // Approval to Helper on User's Pool NFT is mandated
     try {
-      await this.NonfungiblePositionManagerContract.connect(senderWallet).setApprovalForAll(this.NftPositionHelperAddress,true,{ from: senderWallet.address, gasPrice: 110 * 10 ** 9 });
-    } catch(err) {
-      console.error(err)
+      await this.NonfungiblePositionManagerContract.connect(
+        senderWallet,
+      ).setApprovalForAll(this.NftPositionHelperAddress, true, {
+        from: senderWallet.address,
+        gasPrice: 110 * 10 ** 9,
+      });
+    } catch (err) {
+      console.error(err);
     }
 
     try {
-
       const easyDecreaseLiquidityCollectAllParams = {
         tokenId,
         liquidity,
@@ -708,18 +738,26 @@ export class PoolV3Service {
         deadline,
       };
 
-      console.log("Right before easyDecreaseLidquidityCollect ")
-      const tx = await NFPHelperWithSigner.easyDecreaseLiquidityCollectAll(easyDecreaseLiquidityCollectAllParams, { value });
+      console.log('Right before easyDecreaseLidquidityCollect ');
+      const tx = await NFPHelperWithSigner.easyDecreaseLiquidityCollectAll(
+        easyDecreaseLiquidityCollectAllParams,
+        { value },
+      );
 
       const txReceipt = await tx.wait();
 
-      const easyDecreaseLiquidityCollectAllEvent = await this.getEventFromReceipt(
-        txReceipt,
-        'EasyDecreaseLiquidityAllCollectAllBurn',
+      const easyDecreaseLiquidityCollectAllEvent =
+        await this.getEventFromReceipt(
+          txReceipt,
+          'EasyDecreaseLiquidityAllCollectAllBurn',
+        );
+      const [, , , , amount0, amount1] =
+        easyDecreaseLiquidityCollectAllEvent.args;
+
+      console.log(
+        'Args in easyDecreaseLiquidity event : ' +
+          easyDecreaseLiquidityCollectAllEvent.args,
       );
-      const [, , , , amount0, amount1] = easyDecreaseLiquidityCollectAllEvent.args;
-      
-      console.log("Args in easyDecreaseLiquidity event : " + easyDecreaseLiquidityCollectAllEvent.args);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -736,10 +774,9 @@ export class PoolV3Service {
     tokenId: BigNumberish,
     deadline: BigNumberish,
   ): Promise<bigint[]> {
-
     // Processing data for DB Logging
     const funcName = 'easyDecreaseLiquidityAllCollectAllBurn';
-    let value: bigint = 0n; // Wemix amount sent with Tx
+    const value: bigint = 0n; // Wemix amount sent with Tx
     const inputJson = JSON.stringify({
       msgSender,
       tokenId,
@@ -755,30 +792,43 @@ export class PoolV3Service {
 
     // Approval to Helper on User's Pool NFT is mandated
     try {
-      await this.NonfungiblePositionManagerContract.connect(senderWallet).setApprovalForAll(this.NftPositionHelperAddress,true,{ from: senderWallet.address, gasPrice: 110 * 10 ** 9 });
-    } catch(err) {
-      console.error(err)
+      await this.NonfungiblePositionManagerContract.connect(
+        senderWallet,
+      ).setApprovalForAll(this.NftPositionHelperAddress, true, {
+        from: senderWallet.address,
+        gasPrice: 110 * 10 ** 9,
+      });
+    } catch (err) {
+      console.error(err);
     }
 
     try {
-
       const easyDecreaseLiquidityAllCollectAllBurnParams = {
         tokenId,
         deadline,
       };
 
       // console.log("Right before easyDecreaseLidquidityCollect ")
-      const tx = await NFPHelperWithSigner.easyDecreaseLiquidityAllCollectAllBurn(easyDecreaseLiquidityAllCollectAllBurnParams, { value });
+      const tx =
+        await NFPHelperWithSigner.easyDecreaseLiquidityAllCollectAllBurn(
+          easyDecreaseLiquidityAllCollectAllBurnParams,
+          { value },
+        );
 
       const txReceipt = await tx.wait();
 
-      const easyDecreaseLiquidityAllCollectAllBurnEvent = await this.getEventFromReceipt(
-        txReceipt,
-        'EasyDecreaseLiquidityAllCollectAllBurn',
+      const easyDecreaseLiquidityAllCollectAllBurnEvent =
+        await this.getEventFromReceipt(
+          txReceipt,
+          'EasyDecreaseLiquidityAllCollectAllBurn',
+        );
+      const [token0, token1, , liquidity, amount0, amount1] =
+        easyDecreaseLiquidityAllCollectAllBurnEvent.args;
+
+      console.log(
+        'Args in easyDecreaseLiquidity event : ' +
+          easyDecreaseLiquidityAllCollectAllBurnEvent.args,
       );
-      const [token0,token1 , ,liquidity , amount0, amount1] = easyDecreaseLiquidityAllCollectAllBurnEvent.args;
-      
-      console.log("Args in easyDecreaseLiquidity event : " + easyDecreaseLiquidityAllCollectAllBurnEvent.args);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -792,7 +842,7 @@ export class PoolV3Service {
 
   async easyStrategyChangeAll(
     msgSender: AddressLike,
-    tokenId:BigNumberish,
+    tokenId: BigNumberish,
     fee: BigNumberish,
     tickLower: BigNumberish,
     tickUpper: BigNumberish,
@@ -825,8 +875,8 @@ export class PoolV3Service {
     const NFPHelperWithSigner =
       this.NonfungiblePositionHelperContract.connect(senderWallet);
 
-    const positionInfo = await this.getPositionInfo(tokenId)
-    console.log("positionInfo from custom getter function : " + positionInfo);
+    const positionInfo = await this.getPositionInfo(tokenId);
+    console.log('positionInfo from custom getter function : ' + positionInfo);
     const token0 = positionInfo.token0;
     const token1 = positionInfo.token1;
 
@@ -883,7 +933,10 @@ export class PoolV3Service {
         deadline,
       };
 
-      const tx = await NFPHelperWithSigner.easyStrategyChangeAll(easyStrategyChangeAllParams, { value });
+      const tx = await NFPHelperWithSigner.easyStrategyChangeAll(
+        easyStrategyChangeAllParams,
+        { value },
+      );
 
       const txReceipt = await tx.wait();
 
@@ -902,7 +955,6 @@ export class PoolV3Service {
       throw error;
     }
   }
-
 
   // --- Internal Functions ---
   async getEventFromReceipt(
@@ -924,5 +976,4 @@ export class PoolV3Service {
 
     return events[0];
   }
-
 }

@@ -2,39 +2,34 @@ import {
   Controller,
   Post,
   Body,
-  Get,
-  Query,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { PoolService } from './pool.service';
+import {
+  AddLiquidityDto,
+  AddLiquidityWEMIXDto,
+  RemoveLiquidityDto,
+  RemoveLiquidityWEMIXDto,
+} from 'src/dto/pool-dto';
+
 @Controller('pool')
 export class PoolController {
   constructor(private poolService: PoolService) {}
 
   @Post('addLiquidity')
-  async addLiquidity(
-    @Body('msgSender') msgSender: string,
-    @Body('tokenA') tokenA: string,
-    @Body('tokenB') tokenB: string,
-    @Body('amountADesired') amountADesired: number,
-    @Body('amountBDesired') amountBDesired: number,
-    @Body('amountAMin') amountAMin: number,
-    @Body('amountBMin') amountBMin: number,
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
-  ): Promise<bigint[]> {
+  async addLiquidity(@Body() dto: AddLiquidityDto): Promise<bigint[]> {
     try {
       const result = await this.poolService.addLiquidity(
-        msgSender,
-        tokenA,
-        tokenB,
-        amountADesired,
-        amountBDesired,
-        amountAMin,
-        amountBMin,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.tokenA,
+        dto.tokenB,
+        dto.amountADesired,
+        dto.amountBDesired,
+        dto.amountAMin,
+        dto.amountBMin,
+        dto.to,
+        dto.deadline,
       );
       return result;
     } catch (error) {
@@ -51,25 +46,18 @@ export class PoolController {
 
   @Post('addLiquidityWEMIX')
   async addLiquidityWEMIX(
-    @Body('msgSender') msgSender: string,
-    @Body('token') token: string,
-    @Body('amountTokenDesired') amountTokenDesired: number,
-    @Body('amountWEMIXDesired') amountWEMIXDesired: number,
-    @Body('amountTokenMin') amountTokenMin: number,
-    @Body('amountWEMIXMin') amountWEMIXMin: number,
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
+    @Body() dto: AddLiquidityWEMIXDto,
   ): Promise<bigint[]> {
     try {
       const result = await this.poolService.addLiquidityWEMIX(
-        msgSender,
-        token,
-        amountTokenDesired,
-        amountWEMIXDesired,
-        amountTokenMin,
-        amountWEMIXMin,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.token,
+        dto.amountTokenDesired,
+        dto.amountWEMIXDesired,
+        dto.amountTokenMin,
+        dto.amountWEMIXMin,
+        dto.to,
+        dto.deadline,
       );
       return result;
     } catch (error) {
@@ -86,25 +74,18 @@ export class PoolController {
 
   @Post('removeLiquidity')
   async removeLiquidity(
-    @Body('msgSender') msgSender: string,
-    @Body('tokenA') tokenA: string,
-    @Body('tokenB') tokenB: string,
-    @Body('liquidity') liquidity: number,
-    @Body('amountAMin') amountAMin: number,
-    @Body('amountBMin') amountBMin: number,
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
+    @Body() dto: RemoveLiquidityDto,
   ): Promise<{ amountA: bigint; amountB: bigint }> {
     try {
       return await this.poolService.removeLiquidity(
-        msgSender,
-        tokenA,
-        tokenB,
-        liquidity,
-        amountAMin,
-        amountBMin,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.tokenA,
+        dto.tokenB,
+        dto.liquidity,
+        dto.amountAMin,
+        dto.amountBMin,
+        dto.to,
+        dto.deadline,
       );
     } catch (error) {
       throw new HttpException(
@@ -120,23 +101,17 @@ export class PoolController {
 
   @Post('removeLiquidityWEMIX')
   async removeLiquidityWEMIX(
-    @Body('msgSender') msgSender: string,
-    @Body('token') token: string,
-    @Body('liquidity') liquidity: number,
-    @Body('amountTokenMin') amountTokenMin: number,
-    @Body('amountWEMIXMin') amountWEMIXMin: number,
-    @Body('to') to: string,
-    @Body('deadline') deadline: number,
+    @Body() dto: RemoveLiquidityWEMIXDto,
   ): Promise<{ amountToken: bigint; amountWEMIX: bigint }> {
     try {
       return await this.poolService.removeLiquidityWEMIX(
-        msgSender,
-        token,
-        liquidity,
-        amountTokenMin,
-        amountWEMIXMin,
-        to,
-        deadline,
+        dto.msgSender,
+        dto.token,
+        dto.liquidity,
+        dto.amountTokenMin,
+        dto.amountWEMIXMin,
+        dto.to,
+        dto.deadline,
       );
     } catch (error) {
       throw new HttpException(
