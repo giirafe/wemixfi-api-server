@@ -157,7 +157,7 @@ export class DatabaseService {
     };
   }
 
-  async createPoolLogObject(
+  async createPoolV2LogObject(
     txReceipt: any, // Type this according to the structure of extractedData
     contractName: string,
     funcName: string,
@@ -171,7 +171,7 @@ export class DatabaseService {
     liquidityRemoved: bigint,
   ): Promise<any> {
     const extractedData = await this.extractTxDataFromReceipt(txReceipt);
-    // console.log('name in createPoolLogObject : '+ contractName)
+    // console.log('name in createPoolV2LogObject : '+ contractName)
     return {
       block_number: extractedData.blockNumber,
       block_timestamp: extractedData.blockTimestamp,

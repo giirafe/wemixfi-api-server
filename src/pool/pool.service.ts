@@ -139,7 +139,7 @@ export class PoolService {
       });
       const input: string = JSON.stringify(inputJson);
 
-      const logObject = await this.databaseService.createPoolLogObject(
+      const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
         contractName,
         funcName,
@@ -248,7 +248,7 @@ export class PoolService {
       });
       const input: string = JSON.stringify(inputJson);
 
-      const logObject = await this.databaseService.createPoolLogObject(
+      const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
         contractName,
         funcName,
@@ -350,7 +350,7 @@ export class PoolService {
       });
       const input: string = JSON.stringify(inputJson);
 
-      const logObject = await this.databaseService.createPoolLogObject(
+      const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
         contractName,
         funcName,
@@ -455,7 +455,7 @@ export class PoolService {
       });
       const input: string = JSON.stringify(inputJson);
 
-      const logObject = await this.databaseService.createPoolLogObject(
+      const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
         contractName,
         funcName,

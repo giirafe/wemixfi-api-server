@@ -5,8 +5,9 @@ import {
   TransferTx,
   TxInfo,
   LendAndBorrowTx,
-  PoolTx,
+  PoolV2Tx,
   SwapV2Tx,
+  PoolV3Tx,
 } from './database.model';
 import { DatabaseService } from './database.service';
 import { DatabaseController } from './database.controller';
@@ -20,8 +21,9 @@ import { HttpModule } from '@nestjs/axios'; // for internal Http Calls
       TransferTx,
       TxInfo,
       LendAndBorrowTx,
-      PoolTx,
+      PoolV2Tx,
       SwapV2Tx,
+      PoolV3Tx,
     ]),
     HttpModule,
   ],

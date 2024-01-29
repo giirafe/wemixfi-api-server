@@ -60,7 +60,7 @@ export class PoolV3Service {
   private readonly logger = new Logger(PoolV3Service.name);
 
   // getPositionInfo interacts with NFP'Manager' exceptionally.
-  async getPositionInfo(tokenId: BigNumberish) {
+  async getPositionInfo(tokenId: number) {
     const positionInfo =
       await this.NonfungiblePositionManagerContract.positions(tokenId);
     return positionInfo;
@@ -79,6 +79,7 @@ export class PoolV3Service {
     amount1Min: BigNumberish,
     deadline: BigNumberish,
   ): Promise<bigint[]> {
+
     // Processing data for DB Logging
     const funcName = 'easyMint';
     let value: bigint = 0n; // Wemix amount sent with Tx
@@ -167,6 +168,24 @@ export class PoolV3Service {
       );
       const [, , tokenId, liquidity, amount0, amount1] = easyMintEvent.args;
 
+      const logObject = await this.databaseService.createPoolV3LogObject(
+        txReceipt,
+        contractName,
+        funcName,
+        input,
+        value,
+        token0 as string,
+        token1 as string,
+        tokenId,
+        liquidity,
+        amount0,
+        amount1,
+      );
+
+      await this.databaseService.logPoolV3Tx(
+        logObject
+      );
+
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
       this.logger.error(
@@ -179,7 +198,7 @@ export class PoolV3Service {
 
   async increaseLiquidity(
     msgSender: AddressLike,
-    tokenId: BigNumberish,
+    tokenId: number,
     amount0Desired: BigNumberish,
     amount1Desired: BigNumberish,
     amount0Min: BigNumberish,
@@ -272,7 +291,25 @@ export class PoolV3Service {
         txReceipt,
         'IncreaseLiquidity',
       );
-      const [, , , liquidity, amount0, amount1] = increaseLiquidityEvent.args;
+      const [, , ,liquidity, amount0, amount1] = increaseLiquidityEvent.args;
+
+      const logObject = await this.databaseService.createPoolV3LogObject(
+        txReceipt,
+        contractName,
+        funcName,
+        input,
+        value,
+        token0 as string,
+        token1 as string,
+        tokenId,
+        liquidity,
+        amount0,
+        amount1,
+      );
+
+      await this.databaseService.logPoolV3Tx(
+        logObject
+      );
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -286,7 +323,7 @@ export class PoolV3Service {
 
   async easyCollect(
     msgSender: AddressLike,
-    tokenId: BigNumberish,
+    tokenId: number,
     amount0Max: BigNumberish,
     amount1Max: BigNumberish,
   ): Promise<bigint[]> {
@@ -354,6 +391,24 @@ export class PoolV3Service {
       );
       const [, , liquidity, amount0, amount1] = easyCollectEvent.args;
 
+      const logObject = await this.databaseService.createPoolV3LogObject(
+        txReceipt,
+        contractName,
+        funcName,
+        input,
+        value,
+        token0 as string,
+        token1 as string,
+        tokenId,
+        liquidity,
+        amount0,
+        amount1,
+      );
+
+      await this.databaseService.logPoolV3Tx(
+        logObject
+      );
+
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
       this.logger.error(
@@ -367,7 +422,7 @@ export class PoolV3Service {
   // WIP : Need revision due 'missing revert data' Error
   async easyCompound(
     msgSender: AddressLike,
-    tokenId: BigNumberish,
+    tokenId: number,
     amount0CollectMax: BigNumberish,
     amount1CollectMax: BigNumberish,
     amount0LiquidityMin: BigNumberish,
@@ -445,6 +500,24 @@ export class PoolV3Service {
       );
       const [, , liquidity, amount0, amount1] = easyCompoundEvent.args;
 
+      const logObject = await this.databaseService.createPoolV3LogObject(
+        txReceipt,
+        contractName,
+        funcName,
+        input,
+        value,
+        token0 as string,
+        token1 as string,
+        tokenId,
+        liquidity,
+        amount0,
+        amount1,
+      );
+
+      await this.databaseService.logPoolV3Tx(
+        logObject
+      );
+
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
       this.logger.error(
@@ -457,7 +530,7 @@ export class PoolV3Service {
 
   async easyDecreaseLiquidityCollect(
     msgSender: AddressLike,
-    tokenId: BigNumberish,
+    tokenId: number,
     liquidity: BigNumberish,
     amount0LiquidityMin: BigNumberish,
     amount1LiquidityMin: BigNumberish,
@@ -549,6 +622,24 @@ export class PoolV3Service {
           easyDecreaseLiquidityCollectEvent.args,
       );
 
+      const logObject = await this.databaseService.createPoolV3LogObject(
+        txReceipt,
+        contractName,
+        funcName,
+        input,
+        value,
+        token0 as string,
+        token1 as string,
+        tokenId,
+        liquidity as bigint,
+        amount0,
+        amount1,
+      );
+
+      await this.databaseService.logPoolV3Tx(
+        logObject
+      );
+
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
       this.logger.error(
@@ -561,7 +652,7 @@ export class PoolV3Service {
 
   async easyIncreaseLiquidityCompound(
     msgSender: AddressLike,
-    tokenId: BigNumberish,
+    tokenId: number,
     amount0LiquidityDesired: BigNumberish,
     amount1LiquidityDesired: BigNumberish,
     amount0LiquidityMin: BigNumberish,
@@ -663,8 +754,25 @@ export class PoolV3Service {
         txReceipt,
         'EasyIncreaseLiquidityCompound',
       );
-      const [, , , liquidity, amount0, amount1] =
-        easyIncreaseLiquidityCompoundEvent.args;
+      const [, , , liquidity, amount0, amount1] = easyIncreaseLiquidityCompoundEvent.args;
+
+      const logObject = await this.databaseService.createPoolV3LogObject(
+        txReceipt,
+        contractName,
+        funcName,
+        input,
+        value,
+        token0 as string,
+        token1 as string,
+        tokenId,
+        liquidity as bigint,
+        amount0,
+        amount1,
+      );
+
+      await this.databaseService.logPoolV3Tx(
+        logObject
+      );
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -678,7 +786,7 @@ export class PoolV3Service {
 
   async easyDecreaseLiquidityCollectAll(
     msgSender: AddressLike,
-    tokenId: BigNumberish,
+    tokenId: number,
     liquidity: BigNumberish,
     amount0LiquidityMin: BigNumberish,
     amount1LiquidityMin: BigNumberish,
@@ -759,6 +867,24 @@ export class PoolV3Service {
           easyDecreaseLiquidityCollectAllEvent.args,
       );
 
+      const logObject = await this.databaseService.createPoolV3LogObject(
+        txReceipt,
+        contractName,
+        funcName,
+        input,
+        value,
+        token0 as string,
+        token1 as string,
+        tokenId,
+        liquidity as bigint,
+        amount0,
+        amount1,
+      );
+
+      await this.databaseService.logPoolV3Tx(
+        logObject
+      );
+
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
       this.logger.error(
@@ -771,7 +897,7 @@ export class PoolV3Service {
 
   async easyDecreaseLiquidityAllCollectAllBurn(
     msgSender: AddressLike,
-    tokenId: BigNumberish,
+    tokenId: number,
     deadline: BigNumberish,
   ): Promise<bigint[]> {
     // Processing data for DB Logging
@@ -830,6 +956,24 @@ export class PoolV3Service {
           easyDecreaseLiquidityAllCollectAllBurnEvent.args,
       );
 
+      const logObject = await this.databaseService.createPoolV3LogObject(
+        txReceipt,
+        contractName,
+        funcName,
+        input,
+        value,
+        token0 as string,
+        token1 as string,
+        tokenId,
+        liquidity as bigint,
+        amount0,
+        amount1,
+      );
+
+      await this.databaseService.logPoolV3Tx(
+        logObject
+      );
+
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
       this.logger.error(
@@ -842,7 +986,7 @@ export class PoolV3Service {
 
   async easyStrategyChangeAll(
     msgSender: AddressLike,
-    tokenId: BigNumberish,
+    tokenId: number,
     fee: BigNumberish,
     tickLower: BigNumberish,
     tickUpper: BigNumberish,
@@ -944,7 +1088,26 @@ export class PoolV3Service {
         txReceipt,
         'strategyChangeAll',
       );
-      // const [, , , liquidity, amount0, amount1] = easyStrategyChangeAllEvent.args;
+      
+      const [, , , liquidity, amount0, amount1] = easyStrategyChangeAllEvent.args;
+
+      const logObject = await this.databaseService.createPoolV3LogObject(
+        txReceipt,
+        contractName,
+        funcName,
+        input,
+        value,
+        token0 as string,
+        token1 as string,
+        tokenId,
+        liquidity as bigint,
+        amount0,
+        amount1,
+      );
+
+      await this.databaseService.logPoolV3Tx(
+        logObject
+      );
 
       return easyStrategyChangeAllEvent.args;
     } catch (error) {
