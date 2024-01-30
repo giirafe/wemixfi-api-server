@@ -12,7 +12,7 @@ import {
 
 // import ethers package
 import { AddressLike, ethers } from 'ethers';
-import { LBTxDto,PoolV2TxDto,PoolV3TxDto,SwapV2TxDto } from 'src/dto/tx-dto';
+import { LBTxDto, PoolV2TxDto, PoolV3TxDto, SwapV2TxDto } from 'src/dto/tx-dto';
 // import { HttpService } from '@nestjs/axios';
 
 interface ReceiptData {
@@ -229,12 +229,12 @@ export class DatabaseService {
     funcName: string,
     input: string,
     value: bigint,
-    token0: string, 
-    token1: string, 
-    tokenId: number, 
-    liquidity: bigint, 
-    amount0: bigint, 
-    amount1: bigint
+    token0: string,
+    token1: string,
+    tokenId: number,
+    liquidity: bigint,
+    amount0: bigint,
+    amount1: bigint,
   ): Promise<any> {
     const extractedData = await this.extractTxDataFromReceipt(txReceipt);
     return {
@@ -248,28 +248,30 @@ export class DatabaseService {
       to: extractedData.to,
       input,
       value,
-      token0, 
-      token1, 
-      tokenId, 
-      liquidity, 
-      amount0, 
-      amount1
+      token0,
+      token1,
+      tokenId,
+      liquidity,
+      amount0,
+      amount1,
     };
   }
 
   // Storing L&B Tx in DB
   async logLendAndBorrowTx(dto: LBTxDto): Promise<LendAndBorrowTx> {
-    this.logger.debug('Attempt to log in LendandBorrowTx table : Database Service');
+    this.logger.debug(
+      'Attempt to log in LendandBorrowTx table : Database Service',
+    );
     const newTxInfo = await this.LendAndBorrowTxModel.create(dto);
     return newTxInfo;
   }
-  
+
   async logPoolV2Tx(dto: PoolV2TxDto): Promise<TxInfo> {
     this.logger.debug('Attempt to log in PoolV2Tx table : Database Service');
     const newTxInfo = await this.PoolV2TxModel.create(dto);
     return newTxInfo;
   }
-  
+
   async logSwapV2Tx(dto: SwapV2TxDto): Promise<TxInfo> {
     this.logger.debug('Attempt to log in SwapV2Tx table : Database Service');
     const newTxInfo = await this.SwapV2TxModel.create(dto);
@@ -281,7 +283,7 @@ export class DatabaseService {
     const newTxInfo = await this.PoolV3TxModel.create(dto);
     return newTxInfo;
   }
-  
+
   // Internal Function
   async extractTxDataFromReceipt(
     txReceipt: ethers.TransactionReceipt,
@@ -307,6 +309,4 @@ export class DatabaseService {
       to,
     };
   }
-  
-
 }

@@ -226,7 +226,6 @@ export class SwapV2Tx extends TxInfo {
   swapOutAmount: bigint;
 }
 
-
 @Table({
   defaultScope: {
     order: [['block_timestamp', 'ASC']], // or 'DESC' for descending
@@ -268,6 +267,4 @@ export class PoolV3Tx extends TxInfo {
     type: DataType.DECIMAL(65),
   })
   amount1: bigint;
-
-
 }

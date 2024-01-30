@@ -241,9 +241,7 @@ export class SwapService {
         swapOutAmount,
       );
 
-      await this.databaseService.logSwapV2Tx(
-        logObject
-      );
+      await this.databaseService.logSwapV2Tx(logObject);
 
       return { swapInAmount, swapOutAmount };
     } catch (error) {
@@ -332,9 +330,7 @@ export class SwapService {
         amountOutWei,
       );
 
-      await this.databaseService.logSwapV2Tx(
-        logObject
-      );
+      await this.databaseService.logSwapV2Tx(logObject);
 
       return { swapInAmount, swapOutAmount };
     } catch (error) {
@@ -423,9 +419,7 @@ export class SwapService {
         swapOutAmount,
       );
 
-      await this.databaseService.logSwapV2Tx(
-        logObject
-      );
+      await this.databaseService.logSwapV2Tx(logObject);
 
       return { swapInAmount, swapOutAmount };
       // return true;
@@ -511,9 +505,7 @@ export class SwapService {
         amountOutWei,
       );
 
-      await this.databaseService.logSwapV2Tx(
-        logObject
-      );
+      await this.databaseService.logSwapV2Tx(logObject);
 
       return { swapInAmount, swapOutAmount };
     } catch (error) {
@@ -599,9 +591,7 @@ export class SwapService {
         swapOutAmount,
       );
 
-      await this.databaseService.logSwapV2Tx(
-        logObject
-      );
+      await this.databaseService.logSwapV2Tx(logObject);
 
       return { swapInAmount, swapOutAmount };
     } catch (error) {
@@ -686,9 +676,7 @@ export class SwapService {
         amountOutWei,
       );
 
-      await this.databaseService.logSwapV2Tx(
-        logObject
-      );
+      await this.databaseService.logSwapV2Tx(logObject);
 
       return { swapInAmount, swapOutAmount };
     } catch (error) {

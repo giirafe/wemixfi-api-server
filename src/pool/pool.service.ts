@@ -153,9 +153,7 @@ export class PoolService {
         0n,
       );
 
-      await this.databaseService.logPoolV2Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV2Tx(logObject);
 
       return [amountTokenA, amountTokenB, liquidity];
     } catch (error) {
@@ -262,9 +260,7 @@ export class PoolService {
         0n,
       );
 
-      await this.databaseService.logPoolV2Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV2Tx(logObject);
 
       return [amountToken, amountWEMIX, liquidity];
     } catch (error) {
@@ -364,9 +360,7 @@ export class PoolService {
         liquidityInWei,
       );
 
-      await this.databaseService.logPoolV2Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV2Tx(logObject);
 
       return { amountA, amountB };
     } catch (error) {
@@ -469,9 +463,7 @@ export class PoolService {
         liquidityInWei,
       );
 
-      await this.databaseService.logPoolV2Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV2Tx(logObject);
 
       return { amountToken, amountWEMIX };
     } catch (error) {

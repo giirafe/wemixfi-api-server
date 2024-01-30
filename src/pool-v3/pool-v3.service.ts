@@ -4,19 +4,13 @@ import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.service';
 
-import * as ERC20Json from '../../wemixFi_env/ERC20.json';
-import { ERC20 } from '../../types/ethers/ERC20';
-
-import * as swapRouterV3Json from '../../wemixFi_env/SwapRouterV3.json';
-import { SwapRouterV3 } from '../../types/ethers/SwapRouterV3';
-
 import * as nonfungiblePositionHelperJson from '../../wemixFi_env/NonfungiblePositionHelper.json';
 import { NonfungiblePositionHelper } from '../../types/ethers/NonfungiblePositionHelper';
 
 import * as nonfungiblePositionManagerJson from '../../wemixFi_env/NonfungiblePositionManager.json';
-import { NonfungiblePositionManager } from 'types/ethers';
+import { NonfungiblePositionManager } from 'types/ethers/NonfungiblePositionManager';
 
-import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA for Contract Address
+import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA: Contract Address
 
 const contractName: string = 'NonfungiblePositionHelper';
 
@@ -30,8 +24,6 @@ export class PoolV3Service {
   private NonfungiblePositionHelperContract: NonfungiblePositionHelper;
   private NonfungiblePositionManagerContract: NonfungiblePositionManager;
 
-  private readonly ERC20ContractABI = ERC20Json.abi;
-  private readonly swapRouterV3ContractABI = swapRouterV3Json.abi;
   private readonly NonfungiblePositionHelperContractABI =
     nonfungiblePositionHelperJson.abi;
   private readonly NonfungiblePositionManagerContractABI =
@@ -79,7 +71,6 @@ export class PoolV3Service {
     amount1Min: BigNumberish,
     deadline: BigNumberish,
   ): Promise<bigint[]> {
-
     // Processing data for DB Logging
     const funcName = 'easyMint';
     let value: bigint = 0n; // Wemix amount sent with Tx
@@ -162,7 +153,7 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      const easyMintEvent = await this.getEventFromReceipt(
+      const easyMintEvent = await this.extendedEthersService.getEventFromReceipt(
         txReceipt,
         'EasyMint',
       );
@@ -182,9 +173,7 @@ export class PoolV3Service {
         amount1,
       );
 
-      await this.databaseService.logPoolV3Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV3Tx(logObject);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -287,11 +276,11 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      const increaseLiquidityEvent = await this.getEventFromReceipt(
+      const increaseLiquidityEvent = await this.extendedEthersService.getEventFromReceipt(
         txReceipt,
         'IncreaseLiquidity',
       );
-      const [, , ,liquidity, amount0, amount1] = increaseLiquidityEvent.args;
+      const [, , , liquidity, amount0, amount1] = increaseLiquidityEvent.args;
 
       const logObject = await this.databaseService.createPoolV3LogObject(
         txReceipt,
@@ -307,9 +296,7 @@ export class PoolV3Service {
         amount1,
       );
 
-      await this.databaseService.logPoolV3Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV3Tx(logObject);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -385,7 +372,7 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      const easyCollectEvent = await this.getEventFromReceipt(
+      const easyCollectEvent = await this.extendedEthersService.getEventFromReceipt(
         txReceipt,
         'EasyCollect',
       );
@@ -405,9 +392,7 @@ export class PoolV3Service {
         amount1,
       );
 
-      await this.databaseService.logPoolV3Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV3Tx(logObject);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -494,7 +479,7 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      const easyCompoundEvent = await this.getEventFromReceipt(
+      const easyCompoundEvent = await this.extendedEthersService.getEventFromReceipt(
         txReceipt,
         'EasyCompound',
       );
@@ -514,9 +499,7 @@ export class PoolV3Service {
         amount1,
       );
 
-      await this.databaseService.logPoolV3Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV3Tx(logObject);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -611,7 +594,7 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      const easyDecreaseLiquidityCollectEvent = await this.getEventFromReceipt(
+      const easyDecreaseLiquidityCollectEvent = await this.extendedEthersService.getEventFromReceipt(
         txReceipt,
         'EasyDecreaseLiquidityCollectAll',
       );
@@ -636,9 +619,7 @@ export class PoolV3Service {
         amount1,
       );
 
-      await this.databaseService.logPoolV3Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV3Tx(logObject);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -750,11 +731,12 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      const easyIncreaseLiquidityCompoundEvent = await this.getEventFromReceipt(
+      const easyIncreaseLiquidityCompoundEvent = await this.extendedEthersService.getEventFromReceipt(
         txReceipt,
         'EasyIncreaseLiquidityCompound',
       );
-      const [, , , liquidity, amount0, amount1] = easyIncreaseLiquidityCompoundEvent.args;
+      const [, , , liquidity, amount0, amount1] =
+        easyIncreaseLiquidityCompoundEvent.args;
 
       const logObject = await this.databaseService.createPoolV3LogObject(
         txReceipt,
@@ -770,9 +752,7 @@ export class PoolV3Service {
         amount1,
       );
 
-      await this.databaseService.logPoolV3Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV3Tx(logObject);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -855,7 +835,7 @@ export class PoolV3Service {
       const txReceipt = await tx.wait();
 
       const easyDecreaseLiquidityCollectAllEvent =
-        await this.getEventFromReceipt(
+        await this.extendedEthersService.getEventFromReceipt(
           txReceipt,
           'EasyDecreaseLiquidityAllCollectAllBurn',
         );
@@ -881,9 +861,7 @@ export class PoolV3Service {
         amount1,
       );
 
-      await this.databaseService.logPoolV3Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV3Tx(logObject);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -944,7 +922,7 @@ export class PoolV3Service {
       const txReceipt = await tx.wait();
 
       const easyDecreaseLiquidityAllCollectAllBurnEvent =
-        await this.getEventFromReceipt(
+        await this.extendedEthersService.getEventFromReceipt(
           txReceipt,
           'EasyDecreaseLiquidityAllCollectAllBurn',
         );
@@ -970,9 +948,7 @@ export class PoolV3Service {
         amount1,
       );
 
-      await this.databaseService.logPoolV3Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV3Tx(logObject);
 
       return [token0, token1, tokenId, liquidity, amount0, amount1];
     } catch (error) {
@@ -1084,12 +1060,13 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      const easyStrategyChangeAllEvent = await this.getEventFromReceipt(
+      const easyStrategyChangeAllEvent = await this.extendedEthersService.getEventFromReceipt(
         txReceipt,
         'strategyChangeAll',
       );
-      
-      const [, , , liquidity, amount0, amount1] = easyStrategyChangeAllEvent.args;
+
+      const [, , , liquidity, amount0, amount1] =
+        easyStrategyChangeAllEvent.args;
 
       const logObject = await this.databaseService.createPoolV3LogObject(
         txReceipt,
@@ -1105,9 +1082,7 @@ export class PoolV3Service {
         amount1,
       );
 
-      await this.databaseService.logPoolV3Tx(
-        logObject
-      );
+      await this.databaseService.logPoolV3Tx(logObject);
 
       return easyStrategyChangeAllEvent.args;
     } catch (error) {
@@ -1120,23 +1095,4 @@ export class PoolV3Service {
   }
 
   // --- Internal Functions ---
-  async getEventFromReceipt(
-    txReceipt: ethers.ContractTransactionReceipt,
-    eventName: string,
-  ): Promise<ethers.EventLog> {
-    const events = txReceipt.logs?.filter(
-      (e: any) => e.eventName === eventName,
-    ) as ethers.EventLog[];
-
-    // Check if there are one or more events of the specified type
-    if (!events || events.length === 0) {
-      throw new Error(`${eventName} event not found or not properly formatted`);
-    }
-
-    if (events.length > 1) {
-      throw new Error(`Multiple ${eventName} events found`);
-    }
-
-    return events[0];
-  }
 }

@@ -79,6 +79,26 @@ export class ExtendedEthersService {
     }
   }
 
+  async getEventFromReceipt(
+    txReceipt: ethers.ContractTransactionReceipt,
+    eventName: string,
+  ): Promise<ethers.EventLog> {
+    const events = txReceipt.logs?.filter(
+      (e: any) => e.eventName === eventName,
+    ) as ethers.EventLog[];
+
+    // Check if there are one or more events of the specified type
+    if (!events || events.length === 0) {
+      throw new Error(`${eventName} event not found or not properly formatted`);
+    }
+
+    if (events.length > 1) {
+      throw new Error(`Multiple ${eventName} events found`);
+    }
+
+    return events[0];
+  }
+
   async decodeReceiptLogs(receiptLogs): Promise<any> {
     const decodedLogs = [];
 
@@ -150,4 +170,6 @@ export class ExtendedEthersService {
     }
     return decodedLogs;
   }
+
+  
 }

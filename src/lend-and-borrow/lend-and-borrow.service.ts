@@ -190,7 +190,7 @@ export class LendAndBorrowService {
           throw new Error('Invalid Asset Address');
       }
 
-      this.logger.debug("-- Created Log Object' --")
+      this.logger.debug("-- Created Log Object' --");
       // .wait() : waits for the transaction to be mined and confirmed
       // due to the usage of .wait() which is a async work, await is required to resolve the Promise.
       const txReceipt = await txResult.wait();
@@ -204,11 +204,9 @@ export class LendAndBorrowService {
         amountInWei,
       );
 
-      this.logger.debug("-- Logging Object' --")
+      this.logger.debug("-- Logging Object' --");
       // Call logTxInfo from DatabaseService
-      await this.databaseService.logLendAndBorrowTx(
-        logObject
-      );
+      await this.databaseService.logLendAndBorrowTx(logObject);
 
       return txReceipt;
     } catch (error) {
@@ -285,9 +283,7 @@ export class LendAndBorrowService {
       );
 
       // Call logTxInfo from DatabaseService
-      await this.databaseService.logLendAndBorrowTx(
-        logObject
-      );
+      await this.databaseService.logLendAndBorrowTx(logObject);
 
       return txReceipt;
     } catch (error) {
@@ -382,9 +378,7 @@ export class LendAndBorrowService {
       // WIP : Should get the receivedAssetAddress, receivedAssetAmount from catching 'LiquidateBorrow' event.
 
       // Call logTxInfo from DatabaseService
-      await this.databaseService.logLendAndBorrowTx(
-        logObject
-      );
+      await this.databaseService.logLendAndBorrowTx(logObject);
 
       return txReceipt;
     } catch (error) {

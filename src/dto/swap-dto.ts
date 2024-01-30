@@ -1,4 +1,10 @@
-import { IsNumber, IsString, IsArray, ArrayNotEmpty, IsNumberString } from 'class-validator';
+import {
+  IsNumber,
+  IsString,
+  IsArray,
+  ArrayNotEmpty,
+  IsNumberString,
+} from 'class-validator';
 
 export class QuoteDto {
   @IsNumberString()
