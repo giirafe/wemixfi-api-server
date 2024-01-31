@@ -8,6 +8,7 @@ import {
   PoolV2Tx,
   SwapV2Tx,
   PoolV3Tx,
+  SwapV3Tx
 } from './database.model';
 import { DatabaseService } from './database.service';
 import { DatabaseController } from './database.controller';
@@ -24,6 +25,7 @@ import { HttpModule } from '@nestjs/axios'; // for internal Http Calls
       PoolV2Tx,
       SwapV2Tx,
       PoolV3Tx,
+      SwapV3Tx,
     ]),
     HttpModule,
   ],

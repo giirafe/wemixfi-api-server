@@ -53,6 +53,7 @@ export class SwapV3Service {
         amountOutMinimum:BigNumberish,
       ): Promise<any> {
         // Processing data for DB Logging
+        // ----
         const funcName = 'exactInput';
         let value: bigint = 0n; // Wemix amount sent with Tx
         const inputJson = JSON.stringify({
@@ -65,7 +66,7 @@ export class SwapV3Service {
           amountOutMinimum,
         });
         const input: string = JSON.stringify(inputJson);
-        ///
+        ///----
     
         amountIn = (await this.extendedEthersService.convertToWei(
             tokenIn,
@@ -123,10 +124,20 @@ export class SwapV3Service {
 
           const [, , , , amountOut] = exactInputEvent.args;
     
-        // //   const logObject = await this.databaseService.createPoolV3LogObject(
-        // //   );
+          const logObject = await this.databaseService.createSwapV3LogObject(
+            txReceipt,
+            contractName,
+            funcName,
+            input,
+            value,
+            tokenIn as string,
+            tokenOut as string,
+            encodedBestPath ,
+            amountIn as bigint,
+            amountOut,
+            );
     
-        // //   await this.databaseService.logPoolV3Tx(logObject);
+          await this.databaseService.logSwapV3Tx(logObject);
     
           return exactInputEvent.args;
         } catch (error) {

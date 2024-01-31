@@ -35,3 +35,12 @@ export class PoolV3TxDto extends BaseTxDto {
   amount0: bigint;
   amount1: bigint;
 }
+
+export class SwapV3TxDto extends BaseTxDto {
+    tokenIn: string;
+    tokenOut: string;
+    path:string;
+    amountIn: bigint;
+    amountOut: bigint;
+  }
+  

@@ -1,3 +1,4 @@
+import { BytesLike } from 'ethers';
 import {
   Table,
   Column,
@@ -267,4 +268,41 @@ export class PoolV3Tx extends TxInfo {
     type: DataType.DECIMAL(65),
   })
   amount1: bigint;
+}
+
+@Table({
+  defaultScope: {
+    order: [['block_timestamp', 'ASC']], // or 'DESC' for descending
+  },
+})
+export class SwapV3Tx extends TxInfo {
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  tokenIn: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  tokenOut: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  path: BytesLike;
+
+  @Column({
+    allowNull: false,
+    type: DataType.DECIMAL(65),
+  })
+  amountIn: bigint;
+
+  @Column({
+    allowNull: false,
+    type: DataType.DECIMAL(65),
+  })
+  amountOut: bigint;
 }
