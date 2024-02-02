@@ -7,7 +7,7 @@ import { ExtendedEthersModule } from 'src/extended-ethers/extended-ethers.module
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports:[DatabaseModule,AccountModule,ExtendedEthersModule, HttpModule],
+  imports: [DatabaseModule, AccountModule, ExtendedEthersModule, HttpModule],
   controllers: [SwapV3Controller],
   providers: [SwapV3Service],
 })

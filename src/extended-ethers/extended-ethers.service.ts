@@ -12,6 +12,8 @@ import * as WemixDollarJson from '../../wemixFi_env/WemixDollar.json';
 import * as NonfungiblePositionHelperJson from '../../wemixFi_env/NonfungiblePositionHelper.json';
 import * as NonfungiblePositionManagerJson from '../../wemixFi_env/NonfungiblePositionManager.json';
 import * as WeswapV3PoolJson from '../../wemixFi_env/WeswapV3Pool.json';
+import * as NCPStakingJson from '../../wemixFi_env/NCPStaking.json'
+import * as WithdrawalNFTJson from '../../wemixFi_env/WithdrawalNFT.json'
 
 import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA for Contract Address
 
@@ -99,10 +101,10 @@ export class ExtendedEthersService {
     return events[0];
   }
 
-  async decodeReceiptLogs(receiptLogs): Promise<any> {
+  async decodeReceiptLogs(txReceipt): Promise<any> {
     const decodedLogs = [];
 
-    for (const log of receiptLogs) {
+    for (const log of txReceipt) {
       if (contractInfos[log.address]) {
         const contractName: string = contractInfos[log.address].name;
         const abiName: string = contractInfos[log.address].abi;
@@ -142,9 +144,17 @@ export class ExtendedEthersService {
               contractJSON = WeswapV3PoolJson;
               break;
             }
+            case 'NCPStaking': {
+              contractJSON = NCPStakingJson;
+              break;
+            }
+            case 'WithdrawalNFT': {
+              contractJSON = WithdrawalNFTJson;
+              break;
+            }
             default: {
               throw Error(
-                'Need to handle JSON file importation in extended-ethers.service.ts : decodeReceiptLogs()',
+                `Error loading ABI for ${log.address}, ${abiName} in extended-ethers.service.ts`,
               );
             }
           }
@@ -159,17 +169,16 @@ export class ExtendedEthersService {
           decodedLogs.push(decodedLog);
         } catch (error) {
           console.error(
-            `Error loading ABI for ${log.address}, ${abiName}: ${error.message}`,
+            `${error.message}`,
           );
         }
       } else {
         console.log(
           `Address not found in wemixFi_env/contractInfo_testnet.ts : ${log.address}`,
         );
+        decodedLogs.push({name:"AddressNotFound"})
       }
     }
     return decodedLogs;
   }
-
-  
 }

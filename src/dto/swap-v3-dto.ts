@@ -1,4 +1,10 @@
-import { IsString, IsNumber, IsNotEmpty, IsHexadecimal, Min } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsNotEmpty,
+  IsHexadecimal,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ExactInputDto {

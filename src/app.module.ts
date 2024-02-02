@@ -13,6 +13,8 @@ import { PoolModule } from './pool/pool.module';
 import { SwapV3Module } from './swap-v3/swap-v3.module';
 import { PoolV3Module } from './pool-v3/pool-v3.module';
 import { ExtendedEthersModule } from './extended-ethers/extended-ethers.module';
+import { WonderStakingModule } from './wonder-staking/wonder-staking.module';
+import { LiquidStakingModule } from './liquid-staking/liquid-staking.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { ExtendedEthersModule } from './extended-ethers/extended-ethers.module';
     SwapV3Module,
     PoolV3Module,
     ExtendedEthersModule,
+    WonderStakingModule,
+    LiquidStakingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

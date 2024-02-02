@@ -306,3 +306,41 @@ export class SwapV3Tx extends TxInfo {
   })
   amountOut: bigint;
 }
+
+@Table({
+  defaultScope: {
+    order: [['block_timestamp', 'ASC']], // or 'DESC' for descending
+  },
+})
+export class WonderStakingTx extends TxInfo {
+  @Column({
+    allowNull: false,
+    type: DataType.INTEGER,
+  })
+  pid: number;
+
+  @Column({
+    allowNull: false,
+    type: DataType.INTEGER,
+  })
+  toPid: number;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  receiverAddress: string; // receiverAddress : input param 'payable 'to''
+  
+  @Column({
+    allowNull: false,
+    type: DataType.DECIMAL(65),
+  })
+  amount: bigint;
+
+  @Column({
+    allowNull: false,
+    type: DataType.DECIMAL(65),
+  })
+  rewardAmount: bigint;
+
+}

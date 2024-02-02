@@ -9,11 +9,19 @@ import {
   SwapV2Tx,
   PoolV3Tx,
   SwapV3Tx,
+  WonderStakingTx,
 } from './database.model';
 
 // import ethers package
 import { AddressLike, ethers } from 'ethers';
-import { LBTxDto, PoolV2TxDto,SwapV2TxDto, PoolV3TxDto, SwapV3TxDto } from 'src/dto/tx-dto';
+import {
+  LBTxDto,
+  PoolV2TxDto,
+  SwapV2TxDto,
+  PoolV3TxDto,
+  SwapV3TxDto,
+  WonderStakingTxDto,
+} from 'src/dto/tx-dto';
 // import { HttpService } from '@nestjs/axios';
 
 interface ReceiptData {
@@ -42,6 +50,8 @@ export class DatabaseService {
     private readonly PoolV3TxModel: typeof PoolV3Tx,
     @InjectModel(SwapV3Tx)
     private readonly SwapV3TxModel: typeof SwapV3Tx,
+    @InjectModel(WonderStakingTx)
+    private readonly WonderStakingTxModel: typeof WonderStakingTx,
   ) {}
 
   public provider(): ethers.JsonRpcProvider {
@@ -268,7 +278,7 @@ export class DatabaseService {
     value: bigint,
     tokenIn: string,
     tokenOut: string,
-    path:string,
+    path: string,
     amountIn: bigint,
     amountOut: bigint,
   ): Promise<any> {
@@ -289,6 +299,38 @@ export class DatabaseService {
       path,
       amountIn,
       amountOut,
+    };
+  }
+
+  async createWonderStakingLogObject(
+    txReceipt: any, // Type this according to the structure of extractedData
+    contractName: string,
+    funcName: string,
+    input: string,
+    value: bigint,
+    pid:number,
+    toPid:number,
+    receiverAddress:string,
+    amount:bigint,
+    rewardAmount:bigint
+  ): Promise<any> {
+    const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+    return {
+      block_number: extractedData.blockNumber,
+      block_timestamp: extractedData.blockTimestamp,
+      tx_hash: extractedData.txHash,
+      contract_name: contractName,
+      func_name: funcName,
+      func_sig: extractedData.funcSig,
+      from: extractedData.from,
+      to: extractedData.to,
+      input,
+      value,
+      pid,
+      toPid,
+      receiverAddress,
+      amount,
+      rewardAmount
     };
   }
 
@@ -322,6 +364,12 @@ export class DatabaseService {
   async logSwapV3Tx(dto: SwapV3TxDto): Promise<TxInfo> {
     this.logger.debug('Attempt to log in SwapV3Tx table : Database Service');
     const newTxInfo = await this.SwapV3TxModel.create(dto);
+    return newTxInfo;
+  }
+
+  async logWonderStakingTx(dto: WonderStakingTxDto): Promise<TxInfo> {
+    this.logger.debug('Attempt to log in WonderStakingTx table : Database Service');
+    const newTxInfo = await this.WonderStakingTxModel.create(dto);
     return newTxInfo;
   }
 

@@ -37,10 +37,17 @@ export class PoolV3TxDto extends BaseTxDto {
 }
 
 export class SwapV3TxDto extends BaseTxDto {
-    tokenIn: string;
-    tokenOut: string;
-    path:string;
-    amountIn: bigint;
-    amountOut: bigint;
-  }
-  
+  tokenIn: string;
+  tokenOut: string;
+  path: string;
+  amountIn: bigint;
+  amountOut: bigint;
+}
+
+export class WonderStakingTxDto extends BaseTxDto {
+  pid:number;
+  toPid:number;
+  receiverAddress:string;
+  amount:bigint;
+  rewardAmount:bigint;
+}
