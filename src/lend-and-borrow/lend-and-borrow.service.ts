@@ -6,25 +6,25 @@ import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.servi
 
 // const cWemixJson = require( '../../wemixFi_env') // importing CWemix.json for ABI
 // User Interactions are handled on each asset's deployed contract. Thus process of instantiating each asset's contract is mandated
-import * as cWemixJson from '../../wemixFi_env/CWemix.json';
+import * as cWemixJson from '../../wemixfi_env/CWemix.json';
 import { CWemix } from '../../types/ethers/CWemix';
 
-import * as cWemixDollarJson from '../../wemixFi_env/CWemixDollar.json';
+import * as cWemixDollarJson from '../../wemixfi_env/CWemixDollar.json';
 import { CWemixDollar } from '../../types/ethers/CWemixDollar';
 
-import * as cstWemixJson from '../../wemixFi_env/CstWemix.json';
+import * as cstWemixJson from '../../wemixfi_env/CstWemix.json';
 import { CstWemix } from '../../types/ethers/CstWemix';
 
-import * as wemixffiLendingViewJson from '../../wemixFi_env/WemixfiLendingView.json';
+import * as wemixffiLendingViewJson from '../../wemixfi_env/WemixfiLendingView.json';
 import {
   WemixfiLendingView,
   WemixfiLendingViewInterface,
 } from '../../types/ethers/WemixfiLendingView';
 
-import * as wemixfiControllerViewJson from '../../wemixFi_env/ControllerView.json';
+import * as wemixfiControllerViewJson from '../../wemixfi_env/ControllerView.json';
 import { ControllerView } from '../../types/ethers/ControllerView';
 
-import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet';
+import { contractInfos, CA } from 'wemixfi_env/contractInfo_testnet';
 
 export enum LBAssetType {
   Wemix = '0x3eBda066925BBc790FE198F47ef650Ddb764EcfE',

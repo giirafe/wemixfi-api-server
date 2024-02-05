@@ -8,9 +8,9 @@ import { HttpService } from '@nestjs/axios';
 // import * as swapRouterV3Json from '../../wemixFi_env/SwapRouterV3.json';
 // import { SwapRouterV3 } from '../../types/ethers/SwapRouterV3';
 
-import * as swapRouterHelperJson from '../../wemixFi_env/SwapRouterHelper.json';
+import * as swapRouterHelperJson from '../../wemixfi_env/SwapRouterHelper.json';
 import { SwapRouterHelper } from 'types/ethers/SwapRouterHelper';
-import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA: Contract Address
+import { contractInfos, CA } from 'wemixfi_env/contractInfo_testnet'; // CA: Contract Address
 import { AxiosError, AxiosResponse } from 'axios';
 import { Observable, catchError, firstValueFrom } from 'rxjs';
 

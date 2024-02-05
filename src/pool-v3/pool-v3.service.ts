@@ -4,13 +4,13 @@ import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.service';
 
-import * as nonfungiblePositionHelperJson from '../../wemixFi_env/NonfungiblePositionHelper.json';
+import * as nonfungiblePositionHelperJson from '../../wemixfi_env/NonfungiblePositionHelper.json';
 import { NonfungiblePositionHelper } from '../../types/ethers/NonfungiblePositionHelper';
 
-import * as nonfungiblePositionManagerJson from '../../wemixFi_env/NonfungiblePositionManager.json';
+import * as nonfungiblePositionManagerJson from '../../wemixfi_env/NonfungiblePositionManager.json';
 import { NonfungiblePositionManager } from 'types/ethers/NonfungiblePositionManager';
 
-import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA: Contract Address
+import { contractInfos, CA } from 'wemixfi_env/contractInfo_testnet'; // CA: Contract Address
 
 const contractName: string = 'NonfungiblePositionHelper';
 
@@ -1101,5 +1101,4 @@ export class PoolV3Service {
     }
   }
 
-  // --- Internal Functions ---
 }

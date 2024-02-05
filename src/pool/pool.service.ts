@@ -4,16 +4,16 @@ import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.service';
 
-import * as ERC20Json from '../../wemixFi_env/ERC20.json';
+import * as ERC20Json from '../../wemixfi_env/ERC20.json';
 import { ERC20 } from '../../types/ethers/ERC20';
 
-import * as weswapRouterJson from '../../wemixFi_env/WeswapRouter.json';
+import * as weswapRouterJson from '../../wemixfi_env/WeswapRouter.json';
 import { WeswapRouter } from '../../types/ethers/WeswapRouter';
 
-import * as IWeswapFactoryJson from '../../wemixFi_env/IWeswapFactory.json';
+import * as IWeswapFactoryJson from '../../wemixfi_env/IWeswapFactory.json';
 import { IWeswapFactory } from '../../types/ethers/IWeswapFactory';
 
-import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA for Contract Address
+import { contractInfos, CA } from 'wemixfi_env/contractInfo_testnet'; // CA for Contract Address
 
 const contractName: string = 'WeswapRouter';
 

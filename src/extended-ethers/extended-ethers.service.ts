@@ -3,19 +3,20 @@ import { ethers } from 'ethers';
 import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 
-import * as ERC20Json from '../../wemixFi_env/ERC20.json';
+import * as ERC20Json from '../../wemixfi_env/ERC20.json';
 import { ERC20 } from '../../types/ethers/ERC20';
 
-import * as WWEMIXJson from '../../wemixFi_env/WWEMIX.json';
-import * as WeswapPairJson from '../../wemixFi_env/WeswapPair.json';
-import * as WemixDollarJson from '../../wemixFi_env/WemixDollar.json';
-import * as NonfungiblePositionHelperJson from '../../wemixFi_env/NonfungiblePositionHelper.json';
-import * as NonfungiblePositionManagerJson from '../../wemixFi_env/NonfungiblePositionManager.json';
-import * as WeswapV3PoolJson from '../../wemixFi_env/WeswapV3Pool.json';
-import * as NCPStakingJson from '../../wemixFi_env/NCPStaking.json'
-import * as WithdrawalNFTJson from '../../wemixFi_env/WithdrawalNFT.json'
+import * as WWEMIXJson from '../../wemixfi_env/WWEMIX.json';
+import * as WeswapPairJson from '../../wemixfi_env/WeswapPair.json';
+import * as WemixDollarJson from '../../wemixfi_env/WemixDollar.json';
+import * as NonfungiblePositionHelperJson from '../../wemixfi_env/NonfungiblePositionHelper.json';
+import * as NonfungiblePositionManagerJson from '../../wemixfi_env/NonfungiblePositionManager.json';
+import * as WeswapV3PoolJson from '../../wemixfi_env/WeswapV3Pool.json';
+import * as NCPStakingJson from '../../wemixfi_env/NCPStaking.json'
+import * as WithdrawalNFTJson from '../../wemixfi_env/WithdrawalNFT.json'
+import * as StWEMIXV2Json from '../../wemixfi_env/StWEMIXV2.json';
 
-import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA for Contract Address
+import { contractInfos, CA } from 'wemixfi_env/contractInfo_testnet'; // CA for Contract Address
 
 @Injectable()
 export class ExtendedEthersService {
@@ -150,6 +151,10 @@ export class ExtendedEthersService {
             }
             case 'WithdrawalNFT': {
               contractJSON = WithdrawalNFTJson;
+              break;
+            }
+            case 'StWEMIXV2' : {
+              contractJSON = StWEMIXV2Json;
               break;
             }
             default: {

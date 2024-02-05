@@ -4,13 +4,10 @@ import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.service';
 
-import * as NCPStakingJson from '../../wemixFi_env/NCPStaking.json';
+import * as NCPStakingJson from '../../wemixfi_env/NCPStaking.json';
 import { NCPStaking } from '../../types/ethers/NCPStaking';
 
-import * as nonfungiblePositionManagerJson from '../../wemixFi_env/NonfungiblePositionManager.json';
-import { NonfungiblePositionManager } from 'types/ethers/NonfungiblePositionManager';
-
-import { contractInfos, CA } from 'wemixFi_env/contractInfo_testnet'; // CA: Contract Address
+import { CA } from 'wemixfi_env/contractInfo_testnet'; // CA: Contract Address
 
 const contractName: string = 'NCPStaking'; // Contract for 'Wonder Staking'
 

@@ -10,6 +10,7 @@ import {
   PoolV3Tx,
   SwapV3Tx,
   WonderStakingTx,
+  LiquidStakingTx,
 } from './database.model';
 
 // import ethers package
@@ -21,6 +22,7 @@ import {
   PoolV3TxDto,
   SwapV3TxDto,
   WonderStakingTxDto,
+  LiquidStakingTxDto,
 } from 'src/dto/tx-dto';
 // import { HttpService } from '@nestjs/axios';
 
@@ -52,6 +54,8 @@ export class DatabaseService {
     private readonly SwapV3TxModel: typeof SwapV3Tx,
     @InjectModel(WonderStakingTx)
     private readonly WonderStakingTxModel: typeof WonderStakingTx,
+    @InjectModel(LiquidStakingTx)
+    private readonly LiquidStakingTxModel: typeof LiquidStakingTx,
   ) {}
 
   public provider(): ethers.JsonRpcProvider {
@@ -153,7 +157,7 @@ export class DatabaseService {
     assetAddress: string,
     amountInWei: bigint,
   ): Promise<any> {
-    const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+    const extractedData = await this._extractTxDataFromReceipt(txReceipt);
     return {
       block_number: extractedData.blockNumber,
       block_timestamp: extractedData.blockTimestamp,
@@ -183,7 +187,7 @@ export class DatabaseService {
     liquidityAdded: bigint,
     liquidityRemoved: bigint,
   ): Promise<any> {
-    const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+    const extractedData = await this._extractTxDataFromReceipt(txReceipt);
     // console.log('name in createPoolV2LogObject : '+ contractName)
     return {
       block_number: extractedData.blockNumber,
@@ -216,7 +220,7 @@ export class DatabaseService {
     swapOutAddress: string,
     swapOutAmount: bigint,
   ): Promise<any> {
-    const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+    const extractedData = await this._extractTxDataFromReceipt(txReceipt);
     // console.log('name in createSwapV2LogObject : ' + contractName);
     return {
       block_number: extractedData.blockNumber,
@@ -249,7 +253,7 @@ export class DatabaseService {
     amount0: bigint,
     amount1: bigint,
   ): Promise<any> {
-    const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+    const extractedData = await this._extractTxDataFromReceipt(txReceipt);
     return {
       block_number: extractedData.blockNumber,
       block_timestamp: extractedData.blockTimestamp,
@@ -282,7 +286,7 @@ export class DatabaseService {
     amountIn: bigint,
     amountOut: bigint,
   ): Promise<any> {
-    const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+    const extractedData = await this._extractTxDataFromReceipt(txReceipt);
     return {
       block_number: extractedData.blockNumber,
       block_timestamp: extractedData.blockTimestamp,
@@ -314,7 +318,7 @@ export class DatabaseService {
     amount:bigint,
     rewardAmount:bigint
   ): Promise<any> {
-    const extractedData = await this.extractTxDataFromReceipt(txReceipt);
+    const extractedData = await this._extractTxDataFromReceipt(txReceipt);
     return {
       block_number: extractedData.blockNumber,
       block_timestamp: extractedData.blockTimestamp,
@@ -331,6 +335,32 @@ export class DatabaseService {
       receiverAddress,
       amount,
       rewardAmount
+    };
+  }
+
+  async createLiquidStakingLogObject(
+    txReceipt: any, // Type this according to the structure of extractedData
+    contractName: string,
+    funcName: string,
+    input: string,
+    value: bigint,
+    wemixAmount:bigint,
+    stWemixAmount:bigint
+  ): Promise<any> {
+    const extractedData = await this._extractTxDataFromReceipt(txReceipt);
+    return {
+      block_number: extractedData.blockNumber,
+      block_timestamp: extractedData.blockTimestamp,
+      tx_hash: extractedData.txHash,
+      contract_name: contractName,
+      func_name: funcName,
+      func_sig: extractedData.funcSig,
+      from: extractedData.from,
+      to: extractedData.to,
+      input,
+      value,
+      wemixAmount,
+      stWemixAmount
     };
   }
 
@@ -373,8 +403,14 @@ export class DatabaseService {
     return newTxInfo;
   }
 
+  async logLiquidStakingTx(dto: LiquidStakingTxDto): Promise<TxInfo> {
+    this.logger.debug('Attempt to log in LiquidStakingTx table : Database Service');
+    const newTxInfo = await this.LiquidStakingTxModel.create(dto);
+    return newTxInfo;
+  }
+
   // Internal Function
-  async extractTxDataFromReceipt(
+  async _extractTxDataFromReceipt(
     txReceipt: ethers.TransactionReceipt,
   ): Promise<ReceiptData> {
     // Extract basic data from receipt

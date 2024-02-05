@@ -344,3 +344,25 @@ export class WonderStakingTx extends TxInfo {
   rewardAmount: bigint;
 
 }
+
+@Table({
+  defaultScope: {
+    order: [['block_timestamp', 'ASC']], // or 'DESC' for descending
+  },
+})
+export class LiquidStakingTx extends TxInfo {
+  
+  @Column({
+    allowNull: false,
+    type: DataType.DECIMAL(65),
+  })
+  wemixAmount: bigint;
+
+  @Column({
+    allowNull: false,
+    type: DataType.DECIMAL(65),
+  })
+  stWemixAmount: bigint;
+
+}
+

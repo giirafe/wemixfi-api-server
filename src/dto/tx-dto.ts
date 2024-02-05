@@ -51,3 +51,8 @@ export class WonderStakingTxDto extends BaseTxDto {
   amount:bigint;
   rewardAmount:bigint;
 }
+
+export class LiquidStakingTxDto extends BaseTxDto {
+  wemixAmount:bigint;
+  stWemixAmount:bigint;
+}

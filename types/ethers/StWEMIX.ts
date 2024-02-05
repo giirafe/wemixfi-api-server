@@ -33,7 +33,6 @@ export interface StWEMIXInterface extends Interface {
       | "decimals"
       | "decreaseAllowance"
       | "deposit"
-      | "disableUserInfoContract"
       | "fee"
       | "feePhaseOne"
       | "feePhaseTwo"
@@ -58,9 +57,6 @@ export interface StWEMIXInterface extends Interface {
       | "transferFrom"
       | "transferOwnership"
       | "treasury"
-      | "updateUserInfoContract"
-      | "userInfo"
-      | "userInfoContract"
       | "withdraw"
   ): FunctionFragment;
 
@@ -77,7 +73,6 @@ export interface StWEMIXInterface extends Interface {
       | "SetStaking"
       | "Transfer"
       | "Unpaused"
-      | "UpdateUserInfo"
       | "Withdrew"
   ): EventFragment;
 
@@ -100,10 +95,6 @@ export interface StWEMIXInterface extends Interface {
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "deposit", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "disableUserInfoContract",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "fee", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "feePhaseOne",
@@ -174,18 +165,6 @@ export interface StWEMIXInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "treasury", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "updateUserInfoContract",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "userInfo",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "userInfoContract",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "withdraw",
     values: [BigNumberish]
   ): string;
@@ -200,10 +179,6 @@ export interface StWEMIXInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "disableUserInfoContract",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "fee", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "feePhaseOne",
@@ -258,15 +233,6 @@ export interface StWEMIXInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "treasury", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "updateUserInfoContract",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "userInfo", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "userInfoContract",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 }
 
@@ -437,19 +403,6 @@ export namespace UnpausedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace UpdateUserInfoEvent {
-  export type InputTuple = [prev: AddressLike, curr: AddressLike];
-  export type OutputTuple = [prev: string, curr: string];
-  export interface OutputObject {
-    prev: string;
-    curr: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
 export namespace WithdrewEvent {
   export type InputTuple = [
     sender: AddressLike,
@@ -541,8 +494,6 @@ export interface StWEMIX extends BaseContract {
 
   deposit: TypedContractMethod<[], [bigint], "payable">;
 
-  disableUserInfoContract: TypedContractMethod<[], [void], "nonpayable">;
-
   fee: TypedContractMethod<[], [bigint], "view">;
 
   feePhaseOne: TypedContractMethod<[], [bigint], "view">;
@@ -610,13 +561,13 @@ export interface StWEMIX extends BaseContract {
   totalSupply: TypedContractMethod<[], [bigint], "view">;
 
   transfer: TypedContractMethod<
-    [to: AddressLike, value: BigNumberish],
+    [to: AddressLike, amount: BigNumberish],
     [boolean],
     "nonpayable"
   >;
 
   transferFrom: TypedContractMethod<
-    [from: AddressLike, to: AddressLike, value: BigNumberish],
+    [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
     "nonpayable"
   >;
@@ -628,26 +579,6 @@ export interface StWEMIX extends BaseContract {
   >;
 
   treasury: TypedContractMethod<[], [string], "view">;
-
-  updateUserInfoContract: TypedContractMethod<
-    [newUserInfoContract: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  userInfo: TypedContractMethod<
-    [account_: AddressLike],
-    [
-      [bigint, bigint, bigint] & {
-        stWemixamount_: bigint;
-        wemixAmount_: bigint;
-        timestamp_: bigint;
-      }
-    ],
-    "view"
-  >;
-
-  userInfoContract: TypedContractMethod<[], [string], "view">;
 
   withdraw: TypedContractMethod<[amount_: BigNumberish], [bigint], "payable">;
 
@@ -688,9 +619,6 @@ export interface StWEMIX extends BaseContract {
   getFunction(
     nameOrSignature: "deposit"
   ): TypedContractMethod<[], [bigint], "payable">;
-  getFunction(
-    nameOrSignature: "disableUserInfoContract"
-  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "fee"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -768,14 +696,14 @@ export interface StWEMIX extends BaseContract {
   getFunction(
     nameOrSignature: "transfer"
   ): TypedContractMethod<
-    [to: AddressLike, value: BigNumberish],
+    [to: AddressLike, amount: BigNumberish],
     [boolean],
     "nonpayable"
   >;
   getFunction(
     nameOrSignature: "transferFrom"
   ): TypedContractMethod<
-    [from: AddressLike, to: AddressLike, value: BigNumberish],
+    [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
     "nonpayable"
   >;
@@ -784,29 +712,6 @@ export interface StWEMIX extends BaseContract {
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "treasury"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "updateUserInfoContract"
-  ): TypedContractMethod<
-    [newUserInfoContract: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "userInfo"
-  ): TypedContractMethod<
-    [account_: AddressLike],
-    [
-      [bigint, bigint, bigint] & {
-        stWemixamount_: bigint;
-        wemixAmount_: bigint;
-        timestamp_: bigint;
-      }
-    ],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "userInfoContract"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "withdraw"
@@ -888,13 +793,6 @@ export interface StWEMIX extends BaseContract {
     UnpausedEvent.InputTuple,
     UnpausedEvent.OutputTuple,
     UnpausedEvent.OutputObject
-  >;
-  getEvent(
-    key: "UpdateUserInfo"
-  ): TypedContractEvent<
-    UpdateUserInfoEvent.InputTuple,
-    UpdateUserInfoEvent.OutputTuple,
-    UpdateUserInfoEvent.OutputObject
   >;
   getEvent(
     key: "Withdrew"
@@ -1024,17 +922,6 @@ export interface StWEMIX extends BaseContract {
       UnpausedEvent.InputTuple,
       UnpausedEvent.OutputTuple,
       UnpausedEvent.OutputObject
-    >;
-
-    "UpdateUserInfo(address,address)": TypedContractEvent<
-      UpdateUserInfoEvent.InputTuple,
-      UpdateUserInfoEvent.OutputTuple,
-      UpdateUserInfoEvent.OutputObject
-    >;
-    UpdateUserInfo: TypedContractEvent<
-      UpdateUserInfoEvent.InputTuple,
-      UpdateUserInfoEvent.OutputTuple,
-      UpdateUserInfoEvent.OutputObject
     >;
 
     "Withdrew(address,uint256,uint256)": TypedContractEvent<
