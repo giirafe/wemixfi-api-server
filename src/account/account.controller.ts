@@ -18,11 +18,10 @@ export class AccountController {
 
   @Post('register')
   async setAccount(
-    @Body('accountAddress') accountAddress: string,
     @Body('privateKey') privateKey: string,
   ): Promise<Account> {
     try {
-      return await this.accountService.setAccount(accountAddress, privateKey);
+      return await this.accountService.setAccount(privateKey);
     } catch (error) {
       throw new HttpException(
         {

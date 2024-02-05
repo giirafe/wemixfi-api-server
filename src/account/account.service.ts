@@ -10,15 +10,11 @@ export class AccountService {
   private readonly logger = new Logger(AccountService.name);
 
   async setAccount(
-    accountAddress: AddressLike,
     privateKey: string,
   ): Promise<Account> {
-    this.logger.debug(
-      'AccountService : accountAddress, privateKey : ' +
-        accountAddress +
-        ' ' +
-        privateKey,
-    );
+    const wallet = new ethers.Wallet(privateKey) 
+    const accountAddress = wallet.address;
+    this.logger.debug("address found using private key : " + wallet.address)
     const addressToString = accountAddress as string;
     return this.databaseService.setAccount(addressToString, privateKey);
   }
