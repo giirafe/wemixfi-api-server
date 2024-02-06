@@ -53,7 +53,7 @@ export class SwapV3Service {
     amountOutMinimum: BigNumberish,
   ): Promise<any> {
     // Processing data for DB Logging
-    // 
+    //
     const funcName = 'exactInput';
     let value: bigint = 0n; // Wemix amount sent with Tx
     const inputJson = JSON.stringify({
@@ -122,7 +122,7 @@ export class SwapV3Service {
         await this.extendedEthersService.provider().getFeeData()
       ).gasPrice;
 
-      // Doubling the gasPrice on tx due to Error : "STF, replacement fee too low" 
+      // Doubling the gasPrice on tx due to Error : "STF, replacement fee too low"
       const higherGasPrice = currentGasPrice + currentGasPrice;
 
       const tx = await SwapRouterWithSigner.exactInput(exactInputParams, {
@@ -146,8 +146,7 @@ export class SwapV3Service {
 
       // const [, , , , amountOut] = exactInputEvent.args;
 
-      const {amountOut} = exactInputEvent.args;
-
+      const { amountOut } = exactInputEvent.args;
 
       const logObject = await this.databaseService.createSwapV3LogObject(
         txReceipt,

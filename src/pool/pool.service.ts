@@ -63,7 +63,6 @@ export class PoolService {
     to: string,
     deadline: number,
   ): Promise<bigint[]> {
-
     // Processing data for DB Logging
     const funcName = 'addLiquidity';
     const value: bigint = 0n; // Wemix amount sent with Tx
@@ -139,12 +138,11 @@ export class PoolService {
           'AddLiquidityReturn event not found or not properly formatted',
         );
       }
-      console.log(txReceipt.logs)
+      console.log(txReceipt.logs);
 
       // const addLiquidityEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,"AddLiquidityReturn")
 
-      const {amountA,amountB,liquidity} = addLiquidityEvent.args
-
+      const { amountA, amountB, liquidity } = addLiquidityEvent.args;
 
       const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
@@ -162,7 +160,7 @@ export class PoolService {
 
       await this.databaseService.logPoolV2Tx(logObject);
 
-      return addLiquidityEvent.args
+      return addLiquidityEvent.args;
     } catch (error) {
       this.logger.error(
         'Error while adding liquidity in swap.service.ts: ',
@@ -182,8 +180,6 @@ export class PoolService {
     to: string,
     deadline: number,
   ): Promise<bigint[]> {
-
-
     // try catch 없이 addressWallet 가져 와도 되나
     const senderWallet = await this.accountService.getAddressWallet(msgSender);
     const weswapRouterContractWithSigner =
@@ -255,7 +251,7 @@ export class PoolService {
         );
       }
 
-      const {amountA,amountB,liquidity} = addLiquidityEvent.args
+      const { amountA, amountB, liquidity } = addLiquidityEvent.args;
 
       const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
@@ -341,7 +337,7 @@ export class PoolService {
         );
       }
 
-      const {amountA,amountB} = removeLiquidityEvent.args
+      const { amountA, amountB } = removeLiquidityEvent.args;
 
       const funcName = 'removeLiquidity';
       const value: bigint = 0n; // Wemix amount sent with Tx
@@ -458,7 +454,7 @@ export class PoolService {
         );
       }
 
-      const {amountA, amountB} = removeLiquidityEvent.args;
+      const { amountA, amountB } = removeLiquidityEvent.args;
 
       const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
@@ -476,7 +472,7 @@ export class PoolService {
 
       await this.databaseService.logPoolV2Tx(logObject);
 
-      return {amountA,amountB};
+      return { amountA, amountB };
     } catch (error) {
       this.logger.error('Error while removing liquidity WEMIX: ', error);
       throw error;

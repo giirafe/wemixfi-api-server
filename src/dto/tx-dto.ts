@@ -45,14 +45,14 @@ export class SwapV3TxDto extends BaseTxDto {
 }
 
 export class WonderStakingTxDto extends BaseTxDto {
-  pid:number;
-  toPid:number;
-  receiverAddress:string;
-  amount:bigint;
-  rewardAmount:bigint;
+  pid: number;
+  toPid: number;
+  receiverAddress: string;
+  amount: bigint;
+  rewardAmount: bigint;
 }
 
 export class LiquidStakingTxDto extends BaseTxDto {
-  wemixAmount:bigint;
-  stWemixAmount:bigint;
+  wemixAmount: bigint;
+  stWemixAmount: bigint;
 }

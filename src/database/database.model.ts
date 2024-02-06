@@ -330,7 +330,7 @@ export class WonderStakingTx extends TxInfo {
     type: DataType.STRING,
   })
   receiverAddress: string; // receiverAddress : input param 'payable 'to''
-  
+
   @Column({
     allowNull: false,
     type: DataType.DECIMAL(65),
@@ -342,7 +342,6 @@ export class WonderStakingTx extends TxInfo {
     type: DataType.DECIMAL(65),
   })
   rewardAmount: bigint;
-
 }
 
 @Table({
@@ -351,7 +350,6 @@ export class WonderStakingTx extends TxInfo {
   },
 })
 export class LiquidStakingTx extends TxInfo {
-  
   @Column({
     allowNull: false,
     type: DataType.DECIMAL(65),
@@ -363,6 +361,4 @@ export class LiquidStakingTx extends TxInfo {
     type: DataType.DECIMAL(65),
   })
   stWemixAmount: bigint;
-
 }
-

@@ -42,7 +42,7 @@ export class WithdrawRequestDto {
   toPid: number;
 
   @IsNumber()
-  @Min(0,{message:'amount must be bigger than 0'})
+  @Min(0, { message: 'amount must be bigger than 0' })
   amount: number;
 
   @IsString()
@@ -110,4 +110,3 @@ export class WithdrawAllWithPidDto {
   @IsString()
   to: string;
 }
-

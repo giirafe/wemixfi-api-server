@@ -312,11 +312,11 @@ export class DatabaseService {
     funcName: string,
     input: string,
     value: bigint,
-    pid:number,
-    toPid:number,
-    receiverAddress:string,
-    amount:bigint,
-    rewardAmount:bigint
+    pid: number,
+    toPid: number,
+    receiverAddress: string,
+    amount: bigint,
+    rewardAmount: bigint,
   ): Promise<any> {
     const extractedData = await this._extractTxDataFromReceipt(txReceipt);
     return {
@@ -334,7 +334,7 @@ export class DatabaseService {
       toPid,
       receiverAddress,
       amount,
-      rewardAmount
+      rewardAmount,
     };
   }
 
@@ -344,8 +344,8 @@ export class DatabaseService {
     funcName: string,
     input: string,
     value: bigint,
-    wemixAmount:bigint,
-    stWemixAmount:bigint
+    wemixAmount: bigint,
+    stWemixAmount: bigint,
   ): Promise<any> {
     const extractedData = await this._extractTxDataFromReceipt(txReceipt);
     return {
@@ -360,7 +360,7 @@ export class DatabaseService {
       input,
       value,
       wemixAmount,
-      stWemixAmount
+      stWemixAmount,
     };
   }
 
@@ -398,13 +398,17 @@ export class DatabaseService {
   }
 
   async logWonderStakingTx(dto: WonderStakingTxDto): Promise<TxInfo> {
-    this.logger.debug('Attempt to log in WonderStakingTx table : Database Service');
+    this.logger.debug(
+      'Attempt to log in WonderStakingTx table : Database Service',
+    );
     const newTxInfo = await this.WonderStakingTxModel.create(dto);
     return newTxInfo;
   }
 
   async logLiquidStakingTx(dto: LiquidStakingTxDto): Promise<TxInfo> {
-    this.logger.debug('Attempt to log in LiquidStakingTx table : Database Service');
+    this.logger.debug(
+      'Attempt to log in LiquidStakingTx table : Database Service',
+    );
     const newTxInfo = await this.LiquidStakingTxModel.create(dto);
     return newTxInfo;
   }

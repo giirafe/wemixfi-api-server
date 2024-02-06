@@ -692,10 +692,13 @@ export class SwapService {
     tokenIn: string,
     tokenOut: string,
   ): Promise<bigint | undefined> {
+    const swapEvent = await this.extendedEthersService.catchEventFromReceipt(
+      txReceipt,
+      'Swap',
+      true,
+    );
 
-    const swapEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Swap', true)
-
-    const { amount0Out , amount1Out} = swapEvent.args
+    const { amount0Out, amount1Out } = swapEvent.args;
 
     if (tokenOut < tokenIn) {
       console.log('tokenOut : amount0 => :' + amount0Out);
@@ -704,7 +707,6 @@ export class SwapService {
       console.log('tokenOut : amount1 => :' + amount1Out);
       return amount1Out;
     }
-
   }
 
   async getSwapAmountIn(
@@ -712,10 +714,12 @@ export class SwapService {
     tokenIn: string,
     tokenOut: string,
   ): Promise<bigint | undefined> {
+    const swapEvent = await this.extendedEthersService.catchEventFromReceipt(
+      txReceipt,
+      'Swap',
+    );
 
-    const swapEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Swap')
-
-    const { amount0In , amount1In} = swapEvent.args
+    const { amount0In, amount1In } = swapEvent.args;
 
     if (tokenIn < tokenOut) {
       console.log('tokenOut : amount0 => :' + amount0In);
@@ -724,7 +728,5 @@ export class SwapService {
       console.log('tokenOut : amount1 => :' + amount1In);
       return amount1In;
     }
-
-
   }
 }

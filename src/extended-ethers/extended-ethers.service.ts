@@ -6,9 +6,9 @@ import { AccountService } from 'src/account/account.service';
 import * as ERC20Json from '../../wemixfi_env/ERC20.json';
 import { ERC20 } from '../../types/ethers/ERC20';
 
-import * as CWemixJson from '../../wemixfi_env/CWemix.json'
-import * as CWemixDollarJson from '../../wemixfi_env/CWemixDollar.json'
-import * as CstWemixJson from '../../wemixfi_env/CstWemix.json'
+import * as CWemixJson from '../../wemixfi_env/CWemix.json';
+import * as CWemixDollarJson from '../../wemixfi_env/CWemixDollar.json';
+import * as CstWemixJson from '../../wemixfi_env/CstWemix.json';
 import * as WWEMIXJson from '../../wemixfi_env/WWEMIX.json';
 import * as SwapRouterJson from '../../wemixfi_env/SwapRouter.json';
 import * as WeswapPairJson from '../../wemixfi_env/WeswapPair.json';
@@ -16,8 +16,8 @@ import * as WemixDollarJson from '../../wemixfi_env/WemixDollar.json';
 import * as NonfungiblePositionHelperJson from '../../wemixfi_env/NonfungiblePositionHelper.json';
 import * as NonfungiblePositionManagerJson from '../../wemixfi_env/NonfungiblePositionManager.json';
 import * as WeswapV3PoolJson from '../../wemixfi_env/WeswapV3Pool.json';
-import * as NCPStakingJson from '../../wemixfi_env/NCPStaking.json'
-import * as WithdrawalNFTJson from '../../wemixfi_env/WithdrawalNFT.json'
+import * as NCPStakingJson from '../../wemixfi_env/NCPStaking.json';
+import * as WithdrawalNFTJson from '../../wemixfi_env/WithdrawalNFT.json';
 import * as StWEMIXV2Json from '../../wemixfi_env/StWEMIXV2.json';
 
 import { contractInfos, CA } from 'wemixfi_env/contractInfo_testnet'; // CA for Contract Address
@@ -107,42 +107,51 @@ export class ExtendedEthersService {
   }
 
   async catchEventFromReceipt(
-    txReceipt:ethers.ContractTransactionReceipt,
+    txReceipt: ethers.ContractTransactionReceipt,
     eventName: string,
-    returnLast?: boolean, 
+    returnLast?: boolean,
   ): Promise<ethers.LogDescription> {
-    const decodedLogs:ethers.LogDescription[] = await this.decodeReceiptLogs(txReceipt);
+    const decodedLogs: ethers.LogDescription[] =
+      await this.decodeReceiptLogs(txReceipt);
     console.log(decodedLogs);
-    
+
     // Check each log and log its data if it's null
     decodedLogs.forEach((log, index) => {
       if (log === null) {
-        console.log(`Log at index ${index} is null`);
+        console.log(`\x1b[31m Log at index ${index} is null \x1b[0m`);
       }
     });
-    
-    // Continue to filter out non-null logs and logs that match the 'Withdraw' event name
-    const catchedEvents = decodedLogs.filter((log) => log !== null && log.name === eventName);
 
-    if(catchedEvents.length > 1) {
+    // Continue to filter out non-null logs and logs that match the 'Withdraw' event name
+    const catchedEvents = decodedLogs.filter(
+      (log) => log !== null && log.name === eventName,
+    );
+
+    if (catchedEvents.length > 1) {
       // throw new Error(`More than one ${eventName} events found in the Transaction Receipt`)
       if (returnLast) {
-        console.log(`\x1b[31mMultiple ${eventName} events found, returning the LAST found\x1b[0m`);
+        console.log(
+          `\x1b[31mMultiple ${eventName} events found, returning the LAST found\x1b[0m`,
+        );
         return catchedEvents[catchedEvents.length - 1];
       } else {
-        console.log(`\x1b[31mMultiple ${eventName} events found, returning the FIRST found\x1b[0m`);
-        return catchedEvents[0]; 
+        console.log(
+          `\x1b[31mMultiple ${eventName} events found, returning the FIRST found\x1b[0m`,
+        );
+        return catchedEvents[0];
       }
-      return catchedEvents[catchedEvents.length - 1]
-    } else if(catchedEvents.length == 0) {
-      throw new Error(`No ${eventName} events are found in the Transaction Receipt`)
+      return catchedEvents[catchedEvents.length - 1];
+    } else if (catchedEvents.length == 0) {
+      throw new Error(
+        `No ${eventName} events are found in the Transaction Receipt`,
+      );
     } else {
       return catchedEvents[0];
     }
   }
 
   async decodeReceiptLogs(txReceipt): Promise<ethers.LogDescription[]> {
-    const decodedLogs:ethers.LogDescription[] = [];
+    const decodedLogs: ethers.LogDescription[] = [];
 
     for (const log of txReceipt) {
       if (contractInfos[log.address]) {
@@ -172,7 +181,7 @@ export class ExtendedEthersService {
               contractJSON = WWEMIXJson;
               break;
             }
-            case 'SwapRouter' : {
+            case 'SwapRouter': {
               contractJSON = SwapRouterJson;
               break;
             }
@@ -208,7 +217,7 @@ export class ExtendedEthersService {
               contractJSON = WithdrawalNFTJson;
               break;
             }
-            case 'StWEMIXV2' : {
+            case 'StWEMIXV2': {
               contractJSON = StWEMIXV2Json;
               break;
             }
@@ -228,15 +237,13 @@ export class ExtendedEthersService {
 
           decodedLogs.push(decodedLog);
         } catch (error) {
-          console.error(
-            `${error.message}`,
-          );
+          console.error(`${error.message}`);
         }
       } else {
         console.log(
           `\x1b[31m Address not found in wemixFi_env/contractInfo_testnet.ts : ${log.address} \x1b[0m`,
         );
-        decodedLogs.push({name:"AddressNotFound"} as ethers.LogDescription)
+        decodedLogs.push({ name: 'AddressNotFound' } as ethers.LogDescription);
       }
     }
     return decodedLogs;

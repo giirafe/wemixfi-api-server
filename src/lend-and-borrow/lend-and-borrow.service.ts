@@ -190,17 +190,17 @@ export class LendAndBorrowService {
           throw new Error('Invalid Asset Address');
       }
 
-
       this.logger.debug("-- Creating Log Object' --");
       // .wait() : waits for the transaction to be mined and confirmed
       // due to the usage of .wait() which is a async work, await is required to resolve the Promise.
       const txReceipt = await txResult.wait();
 
-      const depositEvent = await this.extendedEthersService.catchEventFromReceipt(
-        txReceipt,
-        'Mint',
-      );
-      const {mintAmount} = depositEvent.args
+      const depositEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Mint',
+        );
+      const { mintAmount } = depositEvent.args;
 
       const logObject = await this.databaseService.createLBLogObject(
         txReceipt,
@@ -281,12 +281,13 @@ export class LendAndBorrowService {
       console.log('value at Borrow service usage : ' + value);
       const txReceipt = await txResult.wait();
 
-      const borrowEvent = await this.extendedEthersService.catchEventFromReceipt(
-        txReceipt,
-        'Borrow',
-      );
-      const {borrowAmount} = borrowEvent.args
-      
+      const borrowEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Borrow',
+        );
+      const { borrowAmount } = borrowEvent.args;
+
       const logObject = await this.databaseService.createLBLogObject(
         txReceipt,
         contractName,
@@ -381,27 +382,37 @@ export class LendAndBorrowService {
 
       const txReceipt = await txResult.wait();
 
-
       // WIP : Should get the receivedAssetAddress, receivedAssetAmount from catching 'LiquidateBorrow' event.
-      const liquidateEvent = await this.extendedEthersService.catchEventFromReceipt(
-        txReceipt,
-        'LiquidateBorrow',
+      const liquidateEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'LiquidateBorrow',
+        );
+      const {
+        repayAmount,
+        cTokenCollateral,
+        seizeTokens,
+        collateralUnderlying,
+      } = liquidateEvent.args;
+
+      console.log(liquidateEvent.args);
+
+      console.log(
+        'liquidate Asset Address and RepayAmountInWei ' +
+          liquidateAssetAddress +
+          ', ' +
+          repayAmountInWei,
       );
-      const {repayAmount,cTokenCollateral,seizeTokens,collateralUnderlying} = liquidateEvent.args
 
-      console.log(liquidateEvent.args)
-
-      console.log("liquidate Asset Address and RepayAmountInWei " + liquidateAssetAddress + ", " + repayAmountInWei)
-
-    // event composition (from solidity contract file)
-    //   event LiquidateBorrow(
-    //     address liquidator,
-    //     address borrower,
-    //     uint256 repayAmount,
-    //     address cTokenCollateral,
-    //     uint256 seizeTokens,
-    //     address collateralUnderlying
-    // );
+      // event composition (from solidity contract file)
+      //   event LiquidateBorrow(
+      //     address liquidator,
+      //     address borrower,
+      //     uint256 repayAmount,
+      //     address cTokenCollateral,
+      //     uint256 seizeTokens,
+      //     address collateralUnderlying
+      // );
 
       const logObject = await this.databaseService.createLBLogObject(
         txReceipt,

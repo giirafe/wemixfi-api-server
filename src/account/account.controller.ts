@@ -17,9 +17,7 @@ export class AccountController {
   constructor(private accountService: AccountService) {}
 
   @Post('register')
-  async setAccount(
-    @Body('privateKey') privateKey: string,
-  ): Promise<Account> {
+  async setAccount(@Body('privateKey') privateKey: string): Promise<Account> {
     try {
       return await this.accountService.setAccount(privateKey);
     } catch (error) {

@@ -9,12 +9,10 @@ export class AccountService {
   constructor(private databaseService: DatabaseService) {}
   private readonly logger = new Logger(AccountService.name);
 
-  async setAccount(
-    privateKey: string,
-  ): Promise<Account> {
-    const wallet = new ethers.Wallet(privateKey) 
+  async setAccount(privateKey: string): Promise<Account> {
+    const wallet = new ethers.Wallet(privateKey);
     const accountAddress = wallet.address;
-    this.logger.debug("address found using private key : " + wallet.address)
+    this.logger.debug('address found using private key : ' + wallet.address);
     const addressToString = accountAddress as string;
     return this.databaseService.setAccount(addressToString, privateKey);
   }

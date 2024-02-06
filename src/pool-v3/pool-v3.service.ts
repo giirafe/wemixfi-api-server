@@ -160,14 +160,17 @@ export class PoolV3Service {
       //   );
       // const [, , tokenId, liquidity, amount0, amount1] = easyMintEvent.args;
 
-      const mintEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'EasyMint')
+      const mintEvent = await this.extendedEthersService.catchEventFromReceipt(
+        txReceipt,
+        'EasyMint',
+      );
 
-      const [, , tokenId, liquidity, amount0, amount1]  = mintEvent.args;
+      const [, , tokenId, liquidity, amount0, amount1] = mintEvent.args;
 
-      console.log(mintEvent.args)
+      console.log(mintEvent.args);
 
       ///
-  
+
       const logObject = await this.databaseService.createPoolV3LogObject(
         txReceipt,
         contractName,
@@ -285,10 +288,14 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      const increaseLiquidityEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'IncreaseLiquidity')
-      const {liquidity, amount0, amount1}  = increaseLiquidityEvent.args;
+      const increaseLiquidityEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'IncreaseLiquidity',
+        );
+      const { liquidity, amount0, amount1 } = increaseLiquidityEvent.args;
 
-      console.log(increaseLiquidityEvent.args)
+      console.log(increaseLiquidityEvent.args);
 
       const logObject = await this.databaseService.createPoolV3LogObject(
         txReceipt,
@@ -380,10 +387,14 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      const easyCollectEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'EasyCollect')
+      const easyCollectEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'EasyCollect',
+        );
       // const [, , liquidity, amount0, amount1] = easyCollectEvent.args;
-      const { amount0, amount1} = easyCollectEvent.args;
-      const liquidity = 0n; 
+      const { amount0, amount1 } = easyCollectEvent.args;
+      const liquidity = 0n;
 
       const logObject = await this.databaseService.createPoolV3LogObject(
         txReceipt,
@@ -491,7 +502,7 @@ export class PoolV3Service {
           txReceipt,
           'EasyCompound',
         );
-      const {liquidity, amount0, amount1} = easyCompoundEvent.args;
+      const { liquidity, amount0, amount1 } = easyCompoundEvent.args;
 
       const logObject = await this.databaseService.createPoolV3LogObject(
         txReceipt,
@@ -607,7 +618,7 @@ export class PoolV3Service {
           txReceipt,
           'EasyDecreaseLiquidityCollectAll',
         );
-      const {amount0, amount1} = easyDecreaseLiquidityCollectEvent.args;
+      const { amount0, amount1 } = easyDecreaseLiquidityCollectEvent.args;
 
       console.log(
         'Args in easyDecreaseLiquidity event : ' +
@@ -745,7 +756,7 @@ export class PoolV3Service {
           txReceipt,
           'EasyIncreaseLiquidityCompound',
         );
-      const {liquidity, amount0, amount1} =
+      const { liquidity, amount0, amount1 } =
         easyIncreaseLiquidityCompoundEvent.args;
 
       const logObject = await this.databaseService.createPoolV3LogObject(
@@ -849,8 +860,7 @@ export class PoolV3Service {
           txReceipt,
           'EasyDecreaseLiquidityAllCollectAllBurn',
         );
-      const {amount0, amount1} =
-        easyDecreaseLiquidityCollectAllEvent.args;
+      const { amount0, amount1 } = easyDecreaseLiquidityCollectAllEvent.args;
 
       console.log(
         'Args in easyDecreaseLiquidity event : ' +
@@ -1076,8 +1086,7 @@ export class PoolV3Service {
           'strategyChangeAll',
         );
 
-      const {liquidity, amount0, amount1}  =
-        easyStrategyChangeAllEvent.args;
+      const { liquidity, amount0, amount1 } = easyStrategyChangeAllEvent.args;
 
       const logObject = await this.databaseService.createPoolV3LogObject(
         txReceipt,
@@ -1104,5 +1113,4 @@ export class PoolV3Service {
       throw error;
     }
   }
-
 }
