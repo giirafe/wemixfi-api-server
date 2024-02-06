@@ -337,19 +337,25 @@ async withdrawAll(
     const tx = await NCPStakingWithSigner.withdrawAll(_to);
     const txReceipt = await tx.wait();
 
-    const decodedLogs = await this.extendedEthersService.decodeReceiptLogs(txReceipt);
-    console.log(decodedLogs);
+    // const decodedLogs = await this.extendedEthersService.decodeReceiptLogs(txReceipt);
+    // console.log(decodedLogs);
 
-    const events = decodedLogs.filter((log) => log !== null && log.name === 'Withdraw');
-    for (const event of events) {
-      console.log(event);
-    }
+    // const events = decodedLogs.filter((log) => log !== null && log.name === 'Withdraw');
 
-    if (events.length === 0) {
-      throw new Error("No 'Withdraw' events found in the transaction logs.");
-    }
+    // for (const event of events) {
+    //   console.log(event);
+    // }
 
-    const {pid,amount,to,rewardAmount} = events[0].args;
+    // if (events.length === 0) {
+    //   throw new Error("No 'Withdraw' events found in the transaction logs.");
+    // }
+
+        // const {pid,amount,to,rewardAmount} = events[0].args;
+
+    const withdrawEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Withdraw')
+
+    const {pid,amount,to,rewardAmount} = withdrawEvent.args;
+
 
     const toPid = pid;
 
@@ -368,7 +374,7 @@ async withdrawAll(
 
     await this.databaseService.logWonderStakingTx(logObject);
 
-    return events[0].args;
+    return withdrawEvent.args;
   } catch (error) {
     console.error(error);
     throw new Error('An error occurred during the withdraw all operation');

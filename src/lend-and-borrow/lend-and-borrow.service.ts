@@ -365,6 +365,9 @@ export class LendAndBorrowService {
       }
 
       const txReceipt = await txResult.wait();
+
+      // WIP : Should get the receivedAssetAddress, receivedAssetAmount from catching 'LiquidateBorrow' event.
+
       const logObject = await this.databaseService.createLBLogObject(
         txReceipt,
         contractName,
@@ -374,8 +377,6 @@ export class LendAndBorrowService {
         liquidateAssetAddress,
         repayAmountInWei,
       );
-
-      // WIP : Should get the receivedAssetAddress, receivedAssetAmount from catching 'LiquidateBorrow' event.
 
       // Call logTxInfo from DatabaseService
       await this.databaseService.logLendAndBorrowTx(logObject);

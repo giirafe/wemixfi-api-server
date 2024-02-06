@@ -102,8 +102,34 @@ export class ExtendedEthersService {
     return events[0];
   }
 
-  async decodeReceiptLogs(txReceipt): Promise<any> {
-    const decodedLogs = [];
+  async catchEventFromReceipt(
+    txReceipt:ethers.ContractTransactionReceipt,
+    eventName: string
+  ): Promise<ethers.LogDescription> {
+    const decodedLogs:ethers.LogDescription[] = await this.decodeReceiptLogs(txReceipt);
+    // console.log(decodedLogs);
+    
+    // Check each log and log its data if it's null
+    decodedLogs.forEach((log, index) => {
+      if (log === null) {
+        console.log(`Log at index ${index} is null`);
+      }
+    });
+    
+    // Continue to filter out non-null logs and logs that match the 'Withdraw' event name
+    const catchedEvents = decodedLogs.filter((log) => log !== null && log.name === eventName);
+
+    if(catchedEvents.length > 1) {
+      throw new Error(`More than one ${eventName} events found in the Transaction Receipt`)
+    } else if(catchedEvents.length == 0) {
+      throw new Error(`No ${eventName} events are found in the Transaction Receipt`)
+    } else {
+      return catchedEvents[0];
+    }
+  }
+
+  async decodeReceiptLogs(txReceipt): Promise<ethers.LogDescription[]> {
+    const decodedLogs:ethers.LogDescription[] = [];
 
     for (const log of txReceipt) {
       if (contractInfos[log.address]) {
@@ -181,7 +207,7 @@ export class ExtendedEthersService {
         console.log(
           `Address not found in wemixFi_env/contractInfo_testnet.ts : ${log.address}`,
         );
-        decodedLogs.push({name:"AddressNotFound"})
+        decodedLogs.push({name:"AddressNotFound"} as ethers.LogDescription)
       }
     }
     return decodedLogs;
