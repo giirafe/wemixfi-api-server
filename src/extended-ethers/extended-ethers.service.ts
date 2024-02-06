@@ -6,6 +6,9 @@ import { AccountService } from 'src/account/account.service';
 import * as ERC20Json from '../../wemixfi_env/ERC20.json';
 import { ERC20 } from '../../types/ethers/ERC20';
 
+import * as CWemixJson from '../../wemixfi_env/CWemix.json'
+import * as CWemixDollarJson from '../../wemixfi_env/CWemixDollar.json'
+import * as CstWemixJson from '../../wemixfi_env/CstWemix.json'
 import * as WWEMIXJson from '../../wemixfi_env/WWEMIX.json';
 import * as WeswapPairJson from '../../wemixfi_env/WeswapPair.json';
 import * as WemixDollarJson from '../../wemixfi_env/WemixDollar.json';
@@ -145,6 +148,18 @@ export class ExtendedEthersService {
           );
 
           switch (abiName) {
+            case 'CWemix': {
+              contractJSON = CWemixJson;
+              break;
+            }
+            case 'CWemixDollar': {
+              contractJSON = CWemixDollarJson;
+              break;
+            }
+            case 'CstWemix': {
+              contractJSON = CstWemixJson;
+              break;
+            }
             case 'WWEMIX': {
               contractJSON = WWEMIXJson;
               break;
