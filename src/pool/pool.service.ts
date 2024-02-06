@@ -63,6 +63,24 @@ export class PoolService {
     to: string,
     deadline: number,
   ): Promise<bigint[]> {
+
+    // Processing data for DB Logging
+    const funcName = 'addLiquidity';
+    const value: bigint = 0n; // Wemix amount sent with Tx
+    const inputJson = JSON.stringify({
+      msgSender,
+      tokenA,
+      tokenB,
+      amountADesired,
+      amountBDesired,
+      amountAMin,
+      amountBMin,
+      to,
+      deadline,
+    });
+    const input: string = JSON.stringify(inputJson);
+    //
+
     const senderWallet = await this.accountService.getAddressWallet(msgSender);
     const weswapRouterContractWithSigner =
       this.weswapRouterContract.connect(senderWallet);
@@ -111,33 +129,22 @@ export class PoolService {
       );
 
       const txReceipt = await tx.wait();
+
       const addLiquidityEvent = txReceipt.logs?.find(
         (e: any) => e.eventName === 'AddLiquidityReturn',
       ) as ethers.EventLog;
-
       // Checking the event existence and the validity
       if (!addLiquidityEvent || !('args' in addLiquidityEvent)) {
         throw new Error(
           'AddLiquidityReturn event not found or not properly formatted',
         );
       }
-      const [amountTokenA, amountTokenB, liquidity] = addLiquidityEvent.args;
+      console.log(txReceipt.logs)
 
-      // Processing data for DB Logging
-      const funcName = 'addLiquidity';
-      const value: bigint = 0n; // Wemix amount sent with Tx
-      const inputJson = JSON.stringify({
-        msgSender,
-        tokenA,
-        tokenB,
-        amountADesired,
-        amountBDesired,
-        amountAMin,
-        amountBMin,
-        to,
-        deadline,
-      });
-      const input: string = JSON.stringify(inputJson);
+      // const addLiquidityEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,"AddLiquidityReturn")
+
+      const {amountA,amountB,liquidity} = addLiquidityEvent.args
+
 
       const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
@@ -146,16 +153,16 @@ export class PoolService {
         input,
         value,
         tokenA,
-        amountTokenA,
+        amountA,
         tokenB,
-        amountTokenB,
+        amountB,
         liquidity,
         0n,
       );
 
       await this.databaseService.logPoolV2Tx(logObject);
 
-      return [amountTokenA, amountTokenB, liquidity];
+      return addLiquidityEvent.args
     } catch (error) {
       this.logger.error(
         'Error while adding liquidity in swap.service.ts: ',
@@ -175,6 +182,8 @@ export class PoolService {
     to: string,
     deadline: number,
   ): Promise<bigint[]> {
+
+
     // try catch 없이 addressWallet 가져 와도 되나
     const senderWallet = await this.accountService.getAddressWallet(msgSender);
     const weswapRouterContractWithSigner =
@@ -198,6 +207,22 @@ export class PoolService {
       this.wWemixAddress,
       amountWEMIXMin,
     );
+
+    // DB Log objects generate
+    const funcName = 'addLiquidityWEMIX';
+    const value: bigint = amountWEMIXDesiredInWei; // Wemix amount sent with Tx
+    const inputJson = JSON.stringify({
+      msgSender,
+      tokenAddress,
+      amountTokenDesired,
+      amountWEMIXDesired,
+      amountTokenMin,
+      amountWEMIXMin,
+      to,
+      deadline,
+    });
+    const input: string = JSON.stringify(inputJson);
+    //
 
     try {
       await this.extendedEthersService.approveToken(
@@ -230,21 +255,7 @@ export class PoolService {
         );
       }
 
-      const [amountToken, amountWEMIX, liquidity] = addLiquidityEvent.args;
-
-      const funcName = 'addLiquidityWEMIX';
-      const value: bigint = amountWEMIXDesiredInWei; // Wemix amount sent with Tx
-      const inputJson = JSON.stringify({
-        msgSender,
-        tokenAddress,
-        amountTokenDesired,
-        amountWEMIXDesired,
-        amountTokenMin,
-        amountWEMIXMin,
-        to,
-        deadline,
-      });
-      const input: string = JSON.stringify(inputJson);
+      const {amountA,amountB,liquidity} = addLiquidityEvent.args
 
       const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
@@ -253,16 +264,16 @@ export class PoolService {
         input,
         value,
         tokenAddress,
-        amountToken,
+        amountA,
         this.wWemixAddress,
-        amountWEMIX,
+        amountB,
         liquidity,
         0n,
       );
 
       await this.databaseService.logPoolV2Tx(logObject);
 
-      return [amountToken, amountWEMIX, liquidity];
+      return addLiquidityEvent.args;
     } catch (error) {
       this.logger.error(
         'Error while adding liquidity in swap.service.ts: ',
@@ -330,7 +341,7 @@ export class PoolService {
         );
       }
 
-      const [amountA, amountB] = removeLiquidityEvent.args;
+      const {amountA,amountB} = removeLiquidityEvent.args
 
       const funcName = 'removeLiquidity';
       const value: bigint = 0n; // Wemix amount sent with Tx
@@ -377,7 +388,7 @@ export class PoolService {
     amountWEMIXMin: number,
     to: string,
     deadline: number,
-  ): Promise<{ amountToken: bigint; amountWEMIX: bigint }> {
+  ): Promise<{ amountA: bigint; amountB: bigint }> {
     const senderWallet = await this.accountService.getAddressWallet(msgSender);
     const weswapRouterContractWithSigner =
       this.weswapRouterContract.connect(senderWallet);
@@ -401,6 +412,19 @@ export class PoolService {
       this.wWemixAddress,
       amountWEMIXMin,
     );
+
+    const funcName = 'removeLiquidityWEMIX';
+    const value: bigint = 0n; // Wemix amount sent with Tx
+    const inputJson = JSON.stringify({
+      msgSender,
+      token,
+      liquidity,
+      amountTokenMin,
+      amountWEMIXMin,
+      to,
+      deadline,
+    });
+    const input: string = JSON.stringify(inputJson);
 
     try {
       // LP Token의 approve가 선행되어야 함
@@ -434,20 +458,7 @@ export class PoolService {
         );
       }
 
-      const [amountToken, amountWEMIX] = removeLiquidityEvent.args;
-
-      const funcName = 'removeLiquidityWEMIX';
-      const value: bigint = 0n; // Wemix amount sent with Tx
-      const inputJson = JSON.stringify({
-        msgSender,
-        token,
-        liquidity,
-        amountTokenMin,
-        amountWEMIXMin,
-        to,
-        deadline,
-      });
-      const input: string = JSON.stringify(inputJson);
+      const {amountA, amountB} = removeLiquidityEvent.args;
 
       const logObject = await this.databaseService.createPoolV2LogObject(
         txReceipt,
@@ -456,16 +467,16 @@ export class PoolService {
         input,
         value,
         token,
-        amountToken,
+        amountA,
         this.wWemixAddress,
-        amountWEMIX,
+        amountB,
         0n,
         liquidityInWei,
       );
 
       await this.databaseService.logPoolV2Tx(logObject);
 
-      return { amountToken, amountWEMIX };
+      return {amountA,amountB};
     } catch (error) {
       this.logger.error('Error while removing liquidity WEMIX: ', error);
       throw error;

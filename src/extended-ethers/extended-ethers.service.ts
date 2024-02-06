@@ -10,6 +10,7 @@ import * as CWemixJson from '../../wemixfi_env/CWemix.json'
 import * as CWemixDollarJson from '../../wemixfi_env/CWemixDollar.json'
 import * as CstWemixJson from '../../wemixfi_env/CstWemix.json'
 import * as WWEMIXJson from '../../wemixfi_env/WWEMIX.json';
+import * as SwapRouterJson from '../../wemixfi_env/SwapRouter.json';
 import * as WeswapPairJson from '../../wemixfi_env/WeswapPair.json';
 import * as WemixDollarJson from '../../wemixfi_env/WemixDollar.json';
 import * as NonfungiblePositionHelperJson from '../../wemixfi_env/NonfungiblePositionHelper.json';
@@ -107,7 +108,8 @@ export class ExtendedEthersService {
 
   async catchEventFromReceipt(
     txReceipt:ethers.ContractTransactionReceipt,
-    eventName: string
+    eventName: string,
+    returnLast?: boolean, 
   ): Promise<ethers.LogDescription> {
     const decodedLogs:ethers.LogDescription[] = await this.decodeReceiptLogs(txReceipt);
     console.log(decodedLogs);
@@ -124,8 +126,14 @@ export class ExtendedEthersService {
 
     if(catchedEvents.length > 1) {
       // throw new Error(`More than one ${eventName} events found in the Transaction Receipt`)
-      console.log(`\x1b[31mMultiple ${eventName} events found, currently returning the first found\x1b[0m`)
-      return catchedEvents[0]
+      if (returnLast) {
+        console.log(`\x1b[31mMultiple ${eventName} events found, returning the LAST found\x1b[0m`);
+        return catchedEvents[catchedEvents.length - 1];
+      } else {
+        console.log(`\x1b[31mMultiple ${eventName} events found, returning the FIRST found\x1b[0m`);
+        return catchedEvents[0]; 
+      }
+      return catchedEvents[catchedEvents.length - 1]
     } else if(catchedEvents.length == 0) {
       throw new Error(`No ${eventName} events are found in the Transaction Receipt`)
     } else {
@@ -162,6 +170,10 @@ export class ExtendedEthersService {
             }
             case 'WWEMIX': {
               contractJSON = WWEMIXJson;
+              break;
+            }
+            case 'SwapRouter' : {
+              contractJSON = SwapRouterJson;
               break;
             }
             case 'WeswapPair': {
@@ -222,7 +234,7 @@ export class ExtendedEthersService {
         }
       } else {
         console.log(
-          `Address not found in wemixFi_env/contractInfo_testnet.ts : ${log.address}`,
+          `\x1b[31m Address not found in wemixFi_env/contractInfo_testnet.ts : ${log.address} \x1b[0m`,
         );
         decodedLogs.push({name:"AddressNotFound"} as ethers.LogDescription)
       }

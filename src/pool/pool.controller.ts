@@ -102,7 +102,7 @@ export class PoolController {
   @Post('removeLiquidityWEMIX')
   async removeLiquidityWEMIX(
     @Body() dto: RemoveLiquidityWEMIXDto,
-  ): Promise<{ amountToken: bigint; amountWEMIX: bigint }> {
+  ): Promise<{ amountA: bigint; amountB: bigint }> {
     try {
       return await this.poolService.removeLiquidityWEMIX(
         dto.msgSender,

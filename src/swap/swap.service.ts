@@ -183,6 +183,20 @@ export class SwapService {
       amountOutMin,
     );
 
+    //
+    const funcName = 'swapExactTokensForTokens';
+    const value: bigint = 0n; // Wemix amount sent with Tx
+    const inputJson = JSON.stringify({
+      msgSender,
+      amountIn,
+      amountOutMin,
+      path,
+      to,
+      deadline,
+    });
+    const input: string = JSON.stringify(inputJson);
+    //
+
     await this.extendedEthersService.approveToken(
       path[0],
       senderWallet,
@@ -200,18 +214,6 @@ export class SwapService {
       );
 
       const txReceipt = await tx.wait();
-
-      const funcName = 'swapExactTokensForTokens';
-      const value: bigint = 0n; // Wemix amount sent with Tx
-      const inputJson = JSON.stringify({
-        msgSender,
-        amountIn,
-        amountOutMin,
-        path,
-        to,
-        deadline,
-      });
-      const input: string = JSON.stringify(inputJson);
 
       // Input Amount of certain asset => use amountIn from User Input, Output Amount of certain asset => extract from 'Swap' event.
       const swapInAmount = amountInWei;
@@ -690,32 +692,19 @@ export class SwapService {
     tokenIn: string,
     tokenOut: string,
   ): Promise<bigint | undefined> {
-    const decodedLogs =
-      await this.extendedEthersService.decodeReceiptLogs(txReceipt);
 
-    const swapEvents = decodedLogs.filter((log) => log.name === 'Swap');
-    for (const swapEvent of swapEvents) {
-      console.log(swapEvent);
-    }
+    const swapEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Swap', true)
 
-    // Initialize the values to undefined
-    let amount0Out: bigint | undefined;
-    let amount1Out: bigint | undefined;
+    const { amount0Out , amount1Out} = swapEvent.args
 
-    if (swapEvents.length > 0) {
-      // Extracting the amountOut values from the last 'Swap' Event.
-      amount0Out = swapEvents[swapEvents.length - 1].args.amount0Out;
-      amount1Out = swapEvents[swapEvents.length - 1].args.amount1Out;
-      if (tokenOut < tokenIn) {
-        console.log('tokenOut : amount0 => :' + amount0Out);
-        return amount0Out;
-      } else {
-        console.log('tokenOut : amount1 => :' + amount1Out);
-        return amount1Out;
-      }
+    if (tokenOut < tokenIn) {
+      console.log('tokenOut : amount0 => :' + amount0Out);
+      return amount0Out;
     } else {
-      throw Error("No 'Swap' event found in Tx Receipt");
+      console.log('tokenOut : amount1 => :' + amount1Out);
+      return amount1Out;
     }
+
   }
 
   async getSwapAmountIn(
@@ -723,31 +712,19 @@ export class SwapService {
     tokenIn: string,
     tokenOut: string,
   ): Promise<bigint | undefined> {
-    const decodedLogs =
-      await this.extendedEthersService.decodeReceiptLogs(txReceipt);
 
-    const swapEvents = decodedLogs.filter((log) => log.name === 'Swap');
-    for (const swapEvent of swapEvents) {
-      console.log(swapEvent);
-    }
+    const swapEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Swap')
 
-    // Initialize the values to undefined
-    let amount0In: bigint | undefined;
-    let amount1In: bigint | undefined;
+    const { amount0In , amount1In} = swapEvent.args
 
-    if (swapEvents.length > 0) {
-      // Extracting the amountOut values from the last 'Swap' Event.
-      amount0In = swapEvents[0].args.amount0In;
-      amount1In = swapEvents[0].args.amount1In;
-      if (tokenIn < tokenOut) {
-        console.log('tokenIn : amount0 => :' + amount0In);
-        return amount0In;
-      } else {
-        console.log('tokenIn : amount1 => :' + amount1In);
-        return amount1In;
-      }
+    if (tokenIn < tokenOut) {
+      console.log('tokenOut : amount0 => :' + amount0In);
+      return amount0In;
     } else {
-      throw Error("No 'Swap' event found in Tx Receipt");
+      console.log('tokenOut : amount1 => :' + amount1In);
+      return amount1In;
     }
+
+
   }
 }
