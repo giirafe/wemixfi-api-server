@@ -53,7 +53,7 @@ export class SwapV3Service {
     amountOutMinimum: BigNumberish,
   ): Promise<any> {
     // Processing data for DB Logging
-    // ----
+    // 
     const funcName = 'exactInput';
     let value: bigint = 0n; // Wemix amount sent with Tx
     const inputJson = JSON.stringify({
@@ -66,7 +66,7 @@ export class SwapV3Service {
       amountOutMinimum,
     });
     const input: string = JSON.stringify(inputJson);
-    ///----
+    //
 
     amountIn = (await this.extendedEthersService.convertToWei(
       tokenIn,
@@ -122,7 +122,7 @@ export class SwapV3Service {
         await this.extendedEthersService.provider().getFeeData()
       ).gasPrice;
 
-      // Doubling the gasPrice on tx due to "STF, replacement fee too low" Errors
+      // Doubling the gasPrice on tx due to Error : "STF, replacement fee too low" 
       const higherGasPrice = currentGasPrice + currentGasPrice;
 
       const tx = await SwapRouterWithSigner.exactInput(exactInputParams, {
@@ -131,13 +131,23 @@ export class SwapV3Service {
       });
 
       const txReceipt = await tx.wait();
+
+      // const exactInputEvent =
+      // await this.extendedEthersService.catchEventFromReceipt(
+      //   txReceipt,
+      //   'ExactInput',
+      // );
+
       const exactInputEvent =
         await this.extendedEthersService.getEventFromReceipt(
           txReceipt,
           'ExactInput',
         );
 
-      const [, , , , amountOut] = exactInputEvent.args;
+      // const [, , , , amountOut] = exactInputEvent.args;
+
+      const {amountOut} = exactInputEvent.args;
+
 
       const logObject = await this.databaseService.createSwapV3LogObject(
         txReceipt,
@@ -198,7 +208,7 @@ export class SwapV3Service {
     // Branching logic based on path version
     if (pathVersion === 'V2') {
       // V2 path encoding: Just token addresses
-      throw new Error('path V2 should not use Swap V3');
+      throw new Error('path of Swap V2 should not use Swap V3');
     } else if (pathVersion === 'V3') {
       console.log('Path = V3');
       // V3 path encoding: Token addresses interleaved with fees
