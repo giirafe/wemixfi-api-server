@@ -107,7 +107,7 @@ export class ExtendedEthersService {
     eventName: string
   ): Promise<ethers.LogDescription> {
     const decodedLogs:ethers.LogDescription[] = await this.decodeReceiptLogs(txReceipt);
-    // console.log(decodedLogs);
+    console.log(decodedLogs);
     
     // Check each log and log its data if it's null
     decodedLogs.forEach((log, index) => {
@@ -120,7 +120,9 @@ export class ExtendedEthersService {
     const catchedEvents = decodedLogs.filter((log) => log !== null && log.name === eventName);
 
     if(catchedEvents.length > 1) {
-      throw new Error(`More than one ${eventName} events found in the Transaction Receipt`)
+      // throw new Error(`More than one ${eventName} events found in the Transaction Receipt`)
+      console.log(`\x1b[31mMultiple ${eventName} events found, currently returning the first found\x1b[0m`)
+      return catchedEvents[0]
     } else if(catchedEvents.length == 0) {
       throw new Error(`No ${eventName} events are found in the Transaction Receipt`)
     } else {
