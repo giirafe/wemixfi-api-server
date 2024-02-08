@@ -8,6 +8,7 @@ import * as NCPStakingJson from '../../wemixfi_env/NCPStaking.json';
 import { NCPStaking } from '../../types/ethers/NCPStaking';
 
 import { CA } from 'wemixfi_env/contractInfo_testnet'; // CA: Contract Address
+import { Address } from 'cluster';
 
 const contractName: string = 'NCPStaking'; // Contract for 'Wonder Staking'
 
@@ -44,6 +45,19 @@ export class WonderStakingService {
       const feeRatio = await this.NCPStakingContract.getPlatformFeeRatio();
       console.log(feeRatio);
       return feeRatio;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getUserInfo(
+    _pid:number,
+    _account:AddressLike,
+  ) {
+    try {
+      const userInfo = await this.NCPStakingContract.getUserInfo(_pid,_account);
+      console.log(userInfo);
+      return userInfo;
     } catch (error) {
       console.log(error);
     }

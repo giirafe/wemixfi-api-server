@@ -19,6 +19,7 @@ import {
   WithdrawDto,
   WithdrawRequestDto,
 } from 'src/dto/wonder-staking-dto';
+import { AddressLike } from 'ethers/lib.commonjs/ethers';
 
 @Controller('wonder-staking')
 export class WonderStakingController {
@@ -34,13 +35,35 @@ export class WonderStakingController {
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
           error:
-            'There was a problem getting position info in Pool V3(Swap V3)',
+            'There was a problem getting position info in Wonder Staking',
           details: error.message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
+
+  @Get('getUserInfo')
+  async getUserInfo(
+    @Query('pid') pid:number,
+    @Query('account') account:AddressLike,
+  ) {
+    try {
+      const result = await this.wonderStakingService.getUserInfo(pid,account);
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error:
+            'There was a problem getUserInfo in Wonder Staking',
+          details: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   // Handling Deposit related
   @Post('deposit')
   async deposit(@Body() depositDto: DepositDto) {
