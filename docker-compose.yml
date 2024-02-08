@@ -8,7 +8,7 @@ services:
     ports:
       - 3306:3306               # Host Port:Container Port
     environment:
-      MYSQL_DATABASE: localDB
+      MYSQL_DATABASE: localDB    # Database name
       MYSQL_ROOT_PASSWORD: 1234  # root account PW
       TZ: Asia/Seoul            
     volumes:
