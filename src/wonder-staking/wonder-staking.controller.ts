@@ -34,8 +34,7 @@ export class WonderStakingController {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error:
-            'There was a problem getting position info in Wonder Staking',
+          error: 'There was a problem getting position info in Wonder Staking',
           details: error.message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -45,18 +44,17 @@ export class WonderStakingController {
 
   @Get('getUserInfo')
   async getUserInfo(
-    @Query('pid') pid:number,
-    @Query('account') account:AddressLike,
+    @Query('pid') pid: number,
+    @Query('account') account: AddressLike,
   ) {
     try {
-      const result = await this.wonderStakingService.getUserInfo(pid,account);
+      const result = await this.wonderStakingService.getUserInfo(pid, account);
       return result;
     } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error:
-            'There was a problem getUserInfo in Wonder Staking',
+          error: 'There was a problem getUserInfo in Wonder Staking',
           details: error.message,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,

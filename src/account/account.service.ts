@@ -40,9 +40,11 @@ export class AccountService {
     return addressWallet;
   }
 
-  async getBalance(address: AddressLike): Promise<number> {
+  async getBalance(address: AddressLike): Promise<bigint> {
     const addressToString = address as string;
-    return this.databaseService.getBalance(addressToString);
+    const provider = this.databaseService.provider();
+    const balance = await provider.getBalance(address);
+    return balance;
   }
 
   // Implementing Wemix Transfer service

@@ -54,10 +54,12 @@ export class AccountController {
     }
   }
 
-  @Get('balance/:address')
-  async addressBalance(@Param('address') address: string): Promise<number> {
+  @Get('balance')
+  async addressBalance(
+    @Query('accountAddress') accountAddress: string,
+  ): Promise<bigint> {
     try {
-      return await this.accountService.getBalance(address);
+      return await this.accountService.getBalance(accountAddress);
     } catch (error) {
       throw new HttpException(
         {

@@ -84,8 +84,12 @@ export class LiquidStakingService {
       const tx = await StWEMIXWithSigner.deposit({ value });
       const txReceipt = await tx.wait();
 
-      const depositEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Deposited')
-      const { wemixAmount, stWemixAmount } = depositEvent.args
+      const depositEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Deposited',
+        );
+      const { wemixAmount, stWemixAmount } = depositEvent.args;
 
       const logObject = await this.databaseService.createLiquidStakingLogObject(
         txReceipt,
@@ -139,7 +143,11 @@ export class LiquidStakingService {
       const tx = await StWEMIXWithSigner.withdraw(amountInWei);
       const txReceipt = await tx.wait();
 
-      const withdrawEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Withdrew')
+      const withdrawEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Withdrew',
+        );
 
       const { wemixAmount, stWemixAmount } = withdrawEvent.args;
 

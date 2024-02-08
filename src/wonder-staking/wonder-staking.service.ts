@@ -50,12 +50,12 @@ export class WonderStakingService {
     }
   }
 
-  async getUserInfo(
-    _pid:number,
-    _account:AddressLike,
-  ) {
+  async getUserInfo(_pid: number, _account: AddressLike) {
     try {
-      const userInfo = await this.NCPStakingContract.getUserInfo(_pid,_account);
+      const userInfo = await this.NCPStakingContract.getUserInfo(
+        _pid,
+        _account,
+      );
       console.log(userInfo);
       return userInfo;
     } catch (error) {
@@ -105,7 +105,11 @@ export class WonderStakingService {
       );
       const txReceipt = await tx.wait();
 
-      const depositEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Deposit')
+      const depositEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Deposit',
+        );
       const { user, pid, amount, rewardAmount } = depositEvent.args;
 
       const toPid = pid; // Since the process 'deposit' function doesn't change the 'pid'
@@ -173,10 +177,17 @@ export class WonderStakingService {
       );
       const txReceipt = await tx.wait();
 
-      const withdrawEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'WithdrawRequest')
-      const { pid, amount,to, rewardAmount } = withdrawEvent.args;
+      const withdrawEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'WithdrawRequest',
+        );
+      const { pid, amount, to, rewardAmount } = withdrawEvent.args;
 
-      const mintEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Mint')
+      const mintEvent = await this.extendedEthersService.catchEventFromReceipt(
+        txReceipt,
+        'Mint',
+      );
       const tokenId = mintEvent.args.tokenId;
 
       const logObject = await this.databaseService.createWonderStakingLogObject(
@@ -229,8 +240,12 @@ export class WonderStakingService {
       const tx = await NCPStakingWithSigner.withdraw(_pid, _tokenId, _to);
       const txReceipt = await tx.wait();
 
-      const withdrawEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Withdraw')
-      const { pid, amount, to, rewardAmount }  = withdrawEvent.args;
+      const withdrawEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Withdraw',
+        );
+      const { pid, amount, to, rewardAmount } = withdrawEvent.args;
 
       const toPid = pid;
 
@@ -291,8 +306,12 @@ export class WonderStakingService {
       );
       const txReceipt = await tx.wait();
 
-      const withdrawEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Withdraw')
-      const { pid, amount, to, rewardAmount }  = withdrawEvent.args;
+      const withdrawEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Withdraw',
+        );
+      const { pid, amount, to, rewardAmount } = withdrawEvent.args;
 
       const logObject = await this.databaseService.createWonderStakingLogObject(
         txReceipt,
@@ -383,8 +402,12 @@ export class WonderStakingService {
       const tx = await NCPStakingWithSigner.withdrawAllWithPid(_pid, _to);
       const txReceipt = await tx.wait();
 
-      const withdrawEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Withdraw')
-      const { pid, amount, to, rewardAmount }  = withdrawEvent.args;
+      const withdrawEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Withdraw',
+        );
+      const { pid, amount, to, rewardAmount } = withdrawEvent.args;
 
       const toPid = pid;
 
@@ -430,8 +453,12 @@ export class WonderStakingService {
       const tx = await NCPStakingWithSigner.claim(_pid, _to);
       const txReceipt = await tx.wait();
 
-      const harvestEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Harvest')
-      const { pid, amount }  = harvestEvent.args;
+      const harvestEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Harvest',
+        );
+      const { pid, amount } = harvestEvent.args;
 
       const amountSent = 0n; // 'claim' is for claiming the rewards
       const rewardAmount = amount; // 'amount' from event 'Harvest' means the amount of the reward
@@ -479,8 +506,12 @@ export class WonderStakingService {
       const tx = await NCPStakingWithSigner.compound(_pid, _to);
       const txReceipt = await tx.wait();
 
-      const depositEvent = await this.extendedEthersService.catchEventFromReceipt(txReceipt,'Deposit')
-      const { pid, amount, to, rewardAmount }  = depositEvent.args;
+      const depositEvent =
+        await this.extendedEthersService.catchEventFromReceipt(
+          txReceipt,
+          'Deposit',
+        );
+      const { pid, amount, to, rewardAmount } = depositEvent.args;
 
       const toPid = pid; // Since the process 'deposit' function doesn't change the 'pid'
 

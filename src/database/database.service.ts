@@ -115,12 +115,12 @@ export class DatabaseService {
   }
 
   // Service related 'ethers' package
-  async getBalance(address: string): Promise<number> {
-    // this.logger.debug("getBalance on test-route service"); // Logging using Nestjs logger
-    const provider = this.provider();
-    const balance = await provider.getBalance(address);
-    return Number(balance);
-  }
+  // async getBalance(address: string): Promise<number> {
+  //   // this.logger.debug("getBalance on test-route service"); // Logging using Nestjs logger
+  //   const provider = this.provider();
+  //   const balance = await provider.getBalance(address);
+  //   return Number(balance);
+  // }
 
   // Function storing Wemix Transfer Data in DB
   async logWemixTransfer(
