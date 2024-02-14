@@ -4,7 +4,6 @@ import { DatabaseService } from '../database/database.service';
 import { AccountService } from 'src/account/account.service';
 import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.service';
 
-// const cWemixJson = require( '../../wemixFi_env') // importing CWemix.json for ABI
 // User Interactions are handled on each asset's deployed contract. Thus process of instantiating each asset's contract is mandated
 import * as cWemixJson from '../../wemixfi_env/CWemix.json';
 import { CWemix } from '../../types/ethers/CWemix';
@@ -159,9 +158,6 @@ export class LendAndBorrowService {
     const input: string = JSON.stringify(inputJson);
     let value: bigint = 0n; // Wemix amount sent with Tx
 
-    // this.logger.debug("assetAddress from Request : ",assetAddress);
-    // this.logger.debug("LBAssetType.Wemix from Service : ",LBAssetType.Wemix);
-
     try {
       let txResult;
       switch (assetAddress) {
@@ -190,9 +186,6 @@ export class LendAndBorrowService {
           throw new Error('Invalid Asset Address');
       }
 
-      this.logger.debug("-- Creating Log Object' --");
-      // .wait() : waits for the transaction to be mined and confirmed
-      // due to the usage of .wait() which is a async work, await is required to resolve the Promise.
       const txReceipt = await txResult.wait();
 
       const depositEvent =
@@ -403,16 +396,6 @@ export class LendAndBorrowService {
           ', ' +
           repayAmountInWei,
       );
-
-      // event composition (from solidity contract file)
-      //   event LiquidateBorrow(
-      //     address liquidator,
-      //     address borrower,
-      //     uint256 repayAmount,
-      //     address cTokenCollateral,
-      //     uint256 seizeTokens,
-      //     address collateralUnderlying
-      // );
 
       const logObject = await this.databaseService.createLBLogObject(
         txReceipt,

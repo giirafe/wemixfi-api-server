@@ -41,10 +41,10 @@ export class LiquidStakingService {
     try {
       const totalWEMIX =
         await this.StWEMIXContract.getTotalPooledWEMIXWithFee();
-      console.log(totalWEMIX);
       return totalWEMIX;
     } catch (error) {
       console.log(error);
+      throw new Error(error);
     }
   }
 
@@ -58,6 +58,7 @@ export class LiquidStakingService {
       return userReward;
     } catch (error) {
       console.log(error);
+      throw new Error(error);
     }
   }
   // Interaction functions
@@ -106,6 +107,7 @@ export class LiquidStakingService {
       return depositEvent.args;
     } catch (error) {
       console.log(error);
+      throw new Error(error);
     }
   }
 
@@ -166,6 +168,7 @@ export class LiquidStakingService {
       return withdrawEvent.args;
     } catch (error) {
       console.log(error);
+      throw new Error(error);
     }
   }
 }

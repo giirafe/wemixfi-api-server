@@ -23,7 +23,7 @@ export class LendAndBorrowController {
   @Get('snapshotWemix')
   async getAccountSnapshot(
     @Query() params: AccountSnapshotDto,
-  ): Promise<string[]> {
+  ): Promise<any> {
     try {
       return await this.lendAndBorrowService.getAccountSnapshot(
         params.accountAddress,
@@ -43,7 +43,7 @@ export class LendAndBorrowController {
   @Get('liquidationInfo')
   async getLiquidationInfo(
     @Query() params: AccountSnapshotDto,
-  ): Promise<string> {
+  ): Promise<any> {
     try {
       return await this.lendAndBorrowService.getLiquidationInfo(
         params.accountAddress,

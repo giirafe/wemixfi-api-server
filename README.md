@@ -18,6 +18,18 @@ docker ps
 # wemixfi_env directory 생성 후 contractInfo_testnet.ts 파일 배치, Wemix Fi 관련 ABI Json 파일 배치
 mkdir wemixfi_env
 
+# wemixfi_env는 아래와 같이 구성되어야 합니다. 각 컨트랙트의 ABI를 Json 형식으로 저장/ Testnet에 Deploy된 컨트랙트와 컨트랙트 이름의 정보가 담긴 contractInfo_testnet.ts
+.wemixfi_env 
+├── contractInfo_testnet.ts
+├── CWemix.json
+├── CWemixDollar.json
+├── ControllerView.json
+├── CstWemix.json
+├── ERC20.json
+├── IWWEMIX.json
+├── IWeswapFactory.
+...
+
 # 서버 시작 
 npm run start
 
