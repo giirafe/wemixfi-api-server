@@ -62,7 +62,7 @@ export class PoolService {
     amountBMin: number,
     to: string,
     deadline: number,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'addLiquidity';
     const value: bigint = 0n; // Wemix amount sent with Tx
@@ -160,7 +160,13 @@ export class PoolService {
 
       await this.databaseService.logPoolV2Tx(logObject);
 
-      return addLiquidityEvent.args;
+      const response = {
+        amountA: addLiquidityEvent.args.amountA.toString(), 
+        amountB: addLiquidityEvent.args.amountB.toString(), 
+        liquidity: addLiquidityEvent.args.liquidity.toString() 
+      };
+
+      return response;
     } catch (error) {
       this.logger.error(
         'Error while adding liquidity in swap.service.ts: ',
@@ -179,7 +185,7 @@ export class PoolService {
     amountWEMIXMin: number,
     to: string,
     deadline: number,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // try catch 없이 addressWallet 가져 와도 되나
     const senderWallet = await this.accountService.getAddressWallet(msgSender);
     const weswapRouterContractWithSigner =
@@ -269,7 +275,13 @@ export class PoolService {
 
       await this.databaseService.logPoolV2Tx(logObject);
 
-      return addLiquidityEvent.args;
+      const response = {
+        amountA: addLiquidityEvent.args.amountA.toString(), 
+        amountB: addLiquidityEvent.args.amountB.toString(), 
+        liquidity: addLiquidityEvent.args.liquidity.toString() 
+      };
+
+      return response;
     } catch (error) {
       this.logger.error(
         'Error while adding liquidity in swap.service.ts: ',
@@ -288,7 +300,7 @@ export class PoolService {
     amountBMin: number,
     to: string,
     deadline: number,
-  ): Promise<{ amountA: bigint; amountB: bigint }> {
+  ): Promise<any> {
     const senderWallet = await this.accountService.getAddressWallet(msgSender);
     const weswapRouterContractWithSigner =
       await this.weswapRouterContract.connect(senderWallet);
@@ -368,8 +380,12 @@ export class PoolService {
       );
 
       await this.databaseService.logPoolV2Tx(logObject);
-
-      return { amountA, amountB };
+      
+      const response = {
+        amountA: removeLiquidityEvent.args.amountA.toString(),
+        amountB: removeLiquidityEvent.args.amountB.toString() 
+      };
+      return response;
     } catch (error) {
       this.logger.error('Error while removing liquidity: ', error);
       throw error;
@@ -472,7 +488,11 @@ export class PoolService {
 
       await this.databaseService.logPoolV2Tx(logObject);
 
-      return { amountA, amountB };
+      const response = {
+        amountA: removeLiquidityEvent.args.amountA.toString(),
+        amountB: removeLiquidityEvent.args.amountB.toString() 
+      };
+      return response;
     } catch (error) {
       this.logger.error('Error while removing liquidity WEMIX: ', error);
       throw error;
