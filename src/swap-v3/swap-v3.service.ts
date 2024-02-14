@@ -132,12 +132,6 @@ export class SwapV3Service {
 
       const txReceipt = await tx.wait();
 
-      // const exactInputEvent =
-      // await this.extendedEthersService.catchEventFromReceipt(
-      //   txReceipt,
-      //   'ExactInput',
-      // );
-
       const exactInputEvent =
         await this.extendedEthersService.getEventFromReceipt(
           txReceipt,
@@ -163,7 +157,17 @@ export class SwapV3Service {
 
       await this.databaseService.logSwapV3Tx(logObject);
 
-      return exactInputEvent.args;
+
+      const exactInputResponse = {
+        tokenIn: exactInputEvent.args.tokenIn,
+        tokenOut: exactInputEvent.args.tokenOut,
+        path: exactInputEvent.args.path, // 'path' is a bytes type, you might want to convert it based on your use case
+        amountIn: exactInputEvent.args.amountIn.toString(), // Convert BigNumber to string for readability
+        amountOut: exactInputEvent.args.amountOut.toString() // Convert BigNumber to string for readability
+      };
+
+      return exactInputResponse;
+      
     } catch (error) {
       this.logger.error(
         'Error while exactInput function in swap-v3.service.ts: ',

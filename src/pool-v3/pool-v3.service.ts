@@ -53,27 +53,27 @@ export class PoolV3Service {
 
   // getPositionInfo interacts with NFP'Manager' exceptionally.
   async getPositionInfo(tokenId: number) {
-    // return format of '.positions'
-    // {
-    //   uint96 nonce,
-    //   address operator,
-    //   address token0,
-    //   address token1,
-    //   uint24 fee,
-    //   int24 tickLower,
-    //   int24 tickUpper,
-    //   uint128 liquidity,
-    //   uint256 feeGrowthInside0LastX128,
-    //   uint256 feeGrowthInside1LastX128,
-    //   uint128 tokensOwed0,
-    //   uint128 tokensOwed1
-    // }
-
     const positionInfo =
       await this.NonfungiblePositionManagerContract.positions(tokenId);
-    return positionInfo;
+  
+    const formattedPositionInfo = {
+      nonce: positionInfo.nonce.toString(), 
+      operator: positionInfo.operator,
+      token0: positionInfo.token0,
+      token1: positionInfo.token1,
+      fee: positionInfo.fee.toString(),
+      tickLower: positionInfo.tickLower.toString(),
+      tickUpper: positionInfo.tickUpper.toString(),
+      liquidity: positionInfo.liquidity.toString(),
+      feeGrowthInside0LastX128: positionInfo.feeGrowthInside0LastX128.toString(),
+      feeGrowthInside1LastX128: positionInfo.feeGrowthInside1LastX128.toString(),
+      tokensOwed0: positionInfo.tokensOwed0.toString(),
+      tokensOwed1: positionInfo.tokensOwed1.toString()
+    };
+  
+    return formattedPositionInfo;
   }
-
+  
   async easyMint(
     msgSender: AddressLike,
     token0: AddressLike,
@@ -86,7 +86,7 @@ export class PoolV3Service {
     amount0Min: BigNumberish,
     amount1Min: BigNumberish,
     deadline: BigNumberish,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'easyMint';
     let value: bigint = 0n; // Wemix amount sent with Tx
@@ -169,21 +169,12 @@ export class PoolV3Service {
 
       const txReceipt = await tx.wait();
 
-      // const easyMintEvent =
-      //   await this.extendedEthersService.getEventFromReceipt(
-      //     txReceipt,
-      //     'EasyMint',
-      //   );
-      // const [, , tokenId, liquidity, amount0, amount1] = easyMintEvent.args;
-
       const mintEvent = await this.extendedEthersService.catchEventFromReceipt(
         txReceipt,
         'EasyMint',
       );
 
       const [, , tokenId, liquidity, amount0, amount1] = mintEvent.args;
-
-      console.log(mintEvent.args);
 
       ///
 
@@ -203,7 +194,18 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      return [token0, token1, tokenId, liquidity, amount0, amount1];
+      // return [token0, token1, tokenId, liquidity, amount0, amount1];
+      const easyMintResponse = {
+        token0: mintEvent.args.token0,
+        token1: mintEvent.args.token1,
+        tokenId: mintEvent.args.tokenId.toString(),
+        liquidity: mintEvent.args.liquidity.toString(),
+        amount0: mintEvent.args.amount0.toString(),
+        amount1: mintEvent.args.amount1.toString()
+      };
+
+      return easyMintResponse
+
     } catch (error) {
       this.logger.error(
         'Error while easyMint function in pool-v3.service.ts: ',
@@ -221,7 +223,7 @@ export class PoolV3Service {
     amount0Min: BigNumberish,
     amount1Min: BigNumberish,
     deadline: BigNumberish,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'increaseLiquidity';
     let value: bigint = 0n; // Wemix amount sent with Tx
@@ -329,7 +331,18 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      return [token0, token1, tokenId, liquidity, amount0, amount1];
+      // return [token0, token1, tokenId, liquidity, amount0, amount1];
+      const increaseLiquidityResponse = {
+        token0: increaseLiquidityEvent.args.token0,
+        token1: increaseLiquidityEvent.args.token1,
+        tokenId: increaseLiquidityEvent.args.tokenId.toString(),
+        liquidity: increaseLiquidityEvent.args.liquidity.toString(),
+        amount0: increaseLiquidityEvent.args.amount0.toString(),
+        amount1: increaseLiquidityEvent.args.amount1.toString()
+      };
+
+      return increaseLiquidityResponse;
+
     } catch (error) {
       this.logger.error(
         'Error while increaseLiquidity function in pool-v3.service.ts: ',
@@ -429,7 +442,15 @@ export class PoolV3Service {
       await this.databaseService.logPoolV3Tx(logObject);
 
       // return [tokenId, token0, token1, liquidity, amount0, amount1];
-      return easyCollectEvent.args;
+      const easyCollectResponse = {
+        token0: easyCollectEvent.args.token0,
+        token1: easyCollectEvent.args.token1,
+        tokenId: easyCollectEvent.args.tokenId.toString(),
+        amount0: easyCollectEvent.args.amount0.toString(),
+        amount1: easyCollectEvent.args.amount1.toString()
+      };
+
+      return easyCollectResponse
     } catch (error) {
       this.logger.error(
         'Error while easyCollect function in pool-v3.service.ts: ',
@@ -537,8 +558,15 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      // return [token0, token1, tokenId, liquidity, amount0, amount1];
-      return easyCompoundEvent.args;
+      const easyCompoundResponse = {
+        token0: easyCompoundEvent.args.token0,
+        token1: easyCompoundEvent.args.token1,
+        liquidity: easyCompoundEvent.args.liquidity.toString(),
+        amount0: easyCompoundEvent.args.amount0.toString(),
+        amount1: easyCompoundEvent.args.amount1.toString()
+      };
+
+      return easyCompoundResponse;
     } catch (error) {
       this.logger.error(
         'Error while easyCompound function in pool-v3.service.ts: ',
@@ -659,8 +687,16 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      // return [token0, token1, tokenId, liquidity, amount0, amount1];
-      return easyDecreaseLiquidityCollectEvent.args;
+      const easyDecreaseLiquidityCollectAllResponse = {
+        token0: easyDecreaseLiquidityCollectEvent.args.token0,
+        token1: easyDecreaseLiquidityCollectEvent.args.token1,
+        tokenId: easyDecreaseLiquidityCollectEvent.args.tokenId.toString(),
+        liquidity: easyDecreaseLiquidityCollectEvent.args.liquidity.toString(),
+        amount0: easyDecreaseLiquidityCollectEvent.args.amount0.toString(),
+        amount1: easyDecreaseLiquidityCollectEvent.args.amount1.toString()
+      };
+
+      return easyDecreaseLiquidityCollectAllResponse
     } catch (error) {
       this.logger.error(
         'Error while easyDecreaseLiquidityCollect function in pool-v3.service.ts: ',
@@ -794,8 +830,17 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      // return [token0, token1, tokenId, liquidity, amount0, amount1];
-      return easyIncreaseLiquidityCompoundEvent.args;
+      const easyIncreaseLiquidityCompoundResponse = {
+        token0: easyIncreaseLiquidityCompoundEvent.args.token0,
+        token1: easyIncreaseLiquidityCompoundEvent.args.token1,
+        tokenId: easyIncreaseLiquidityCompoundEvent.args.tokenId.toString(),
+        liquidity: easyIncreaseLiquidityCompoundEvent.args.liquidity.toString(),
+        amount0: easyIncreaseLiquidityCompoundEvent.args.amount0.toString(),
+        amount1: easyIncreaseLiquidityCompoundEvent.args.amount1.toString()
+      };
+
+      return easyIncreaseLiquidityCompoundResponse
+
     } catch (error) {
       this.logger.error(
         'Error while easyIncreaseLiquidityCompound function in pool-v3.service.ts: ',
@@ -882,11 +927,6 @@ export class PoolV3Service {
         );
       const { amount0, amount1 } = easyDecreaseLiquidityCollectAllEvent.args;
 
-      console.log(
-        'Args in easyDecreaseLiquidity event : ' +
-          easyDecreaseLiquidityCollectAllEvent.args,
-      );
-
       const logObject = await this.databaseService.createPoolV3LogObject(
         txReceipt,
         contractName,
@@ -903,8 +943,17 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      // return [token0, token1, tokenId, liquidity, amount0, amount1];
-      return easyDecreaseLiquidityCollectAllEvent.args;
+      const easyDecreaseLiquidityAllCollectAllBurnResponse = {
+        token0: easyDecreaseLiquidityCollectAllEvent.args.token0,
+        token1: easyDecreaseLiquidityCollectAllEvent.args.token1,
+        tokenId: easyDecreaseLiquidityCollectAllEvent.args.tokenId.toString(),
+        liquidity: easyDecreaseLiquidityCollectAllEvent.args.liquidity.toString(),
+        amount0: easyDecreaseLiquidityCollectAllEvent.args.amount0.toString(),
+        amount1: easyDecreaseLiquidityCollectAllEvent.args.amount1.toString()
+      };
+
+      return easyDecreaseLiquidityAllCollectAllBurnResponse;
+
     } catch (error) {
       this.logger.error(
         'Error while easyDecreaseLiquidityCollectAll function in pool-v3.service.ts: ',
@@ -991,8 +1040,17 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      // return [token0, token1, tokenId, liquidity, amount0, amount1];
-      return easyDecreaseLiquidityAllCollectAllBurnEvent;
+      const easyDecreaseLiquidityAllCollectAllBurnResponse = {
+        token0: easyDecreaseLiquidityAllCollectAllBurnEvent.args.token0,
+        token1: easyDecreaseLiquidityAllCollectAllBurnEvent.args.token1,
+        tokenId: easyDecreaseLiquidityAllCollectAllBurnEvent.args.tokenId.toString(),
+        liquidity: easyDecreaseLiquidityAllCollectAllBurnEvent.args.liquidity.toString(),
+        amount0: easyDecreaseLiquidityAllCollectAllBurnEvent.args.amount0.toString(),
+        amount1: easyDecreaseLiquidityAllCollectAllBurnEvent.args.amount1.toString()
+      };
+
+      
+      return easyDecreaseLiquidityAllCollectAllBurnResponse;
     } catch (error) {
       this.logger.error(
         'Error while easyDecreaseLiquidityAllCollectAllBurn function in pool-v3.service.ts: ',
@@ -1126,7 +1184,17 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      return easyStrategyChangeAllEvent.args;
+      const strategyChangeAllResponse = {
+        token0: easyStrategyChangeAllEvent.args.token0,
+        token1: easyStrategyChangeAllEvent.args.token1,
+        fee: easyStrategyChangeAllEvent.args.fee.toString(),
+        tokenId: easyStrategyChangeAllEvent.args.tokenId.toString(),
+        liquidity: easyStrategyChangeAllEvent.args.liquidity.toString(),
+        amount0: easyStrategyChangeAllEvent.args.amount0.toString(),
+        amount1: easyStrategyChangeAllEvent.args.amount1.toString()
+      };
+
+      return strategyChangeAllResponse;
     } catch (error) {
       this.logger.error(
         'Error while easyStrategyChangeAll function in pool-v3.service.ts: ',
