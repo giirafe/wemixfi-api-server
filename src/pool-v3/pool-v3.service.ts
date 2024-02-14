@@ -53,6 +53,22 @@ export class PoolV3Service {
 
   // getPositionInfo interacts with NFP'Manager' exceptionally.
   async getPositionInfo(tokenId: number) {
+    // return format of '.positions'
+    // {
+    //   uint96 nonce,
+    //   address operator,
+    //   address token0,
+    //   address token1,
+    //   uint24 fee,
+    //   int24 tickLower,
+    //   int24 tickUpper,
+    //   uint128 liquidity,
+    //   uint256 feeGrowthInside0LastX128,
+    //   uint256 feeGrowthInside1LastX128,
+    //   uint128 tokensOwed0,
+    //   uint128 tokensOwed1
+    // }
+
     const positionInfo =
       await this.NonfungiblePositionManagerContract.positions(tokenId);
     return positionInfo;
@@ -328,7 +344,7 @@ export class PoolV3Service {
     tokenId: number,
     amount0Max: BigNumberish,
     amount1Max: BigNumberish,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'easyCollect';
     const value: bigint = 0n; // Wemix amount sent with Tx
@@ -412,7 +428,8 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      return [token0, token1, tokenId, liquidity, amount0, amount1];
+      // return [tokenId, token0, token1, liquidity, amount0, amount1];
+      return easyCollectEvent.args;
     } catch (error) {
       this.logger.error(
         'Error while easyCollect function in pool-v3.service.ts: ',
@@ -431,7 +448,7 @@ export class PoolV3Service {
     amount0LiquidityMin: BigNumberish,
     amount1LiquidityMin: BigNumberish,
     deadline: BigNumberish,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'easyCompound';
     const value: bigint = 0n; // Wemix amount sent with Tx
@@ -520,7 +537,8 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      return [token0, token1, tokenId, liquidity, amount0, amount1];
+      // return [token0, token1, tokenId, liquidity, amount0, amount1];
+      return easyCompoundEvent.args;
     } catch (error) {
       this.logger.error(
         'Error while easyCompound function in pool-v3.service.ts: ',
@@ -539,7 +557,7 @@ export class PoolV3Service {
     amount0CollectMax: BigNumberish,
     amount1CollectMax: BigNumberish,
     deadline: BigNumberish,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'easyDecreaseLiquidityCollect';
     const value: bigint = 0n; // Wemix amount sent with Tx
@@ -641,7 +659,8 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      return [token0, token1, tokenId, liquidity, amount0, amount1];
+      // return [token0, token1, tokenId, liquidity, amount0, amount1];
+      return easyDecreaseLiquidityCollectEvent.args;
     } catch (error) {
       this.logger.error(
         'Error while easyDecreaseLiquidityCollect function in pool-v3.service.ts: ',
@@ -661,7 +680,7 @@ export class PoolV3Service {
     amount0CollectMax: BigNumberish,
     amount1CollectMax: BigNumberish,
     deadline: BigNumberish,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'easyIncreaseLiquidityCompound';
     let value: bigint = 0n; // Wemix amount sent with Tx
@@ -775,7 +794,8 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      return [token0, token1, tokenId, liquidity, amount0, amount1];
+      // return [token0, token1, tokenId, liquidity, amount0, amount1];
+      return easyIncreaseLiquidityCompoundEvent.args;
     } catch (error) {
       this.logger.error(
         'Error while easyIncreaseLiquidityCompound function in pool-v3.service.ts: ',
@@ -792,7 +812,7 @@ export class PoolV3Service {
     amount0LiquidityMin: BigNumberish,
     amount1LiquidityMin: BigNumberish,
     deadline: BigNumberish,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'easyDecreaseLiquidityCollectAll';
     const value: bigint = 0n; // Wemix amount sent with Tx
@@ -883,7 +903,8 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      return [token0, token1, tokenId, liquidity, amount0, amount1];
+      // return [token0, token1, tokenId, liquidity, amount0, amount1];
+      return easyDecreaseLiquidityCollectAllEvent.args;
     } catch (error) {
       this.logger.error(
         'Error while easyDecreaseLiquidityCollectAll function in pool-v3.service.ts: ',
@@ -897,7 +918,7 @@ export class PoolV3Service {
     msgSender: AddressLike,
     tokenId: number,
     deadline: BigNumberish,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'easyDecreaseLiquidityAllCollectAllBurn';
     const value: bigint = 0n; // Wemix amount sent with Tx
@@ -970,7 +991,8 @@ export class PoolV3Service {
 
       await this.databaseService.logPoolV3Tx(logObject);
 
-      return [token0, token1, tokenId, liquidity, amount0, amount1];
+      // return [token0, token1, tokenId, liquidity, amount0, amount1];
+      return easyDecreaseLiquidityAllCollectAllBurnEvent;
     } catch (error) {
       this.logger.error(
         'Error while easyDecreaseLiquidityAllCollectAllBurn function in pool-v3.service.ts: ',
@@ -991,7 +1013,7 @@ export class PoolV3Service {
     amount0MintMin: BigNumberish,
     amount1MintMin: BigNumberish,
     deadline: BigNumberish,
-  ): Promise<bigint[]> {
+  ): Promise<any> {
     // Processing data for DB Logging
     const funcName = 'easyStrategyChangeAll';
     let value: bigint = 0n; // Wemix amount sent with Tx

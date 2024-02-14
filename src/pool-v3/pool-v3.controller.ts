@@ -120,7 +120,7 @@ export class PoolV3Controller {
   }
 
   @Post('easyCompound')
-  async easyCompound(@Body() dto: EasyCompoundDto): Promise<bigint[]> {
+  async easyCompound(@Body() dto: EasyCompoundDto): Promise<any> {
     try {
       const result = await this.poolV3Service.easyCompound(
         dto.msgSender,

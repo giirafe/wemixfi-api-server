@@ -87,7 +87,7 @@ export class LendAndBorrowService {
 
   private readonly logger = new Logger(LendAndBorrowService.name);
 
-  async getAccountSnapshot(address: string): Promise<string[]> {
+  async getAccountSnapshot(address: string): Promise<any> {
     const senderWallet = await this.accountService.getAddressWallet(address);
     try {
       const accountSnapshot = await this.cWemixContract
@@ -96,8 +96,9 @@ export class LendAndBorrowService {
       this.logger.debug(
         'Snapshot returning 1.Error Code 2. cTokenBalance 3. borrowBalance 4. exchageRateMantissa ',
       );
+      console.log(accountSnapshot);
       // Additional conversion of bigInt to string required for JSON format
-      return accountSnapshot.map((bigIntValue) => bigIntValue.toString());
+      return accountSnapshot;
     } catch (error) {
       this.logger.error(
         'Error while getAccountSnapshot in lend-and-borrow.service.ts : ',
@@ -107,7 +108,7 @@ export class LendAndBorrowService {
     }
   }
 
-  async getLiquidationInfo(accountAddress: string): Promise<string> {
+  async getLiquidationInfo(accountAddress: string): Promise<any> {
     try {
       const txResult =
         await this.wemixfiLendingViewContract.getLiquidationInfo(
@@ -147,7 +148,7 @@ export class LendAndBorrowService {
     senderAddress: string,
     amount: number,
     assetAddress: string,
-  ): Promise<ethers.TransactionReceipt> {
+  ): Promise<any> {
     const senderWallet =
       await this.accountService.getAddressWallet(senderAddress);
     const amountInWei = ethers.parseEther(amount.toString());
@@ -205,11 +206,18 @@ export class LendAndBorrowService {
         mintAmount,
       );
 
-      this.logger.debug("-- Logging Object' --");
       // Call logTxInfo from DatabaseService
       await this.databaseService.logLendAndBorrowTx(logObject);
 
-      return txReceipt;
+      console.log(depositEvent);
+
+      const response = {
+        minter: depositEvent.args.minter,
+        mintAmount: depositEvent.args.mintAmount.toString(),
+        mintTokens: depositEvent.args.mintTokens.toString(),
+        underlying: depositEvent.args.underlying
+      };
+      return response;
     } catch (error) {
       this.logger.error(
         'Error while depositAsset in lend-and-borrow.service.ts :',
@@ -223,7 +231,7 @@ export class LendAndBorrowService {
     borrowerAddress: string,
     borrowAmount: number,
     assetAddress: string,
-  ): Promise<ethers.TransactionReceipt> {
+  ): Promise<any> {
     const senderWallet =
       await this.accountService.getAddressWallet(borrowerAddress);
     const borrowAmountInWei: bigint = ethers.parseEther(
@@ -294,7 +302,12 @@ export class LendAndBorrowService {
       // Call logTxInfo from DatabaseService
       await this.databaseService.logLendAndBorrowTx(logObject);
 
-      return txReceipt;
+      const response = {
+        borrower: borrowEvent.args.borrower,
+        borrowAmount: borrowEvent.args.borrowAmount.toString(), 
+        underlying: borrowEvent.args.underlying
+      };
+      return response;
     } catch (error) {
       this.logger.error(
         'Error while borrowAsset in lend-and-borrow.service.ts :',
@@ -311,7 +324,7 @@ export class LendAndBorrowService {
     repayAmount: number,
     liquidateAssetAddress: string,
     collateralAddress: string,
-  ): Promise<ethers.TransactionReceipt> {
+  ): Promise<any> {
     let contractName: string;
     const funcName = 'liquidateBorrow';
     let value: bigint = 0n; // Wemix amount sent with Tx
@@ -381,21 +394,6 @@ export class LendAndBorrowService {
           txReceipt,
           'LiquidateBorrow',
         );
-      const {
-        repayAmount,
-        cTokenCollateral,
-        seizeTokens,
-        collateralUnderlying,
-      } = liquidateEvent.args;
-
-      console.log(liquidateEvent.args);
-
-      console.log(
-        'liquidate Asset Address and RepayAmountInWei ' +
-          liquidateAssetAddress +
-          ', ' +
-          repayAmountInWei,
-      );
 
       const logObject = await this.databaseService.createLBLogObject(
         txReceipt,
@@ -410,7 +408,17 @@ export class LendAndBorrowService {
       // Call logTxInfo from DatabaseService
       await this.databaseService.logLendAndBorrowTx(logObject);
 
-      return txReceipt;
+      const response = {
+        liquidator: liquidateEvent.args.liquidator,
+        borrower: liquidateEvent.args.borrower,
+        repayAmount: liquidateEvent.args.repayAmount.toString(), // Convert BigNumber to string
+        cTokenCollateral: liquidateEvent.args.cTokenCollateral,
+        seizeTokens: liquidateEvent.args.seizeTokens.toString(), // Convert BigNumber to string
+        collateralUnderlying: liquidateEvent.args.collateralUnderlying
+      };
+
+      return response;
+
     } catch (error) {
       this.logger.error(
         'Error while liquidateAsset in lend-and-borrow.service.ts:',

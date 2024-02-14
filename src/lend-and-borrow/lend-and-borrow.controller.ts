@@ -21,9 +21,7 @@ export class LendAndBorrowController {
   constructor(private lendAndBorrowService: LendAndBorrowService) {}
 
   @Get('snapshotWemix')
-  async getAccountSnapshot(
-    @Query() params: AccountSnapshotDto,
-  ): Promise<any> {
+  async getAccountSnapshot(@Query() params: AccountSnapshotDto): Promise<any> {
     try {
       return await this.lendAndBorrowService.getAccountSnapshot(
         params.accountAddress,
@@ -41,9 +39,7 @@ export class LendAndBorrowController {
   }
 
   @Get('liquidationInfo')
-  async getLiquidationInfo(
-    @Query() params: AccountSnapshotDto,
-  ): Promise<any> {
+  async getLiquidationInfo(@Query() params: AccountSnapshotDto): Promise<any> {
     try {
       return await this.lendAndBorrowService.getLiquidationInfo(
         params.accountAddress,
@@ -63,7 +59,7 @@ export class LendAndBorrowController {
   @Post('depositAsset')
   async depositAsset(
     @Body() dto: DepositAssetDto,
-  ): Promise<ethers.TransactionReceipt> {
+  ): Promise<any> {
     try {
       return await this.lendAndBorrowService.depositAsset(
         dto.senderAddress,
@@ -85,7 +81,7 @@ export class LendAndBorrowController {
   @Post('borrowAsset')
   async borrowAsset(
     @Body() dto: BorrowAssetDto,
-  ): Promise<ethers.TransactionReceipt> {
+  ): Promise<any> {
     try {
       return await this.lendAndBorrowService.borrowAsset(
         dto.borrowerAddress,
@@ -107,7 +103,7 @@ export class LendAndBorrowController {
   @Post('liquidateAsset')
   async liquidateAsset(
     @Body() dto: LiquidateAssetDto,
-  ): Promise<ethers.TransactionReceipt> {
+  ): Promise<any> {
     try {
       return await this.lendAndBorrowService.liquidateAsset(
         dto.liquidatorAddress,
