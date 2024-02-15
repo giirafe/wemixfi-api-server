@@ -56,8 +56,15 @@ export class WonderStakingService {
         _pid,
         _account,
       );
-      console.log(userInfo);
-      return userInfo;
+      const formattedUserInfo = {
+        amount: userInfo.amount.toString(), 
+        rewardDebt: userInfo.rewardDebt.toString(), 
+        pendingReward: userInfo.pendingReward.toString(), 
+        pendingAmountReward: userInfo.pendingAmountReward.toString(), 
+        lastRewardClaimed: userInfo.lastRewardClaimed.toString() 
+      };
+    
+      return formattedUserInfo;
     } catch (error) {
       console.log(error);
     }
@@ -129,8 +136,15 @@ export class WonderStakingService {
 
       await this.databaseService.logWonderStakingTx(logObject);
 
-      // return depositEvents[0].args;
-      return depositEvent.args;
+      const depositResponse = {
+        user: depositEvent.args.user,
+        pid: depositEvent.args.pid.toString(),
+        amount: depositEvent.args.amount.toString(),
+        to: depositEvent.args.to,
+        rewardAmount: depositEvent.args.rewardAmount.toString()
+      };
+
+      return depositResponse
     } catch (error) {
       console.log(error);
     }
@@ -184,6 +198,16 @@ export class WonderStakingService {
         );
       const { pid, amount, to, rewardAmount } = withdrawEvent.args;
 
+      const withdrawRequestResponse = {
+        user: withdrawEvent.args.user,
+        pid: withdrawEvent.args.pid.toString(),
+        name: withdrawEvent.args.name, // 'name' is a bytes type, you might want to convert it based on your use case
+        ncp: withdrawEvent.args.ncp,
+        amount: withdrawEvent.args.amount.toString(),
+        to: withdrawEvent.args.to,
+        rewardAmount: withdrawEvent.args.rewardAmount.toString()
+      };
+      
       const mintEvent = await this.extendedEthersService.catchEventFromReceipt(
         txReceipt,
         'Mint',
@@ -206,7 +230,7 @@ export class WonderStakingService {
       await this.databaseService.logWonderStakingTx(logObject);
 
       const resultJson = {
-        WithdrawEvent: withdrawEvent.args,
+        WithdrawEvent: withdrawRequestResponse,
         tokenId,
       };
       return resultJson;
@@ -264,7 +288,14 @@ export class WonderStakingService {
 
       await this.databaseService.logWonderStakingTx(logObject);
 
-      return withdrawEvent.args;
+      const withdrawResponse = {
+        user: withdrawEvent.args.user,
+        pid: withdrawEvent.args.pid.toString(),
+        amount: withdrawEvent.args.amount.toString(),
+        to: withdrawEvent.args.to
+      };
+
+      return withdrawResponse;
     } catch (error) {
       console.error(error);
       throw new Error('An error occurred during the withdrawal operation');
@@ -328,7 +359,14 @@ export class WonderStakingService {
 
       await this.databaseService.logWonderStakingTx(logObject);
 
-      return withdrawEvent.args;
+      const withdrawResponse = {
+        user: withdrawEvent.args.user,
+        pid: withdrawEvent.args.pid.toString(),
+        amount: withdrawEvent.args.amount.toString(),
+        to: withdrawEvent.args.to
+      };
+
+      return withdrawResponse;
     } catch (error) {
       console.error(error);
       throw new Error('An error occurred during the NCP change operation');
@@ -375,7 +413,14 @@ export class WonderStakingService {
 
       await this.databaseService.logWonderStakingTx(logObject);
 
-      return withdrawEvent.args;
+      const withdrawResponse = {
+        user: withdrawEvent.args.user,
+        pid: withdrawEvent.args.pid.toString(),
+        amount: withdrawEvent.args.amount.toString(),
+        to: withdrawEvent.args.to
+      };
+
+      return withdrawResponse;
     } catch (error) {
       console.error(error);
       throw new Error('An error occurred during the withdraw all operation');
@@ -426,7 +471,14 @@ export class WonderStakingService {
 
       await this.databaseService.logWonderStakingTx(logObject);
 
-      return withdrawEvent.args;
+      const withdrawResponse = {
+        user: withdrawEvent.args.user,
+        pid: withdrawEvent.args.pid.toString(),
+        amount: withdrawEvent.args.amount.toString(),
+        to: withdrawEvent.args.to
+      };
+
+      return withdrawResponse;
     } catch (error) {
       console.error(error);
       throw new Error(
@@ -478,7 +530,12 @@ export class WonderStakingService {
       );
 
       await this.databaseService.logWonderStakingTx(logObject);
-      return harvestEvent.args;
+      const harvestResponse = {
+        user: harvestEvent.args.user,
+        pid: harvestEvent.args.pid.toString(),
+        amount: harvestEvent.args.amount.toString()
+      };
+      return harvestResponse   
     } catch (error) {
       console.log(error);
       throw new Error('An error occurred during the claim operation');
@@ -530,7 +587,15 @@ export class WonderStakingService {
 
       await this.databaseService.logWonderStakingTx(logObject);
 
-      return depositEvent.args;
+      const depositResponse = {
+        user: depositEvent.args.user,
+        pid: depositEvent.args.pid.toString(),
+        amount: depositEvent.args.amount.toString(),
+        to: depositEvent.args.to,
+        rewardAmount: depositEvent.args.rewardAmount.toString()
+      };
+
+      return depositResponse
     } catch (error) {
       console.log(error);
       throw new Error('An error occurred during the compound operation');

@@ -104,7 +104,13 @@ export class LiquidStakingService {
 
       await this.databaseService.logLiquidStakingTx(logObject);
 
-      return depositEvent.args;
+      const depositedResponse = {
+        sender: depositEvent.args.sender,
+        wemixAmount: depositEvent.args.wemixAmount.toString(), // Convert BigNumber to string for readability
+        stWemixAmount: depositEvent.args.stWemixAmount.toString() // Convert BigNumber to string for readability
+      };
+      return  depositedResponse;     
+      
     } catch (error) {
       console.log(error);
       throw new Error(error);
@@ -165,7 +171,12 @@ export class LiquidStakingService {
 
       await this.databaseService.logLiquidStakingTx(logObject);
 
-      return withdrawEvent.args;
+      const withdrewResponse = {
+        sender: withdrawEvent.args.sender,
+        wemixAmount: withdrawEvent.args.wemixAmount.toString(), // Convert BigNumber to string for readability
+        stWemixAmount: withdrawEvent.args.stWemixAmount.toString() // Convert BigNumber to string for readability
+      };
+      return withdrewResponse
     } catch (error) {
       console.log(error);
       throw new Error(error);
