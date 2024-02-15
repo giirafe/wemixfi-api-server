@@ -531,7 +531,7 @@ export class SwapService {
       this.weswapRouterContract.connect(senderWallet);
 
     const amountInWei = await this.extendedEthersService.convertToWei(
-      path[path.length - 1],
+      path[0],
       amountIn,
     );
     const amountOutMinWei = ethers.parseEther(amountOutMin.toString());
