@@ -7,6 +7,9 @@ import { ExtendedEthersService } from 'src/extended-ethers/extended-ethers.servi
 import * as NCPStakingJson from '../../wemixfi_env/NCPStaking.json';
 import { NCPStaking } from '../../types/ethers/NCPStaking';
 
+import * as NCPStakingGatewayJson from '../../wemixfi_env/NCPStakingGateway.json';
+import { NCPStakingGateway } from '../../types/ethers/NCPStakingGateway';
+
 import { CA } from 'wemixfi_env/contractInfo_testnet'; // CA: Contract Address
 import { Address } from 'cluster';
 
@@ -17,23 +20,33 @@ export class WonderStakingService {
   private readonly wWemixAddress = CA.wWemix;
 
   private readonly NCPStakingAddress = CA.ncp_staking;
+  private readonly NCPStakingGatewayAddress = CA.ncp_gateway;
 
   private NCPStakingContract: NCPStaking;
+  private NCPStakingGatewayContract: NCPStakingGateway;
 
   private readonly NCPStakingContractABI = NCPStakingJson.abi;
+  private readonly NCPStakingGatewayContractABI = NCPStakingGatewayJson.abi;
+
+  private readonly provider = this.databaseService.provider();
 
   constructor(
     private databaseService: DatabaseService,
     private accountService: AccountService,
     private extendedEthersService: ExtendedEthersService,
   ) {
-    const provider = this.databaseService.provider();
 
     this.NCPStakingContract = new ethers.Contract(
       this.NCPStakingAddress,
       this.NCPStakingContractABI,
-      provider,
+      this.provider,
     ) as unknown as NCPStaking;
+
+    this.NCPStakingGatewayContract = new ethers.Contract(
+      this.NCPStakingGatewayAddress,
+      this.NCPStakingGatewayContractABI,
+      this.provider,
+    ) as unknown as NCPStakingGateway;
   }
 
   private readonly logger = new Logger(WonderStakingService.name);
@@ -69,6 +82,34 @@ export class WonderStakingService {
       console.log(error);
     }
   }
+
+  async getUserWithdrawRequestInfo(_account) {
+    try {
+      
+      const userWithdrawInfos = await this.NCPStakingGatewayContract.getUserWithdrawRequestInfo(_account);
+
+      // const currentTime = Math.floor(Date.now() / 1000);
+
+      const blockNumber = (await this.provider.getBlock('latest')).number;
+  
+      const formattedUserInfos = userWithdrawInfos.map(info => ({
+        tokenid: info.tokenid.toString(), 
+        pid: info.pid.toString(), 
+        toPid: info.toPid.toString(), 
+        amount: info.amount.toString(), 
+        requestTime: info.requestTime.toString(), 
+        claimableTime: info.claimableTime.toString(), 
+        drawer: info.drawer 
+      }));
+  
+      return {currentBlockNumber : blockNumber, formattedUserInfos}; 
+  
+    } catch (error) {
+      console.error(error);
+      throw error; 
+    }
+  }
+  
 
   // Deposit
   async deposit(
@@ -269,9 +310,10 @@ export class WonderStakingService {
           txReceipt,
           'Withdraw',
         );
-      const { pid, amount, to, rewardAmount } = withdrawEvent.args;
+      const { pid, amount, to } = withdrawEvent.args;
 
       const toPid = pid;
+      const rewardAmount = 0n;
 
       const logObject = await this.databaseService.createWonderStakingLogObject(
         txReceipt,
@@ -342,7 +384,9 @@ export class WonderStakingService {
           txReceipt,
           'Withdraw',
         );
-      const { pid, amount, to, rewardAmount } = withdrawEvent.args;
+      const { pid, amount, to } = withdrawEvent.args;
+
+      const rewardAmount = 0n;
 
       const logObject = await this.databaseService.createWonderStakingLogObject(
         txReceipt,
@@ -394,9 +438,10 @@ export class WonderStakingService {
           'Withdraw',
         );
 
-      const { pid, amount, to, rewardAmount } = withdrawEvent.args;
+      const { pid, amount, to } = withdrawEvent.args;
 
       const toPid = pid;
+      const rewardAmount = 0n;
 
       const logObject = await this.databaseService.createWonderStakingLogObject(
         txReceipt,
@@ -452,9 +497,10 @@ export class WonderStakingService {
           txReceipt,
           'Withdraw',
         );
-      const { pid, amount, to, rewardAmount } = withdrawEvent.args;
+      const { pid, amount, to } = withdrawEvent.args;
 
       const toPid = pid;
+      const rewardAmount = 0n;
 
       const logObject = await this.databaseService.createWonderStakingLogObject(
         txReceipt,

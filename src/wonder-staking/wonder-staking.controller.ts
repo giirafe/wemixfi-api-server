@@ -62,6 +62,25 @@ export class WonderStakingController {
     }
   }
 
+  @Get('getUserWithdrawRequestInfo')
+  async getUserWithdrawRequestInfo(
+    @Query('account') account: AddressLike,
+  ) {
+    try {
+      const result = await this.wonderStakingService.getUserWithdrawRequestInfo( account);
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'There was a problem getUserWithdrawRequestInfo in Wonder Staking',
+          details: error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   // Handling Deposit related
   @Post('deposit')
   async deposit(@Body() depositDto: DepositDto) {
