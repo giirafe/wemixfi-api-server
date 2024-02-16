@@ -24,7 +24,7 @@ import { LiquidStakingModule } from './liquid-staking/liquid-staking.module';
       port: 3306,
       username: 'root',
       password: '1234',
-      database: 'localDB',
+      database: 'wemixfi-api-db',
       autoLoadModels: true,
       synchronize: true,
     }),

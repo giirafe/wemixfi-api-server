@@ -3,12 +3,12 @@ version: '3'
 services:
   local-db:
     image: library/mysql:5.7
-    container_name: local-db
+    container_name: wemixfi-api-server-container
     restart: always
     ports:
       - 3306:3306               # Host Port:Container Port
     environment:
-      MYSQL_DATABASE: localDB    # Database name
+      MYSQL_DATABASE: wemixfi-api-db     # Database name
       MYSQL_ROOT_PASSWORD: 1234  # root account PW
       TZ: Asia/Seoul            
     volumes:
