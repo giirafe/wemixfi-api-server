@@ -4,7 +4,7 @@
 ```bash
 git clone https://github.com/giirafe/wemixfi-api-server.git
 
-cd wemixfi-api=server
+cd wemixfi-api-server
 
 # 라이브러리 install
 npm install
