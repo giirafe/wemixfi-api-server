@@ -35,3 +35,12 @@ npm run start
 
 # !!! 처음 클론 후 npm run start 시 DB의 테이블들이 한꺼번에 다 생성되지 않아 error 발생하는 경우가 있습니다. npm run start를 몇번 반복하면 정상적으로 생성 후 서버가 시작됩니다. !!!
 ```
+
+---
+## API Docs
+https://documenter.getpostman.com/view/17682400/2sA2r6WPXR
+---
+## 개발 일지 Notion
+**https://impossible-soil-130.notion.site/23-CPLabs-5437e4d4342548048218044c2e5f7a50?pvs=74**
+---
+CPLabs 디파이 개발팀 화이팅!
